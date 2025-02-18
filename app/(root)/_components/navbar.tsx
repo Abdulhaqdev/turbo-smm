@@ -13,7 +13,7 @@ export default function Navbar() {
 	// const [isOpen, setIsOpen] = React.useState(false)
 
 	return (
-		<nav className="sticky top-0 z-50 w-full bg-black">
+		<nav className="sticky inset-0 top-0 z-50 w-full bg-black bg-opacity-40 backdrop-blur-md">
 			<div className="container flex h-20 items-center">
 				<div className="mr-4 flex">
 					<Link className="flex items-center space-x-2" href="/">

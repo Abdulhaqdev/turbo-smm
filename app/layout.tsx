@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   return (
     <html lang="en">
       <body
-        className={`bg-[#101013] ${noto_sans.variable} overflow-x-hidden`}
+        className={`bg-[#101013] ${noto_sans.variable} max-w-screen-xl mx-auto overflow-x-hidden`}
       >
         <Navbar/>
         {children}

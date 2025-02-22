@@ -13,7 +13,7 @@ export default function Navbar() {
   return (
     <>
       {/* Top Navbar (Sticky at the top, visible on all screens) */}
-      <nav className="sticky inset-0 top-0 z-50 w-full bg-opacity-40 backdrop-blur-md">
+      <nav className="sticky  inset-0 top-0 z-50 w-full bg-opacity-40 backdrop-blur-md">
         <div className="container flex h-20 items-center justify-between">
           <div className="flex items-center">
             <Link className="flex items-center space-x-2" href="/">

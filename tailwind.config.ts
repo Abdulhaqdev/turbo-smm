@@ -2,22 +2,23 @@ import type { Config } from "tailwindcss";
 
 export default {
     darkMode: ["class"],
-    content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+		content: [
+			"./pages/**/*.{js,ts,jsx,tsx,mdx}",
+			"./components/**/*.{js,ts,jsx,tsx,mdx}",
+			"./app/**/*.{js,ts,jsx,tsx,mdx}"
+		],		
   theme: {
   	container: {
-  		center: true,
-  		padding: '2rem',
-  		screens: {
-  			sm: '100%',
-  			md: '100%',
-  			lg: '1024',
-  			xl: '1280'
-  		}
-  	},
+			center: true,
+			padding: '2rem',
+			screens: {
+				sm: '100%',
+				md: '100%',
+				lg: '1024',
+				xl: '1280',
+				'2xl': "1400px"
+			},
+		},		
   	extend: {
   		colors: {
   			background: 'hsl(var(--background))',

@@ -63,9 +63,7 @@ export default function Navbar() {
             width={25}
             height={25}
             alt={link.label}
-            // className={`mix-blend-lighten ${
-            //   pathname === link.href ? "filter brightness-0 invert sepia saturate-1000 hue-rotate-90" : ""
-            // }`}
+          
           />
           <span
             className={`text-xs ${

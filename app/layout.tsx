@@ -3,10 +3,7 @@ import {   Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { ChilndProps } from '@/types'
 
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
+
 
 const noto_sans = Noto_Sans({
   variable: "--font-noto-sans",
@@ -25,6 +22,7 @@ export const metadata: Metadata = {
       <body
         className={` ${noto_sans.variable} overflow-x-hidden`}
       >
+        {/* <Navbar/> */}
         {children}
       </body>
     </html>

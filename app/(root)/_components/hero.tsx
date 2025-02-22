@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 
 export default function Page() {
   return (
-    <main className="  md:p-8">
+    <main className="  md:py-8">
       <div className="container flex flex-col gap-10 lg:flex-row lg:gap-8">
         {/* Left Section */}
         

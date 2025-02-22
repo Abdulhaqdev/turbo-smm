@@ -105,6 +105,8 @@ function page() {
           <div className="p-4 text-sm font-medium text-zinc-400">ID - Service</div>
           <div className="p-4 text-sm font-medium text-zinc-400">Rate per 1000</div>
           <div className="p-4 text-sm font-medium text-zinc-400">Average time</div>
+          {/* <div className="p-4 text-sm font-medium text-zinc-400"></div> */}
+
           <div className="p-4 w-[140px]"></div>
         </div>
         <div className="divide-y divide-zinc-800">

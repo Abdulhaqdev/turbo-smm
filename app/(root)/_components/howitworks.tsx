@@ -26,7 +26,7 @@ export default function HowItWorks() {
   ]
 
   return (
-    <section className="max-w-screen-xl mx-auto py-16 md:py-24">
+    <section className=" mx-auto py-16 md:py-24">
       <div className="container mx-auto">
         <div className="mb-16 flex flex-col items-center text-center">          
           <Image src={'/Light.svg'} width={48} height={48} alt={'Lightbulb'} className='mb-6' />

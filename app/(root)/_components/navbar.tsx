@@ -49,7 +49,7 @@ export default function Navbar() {
       </nav>
 
       {/* Bottom Navbar (Fixed at the bottom, visible only on mobile) */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 grid grid-cols-3 border-t border-gray-800 bg-black lg:hidden py-4">
+      <div className="fixed bottom-0 left-0 right-0 z-30 grid grid-cols-3 border-t border-gray-800 bg-black md:hidden py-4">
         
       {navLinks.map((link) => (
         <Link

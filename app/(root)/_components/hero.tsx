@@ -3,14 +3,14 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import Image from 'next/image'
-import Link from 'next/link'
+
 
 export default function Page() {
   return (
     <main className="  md:p-8">
       <div className="container flex flex-col gap-10 lg:flex-row lg:gap-8">
         {/* Left Section */}
+        
         <div className="flex flex-col  justify-center space-y-4 lg:w-1/2 xl:w-3/5">
           <h1 className="text-3xl font-bold md:text-4xl lg:text-5xl xl:text-6xl">
             <span className="bg-gradient-to-r from-[#818CF8] to-[#1D4ED8] bg-clip-text text-transparent">
@@ -84,23 +84,7 @@ export default function Page() {
             </CardFooter>
           </Card>
         </div>
-      </div>
-      {/* Mobile Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 grid grid-cols-3 border-t border-gray-800 bg-black lg:hidden py-4">
-        <Link href={'/'} className="flex flex-col items-center gap-1 text-white px-2">
-							<Image src={'/home.svg'} width={25} height={25} alt='home'/>
-          <span className="text-xs text-primary">Asosiy</span>
-        </Link>
-        <Link href={'/'} className="flex flex-col items-center gap-1 text-white px-2">
-				<Image src={'/service.svg'} width={25} height={25} alt='home'/>
-			
-          <span className="text-xs">Xizmatlar</span>
-        </Link>
-        <Link href={'/'} className="flex flex-col items-center gap-1 text-white px-2">
-					<Image src={'/users.svg'} width={25} height={25} alt='home'/>
-          <span className="text-xs">Biz Haqimizda</span>
-        </Link>
-      </div>
+      </div>     
     </main>
   )
 }

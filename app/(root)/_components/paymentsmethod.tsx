@@ -94,7 +94,7 @@ export default function PaymentMethods() {
 									width={100}
 									height={40}
 									style={{ width: 'auto', height: 'auto' }}
-									className='object-contain brightness-0 invert'
+									className='object-contain brightness-0 invert '
 								/>
 							</div>
 						))}

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import {   Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { ChilndProps } from '@/types'
+import Navbar from './(root)/_components/navbar'
+import Footer from './(root)/_components/footer'
 
 
 
@@ -20,10 +22,11 @@ export const metadata: Metadata = {
   return (
     <html lang="en">
       <body
-        className={` ${noto_sans.variable} overflow-x-hidden`}
+        className={`bg-[#101013] ${noto_sans.variable} overflow-x-hidden`}
       >
-        {/* <Navbar/> */}
+        <Navbar/>
         {children}
+        <Footer/>
       </body>
     </html>
   );

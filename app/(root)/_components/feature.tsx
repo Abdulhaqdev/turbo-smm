@@ -116,7 +116,8 @@ export default function Feature() {
 							</div>
 						))}
 					</div>
-					<div className='absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#101013] to-transparent pointer-events-none'></div>
+					<div className='absolute -top-1 left-0 w-full h-1/3 bg-gradient-to-b from-[#101013] to-transparent pointer-events-none'></div>
+					<div className='absolute -bottom-1 left-0 w-full h-1/3 bg-gradient-to-t from-[#101013] to-transparent pointer-events-none'></div>
 				</div>
 			</div>
 		</main>

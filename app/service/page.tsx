@@ -73,7 +73,7 @@ const services = [
     name: "Telegram Post View | Last 20 Post | Best | Always Working",
     details: "Min order: 10  Max order: 10 000 000",
     rate: "$0.09",
-    time: "6 hours",
+    time: "1 hours",
     timeColor: "text-emerald-500",
   },
 	{
@@ -89,8 +89,8 @@ const services = [
     name: "Telegram Post View | Last 20 Post | Best | Always Working",
     details: "Min order: 10  Max order: 10 000 000",
     rate: "$0.09",
-    time: "6 hours",
-    timeColor: "text-emerald-500",
+    time: "20 minutes",
+    timeColor: "text-blue-500",
   },
 ]
 
@@ -100,20 +100,18 @@ function page() {
     <div className="space-y-1 container">
       {/* Desktop View */}
       <div className="  hidden sm:block rounded-lg border border-zinc-800 bg-[#101013] text-white">
-        <div className="grid grid-cols-[80px,1fr,160px,160px,140px] items-center border-b border-zinc-800 ">
+        <div className="grid grid-cols-[30px,1fr,120px,120px,110px] md:grid-cols-[50px,1fr,150px,150px,140px] items-center border-b border-zinc-800 ">
           <div className="p-4 text-sm font-medium text-zinc-400">#</div>
           <div className="p-4 text-sm font-medium text-zinc-400">ID - Service</div>
           <div className="p-4 text-sm font-medium text-zinc-400">Rate per 1000</div>
           <div className="p-4 text-sm font-medium text-zinc-400">Average time</div>
-          {/* <div className="p-4 text-sm font-medium text-zinc-400"></div> */}
-
           <div className="p-4 w-[140px]"></div>
         </div>
         <div className="divide-y divide-zinc-800">
           {services.map((service, index) => (
             <div
               key={service.id}
-              className="grid grid-cols-[80px,1fr,160px,160px,140px] items-center hover:bg-zinc-900/50 transition-colors group"
+              className="grid grid-cols-[30px,1fr,120px,120px,110px] md:grid-cols-[50px,1fr,150px,150px,140px]  items-center hover:bg-zinc-900/50 transition-colors group"
             >
               <div className="p-4 text-sm font-medium text-zinc-500">{index + 1}</div>
               <div className="p-4 min-w-[200px] space-y-1">
@@ -122,7 +120,7 @@ function page() {
                 </div>
                 <div className="text-xs text-zinc-500">{service.details}</div>
               </div>
-              <div className="p-4 text-sm text-zinc-100 group-hover:text-white transition-colors">{service.rate}</div>
+              <div className="py-4 px-1 text-center text-sm text-zinc-100 group-hover:text-white transition-colors">{service.rate}</div>
               <div className={cn("p-4 text-sm", service.timeColor)}>{service.time}</div>
               <div className="p-4">
                 <Button className="w-full bg-[#155DFC] hover:bg-[#155DFC]/90 text-white transition-colors">

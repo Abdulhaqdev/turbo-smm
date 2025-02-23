@@ -41,11 +41,10 @@ export default function PaymentMethods() {
             Kredit va debet kartalari, banklar va boshqa variantlar orasidan tanlang. Sizning qulayligingiz va xavfsizligingiz biz uchun birinchi o'rinda.`}
 					</p>
 				</div>
-
 				{/* Marquee Container */}
-				<div className='relative w-full overflow-hidden before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-24 before:bg-gradient-to-r before:from-[#101013] before:to-transparent after:absolute after:right-0 after:top-0 after:z-10 after:h-full after:w-24 after:bg-gradient-to-l after:from-[#101013] after:to-transparent'>
+				<div className='relative w-full overflow-hidden before:absolute before:-left-1 before:top-0 before:z-10 before:h-full before:w-24 before:bg-gradient-to-r before:from-[#101013] before:to-transparent after:absolute after:-right-1 after:top-0 after:z-10 after:h-full after:w-24 after:bg-gradient-to-l after:from-[#101013] after:to-transparent'>
 					{/* Marquee Content 1 */}
-					<div className=' horizontal-marquee flex gap-8 py-1'>
+					<div className=' horizontal-marquee flex gap-6 py-1'>
 						{/* First set of logos */}
 						{paymentLogos.map((logo, index) => (
 							<div
@@ -81,7 +80,7 @@ export default function PaymentMethods() {
 					</div>
 
 					{/* Marquee Content 2 */}
-          <div className=' horizontal-marquee flex gap-8 pl-12 py-1'>
+          <div className=' horizontal-marquee flex gap-6 pl-14 py-1'>
 						{/* First set of logos */}
 						{paymentLogos2.map((logo, index) => (
 							<div
@@ -116,23 +115,6 @@ export default function PaymentMethods() {
 						))}
 					</div>
 				</div>
-				{/* <div className="horizontal-marquee grid grid-cols-2 gap-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {paymentLogos.map((logo, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-center p-4 transition-all duration-300 hover:scale-110"
-            >
-              <Image
-                src={logo.src || "/placeholder.svg"}
-                alt={`${logo.name} logo`}
-                width={100}
-                height={40}
-                style={{ width: "auto", height: "auto" }}
-                className="object-contain brightness-0 invert opacity-75 transition-opacity hover:opacity-100"
-              />
-            </div>
-          ))}
-        </div> */}
 			</div>
 		</section>
 	)

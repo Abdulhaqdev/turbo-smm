@@ -79,7 +79,7 @@ export default function Testimonials() {
             >
               <CardContent className="py-4">
                 <div className="relative z-10">
-                  <div className="mb-4 border-b-2 border-[#101013]">
+                  <div className="mb-4 border-b-2 border-[#27272d] ">
                     <h3 className="text-xl font-semibold text-white">
                       {testimonial.name}
                     </h3>
@@ -91,7 +91,7 @@ export default function Testimonials() {
                     {testimonial.quote}
                   </blockquote>
                 </div>
-                <div className="absolute right-6 top-6">
+                <div className="absolute right-6 top-5">
                   <svg
                     className="h-12 w-12 text-slate-400"
                     fill="currentColor"
@@ -115,9 +115,9 @@ export default function Testimonials() {
             >
               <CardContent className="py-4">
                 <div className="relative z-10">
-                  <div className="mb-4 border-b-2 border-[#101013]">
+                  <div className="mb-2 border-b-2 border-[#27272d]">
                     <h3 className="text-xl font-semibold text-white">
-                      {testimonial.name}
+                      {testimonial.name} 
                     </h3>
                     <p className="text-slate-400/80 text-sm mb-2">
                       {testimonial.title}
@@ -129,7 +129,7 @@ export default function Testimonials() {
                 </div>
                 <div className="absolute right-6 top-6">
                   <svg
-                    className="h-12 w-12 text-slate-400"
+                    className="h-10 w-10 text-slate-400"
                     fill="currentColor"
                     viewBox="0 0 32 32"
                     aria-hidden="true"
@@ -151,8 +151,8 @@ export default function Testimonials() {
             >
               <CardContent className="py-4">
                 <div className="relative z-10">
-                  <div className="mb-4 border-b-2 border-[#101013]">
-                    <h3 className="text-xl font-semibold text-white">
+                  <div className="mb-4 border-b-2 border-[#27272d]">
+                    <h3 className="text-base font-semibold text-white">
                       {testimonial.name}
                     </h3>
                     <p className="text-slate-400/80 text-sm mb-2">
@@ -163,7 +163,7 @@ export default function Testimonials() {
                     {testimonial.quote}
                   </blockquote>
                 </div>
-                <div className="absolute right-6 top-6">
+                <div className="absolute right-3 top-4">
                   <svg
                     className="h-12 w-12 text-slate-400"
                     fill="currentColor"

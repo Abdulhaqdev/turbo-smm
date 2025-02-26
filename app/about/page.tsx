@@ -1,10 +1,20 @@
 import React from 'react'
+import HeroAboutus from '../(root)/_components/hero-aboutus'
+import Feature from '../(root)/_components/feature'
+import HowItWorks from '../(root)/_components/howitworks'
+import HeroSupport from '../(root)/_components/hero-support'
+import HeroTestimonials from '../(root)/_components/hero-testimonials'
 
 function page() {
 	return (
-		<div className='w-screen mx-auto h-96 flex justify-center items-center'>
-			<h1 className='text-6xl  text-blue-500'>About us</h1>
-		</div>
+	<>
+		<HeroAboutus/>
+		<Feature/>
+		<HowItWorks/>
+		<HeroSupport/>
+		<HeroTestimonials/>
+		
+	</>
 	)
 }
 

@@ -4,7 +4,7 @@ function page() {
 	return (
 		<div className='container'>
 			 <h1>
-				aaa
+				
 				</h1>
 				</div>
 	)

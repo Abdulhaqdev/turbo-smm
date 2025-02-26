@@ -69,7 +69,7 @@ export default function Feature() {
 					{`O'zbekiston bo'ylab ijtimoiy tarmoqlarda o'sish uchun ishonchli xizmat.`}
 				</h1>
 				<p className='mb-12 px-6 text-sm md:text-lg text-slate-400'>
-					{`Qoniqarli mijozlar tarmog'iga qo'shiling. Bizning platformamiz har 0.20 soniyada bir buyurtmani yakunlaydi va raqobatbardosh xizmatlarimiz 1 000 dona uchun 1 000 so'mdan boshlanadi.`}
+					{`Qoniqarli mijozlar tarmog'iga qo'shiling. Bizning platformamiz har 100 soniyada bir buyurtmani yakunlaydi va raqobatbardosh xizmatlarimiz 1000 dona uchun 1000 so'mdan boshlanadi.`}
 				</p>
 				<div className='mb-16 grid grid-cols-1 gap-1 mx-10 md:grid-cols-3'>
 					<div className='text-center'>
@@ -89,7 +89,7 @@ export default function Feature() {
 							<CountUpAnimation
 								end={1000}
 								duration={1500}
-								suffix=' UZS/1,000'
+								suffix=' UZS/1000'
 							/>
 						</p>
 						<p className='text-sm text-gray-400'>Narxlar boshlanadi</p>

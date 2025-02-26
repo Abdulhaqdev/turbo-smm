@@ -4,13 +4,10 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 
-
 export default function Page() {
   return (
     <main className="  md:py-8">
       <div className="container flex flex-col gap-10 lg:flex-row lg:gap-8">
-        {/* Left Section */}
-        
         <div className="flex flex-col  justify-center space-y-4 lg:w-1/2 xl:w-3/5">
           <h1 className="text-3xl font-bold md:text-4xl lg:text-5xl xl:text-6xl">
             <span className="bg-gradient-to-r from-[#818CF8] to-[#1D4ED8] bg-clip-text text-transparent">
@@ -84,6 +81,7 @@ export default function Page() {
             </CardFooter>
           </Card>
         </div>
+        
       </div>     
     </main>
   )

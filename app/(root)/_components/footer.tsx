@@ -4,7 +4,7 @@ import Link from "next/link"
 export default function Footer() {
   return (
     <footer className=" border-gray-800 ">
-      <div className="container  px-4 py-12 mb-14 md:mb-10 md:px-6">
+      <div className="container   mb-14 md:mb-10 md:px-6">
         <div className="mb-12 text-start max-w-3xl">
 				<Link className="flex items-center space-x-2" href="/">
 						<Image src={'/logo.svg' } alt='logo' width={150} height={20}/>
@@ -14,7 +14,7 @@ export default function Footer() {
             your SMM panel.
           </p>
         </div>
-        <div className="grid  md:text-start grid-cols-2  mdgap-12 md:grid-cols-2 lg:grid-cols-4 border-t border-gray-800 pt-8 md:flex-row">
+        <div className="grid  md:text-start grid-cols-2 gap-6 md:gap-12 md:grid-cols-2 lg:grid-cols-4 border-t border-gray-800 pt-8 md:flex-row">
           <div>
             <h3 className="mb-6 text-sm font-semibold uppercase tracking-wider text-gray-400">Quick Links</h3>
             <ul className="space-y-4">
@@ -55,7 +55,7 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-          <div>
+          <div className=' '>
             <h3 className="mb-6 text-sm font-semibold uppercase tracking-wider text-gray-400">Developers</h3>
             <ul className="space-y-4">
               <li>
@@ -65,7 +65,7 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-          <div>
+          <div className=''>
             <h3 className="mb-6 text-sm font-semibold uppercase tracking-wider text-gray-400">Pages</h3>
             <ul className="space-y-4">
               <li>

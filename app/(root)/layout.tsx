@@ -10,7 +10,7 @@ import FAQSection from './_components/faq'
 
 function Layout({ children }: ChilndProps) {
 	return (
-		<main className='bg-[#101013]'>
+		<main className='bg-background'>
 			<Hero/>
 			<Feature/>
 			<PaymentMethods/>

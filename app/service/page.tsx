@@ -99,7 +99,7 @@ function page() {
   return (
     <div className="space-y-1 container">
       {/* Desktop View */}
-      <div className="  hidden sm:block rounded-lg border border-zinc-800 bg-[#101013] text-white">
+      <div className="  hidden sm:block rounded-lg border border-zinc-800  dark:bg-[#101013] text-white">
         <div className="grid grid-cols-[30px,1fr,120px,120px,110px] md:grid-cols-[50px,1fr,150px,150px,140px] items-center border-b border-zinc-800 ">
           <div className="p-4 text-sm font-medium text-zinc-400">#</div>
           <div className="p-4 text-sm font-medium text-zinc-400">ID - Service</div>
@@ -135,7 +135,7 @@ function page() {
       {/* Mobile View */}
       <div className="sm:hidden  space-y-3">
         {services.map((service, index) => (
-          <div key={service.id} className="rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden">
+          <div key={service.id} className="rounded-lg border border-zinc-800  overflow-hidden">
             <div className="p-4 space-y-3">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
@@ -164,13 +164,13 @@ function page() {
 
       <div className="w-full flex justify-center pb-4 pt-2">
         <div className="w-full overflow-auto">
-          <div className="flex justify-center min-w-[320px]">
+          <div className="flex justify-center min-w-[200px]">
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
                     href="#"
-                    className="text-white bg-zinc-900 border-zinc-800"
+                    className="text-white dark:bg-zinc-900 border-zinc-800"
                   />
                 </PaginationItem>
                 {[1, 2, 3].map((page) => (

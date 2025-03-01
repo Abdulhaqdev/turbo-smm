@@ -115,12 +115,12 @@ function page() {
             >
               <div className="p-4 text-sm font-medium text-zinc-500">{index + 1}</div>
               <div className="p-4 min-w-[200px] space-y-1">
-                <div className="text-sm font-medium text-zinc-100 group-hover:text-white transition-colors">
+                <div className="text-sm font-medium dark:text-zinc-100 text-black group-hover:text-white transition-colors">
                   {service.name}
                 </div>
                 <div className="text-xs text-zinc-500">{service.details}</div>
               </div>
-              <div className="py-4 px-1 text-center text-sm text-zinc-100 group-hover:text-white transition-colors">{service.rate}</div>
+              <div className="py-4 px-1 text-center text-sm dark:text-zinc-100 text-black group-hover:text-white transition-colors">{service.rate}</div>
               <div className={cn("p-4 text-sm", service.timeColor)}>{service.time}</div>
               <div className="p-4">
                 <Button className="w-full bg-[#155DFC] hover:bg-[#155DFC]/90 text-white transition-colors">
@@ -141,8 +141,8 @@ function page() {
                 <div className="flex items-center gap-2">
                   <div className="text-sm font-medium text-zinc-500">#{index + 1}</div>
                 </div>
-                <div className="text-sm font-medium text-zinc-100">{service.name}</div>
-                <div className="text-xs text-zinc-500">{service.details}</div>
+                <div className="text-sm font-medium text-black dark:text-zinc-500">{service.name}</div>
+                <div className="text-xs text-black dark:text-zinc-500">{service.details}</div>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <div className="text-zinc-400">Rate per 1000</div>
@@ -170,7 +170,7 @@ function page() {
                 <PaginationItem>
                   <PaginationPrevious
                     href="#"
-                    className="text-white dark:bg-zinc-900 border-zinc-800"
+                    className="text-black dark:text-white dark:bg-zinc-900 bg-white border-zinc-800"
                   />
                 </PaginationItem>
                 {[1, 2, 3].map((page) => (
@@ -181,7 +181,7 @@ function page() {
                         "text-white border-zinc-800 transition-all duration-200 ease-in-out h-8 w-8 sm:h-9 sm:w-9 text-sm sm:text-base",
                         page === 1
                           ? "bg-[#155DFC] border-[#155DFC] hover:bg-[#155DFC] hover:text-white hover:border-[#155DFC]"
-                          : "bg-zinc-900 hover:bg-white hover:text-zinc-900 hover:border-zinc-300",
+                          : "text-black dark:text-white dark:bg-zinc-900 bg-white hover:bg-white hover:text-zinc-900 hover:border-zinc-300",
                       )}
                     >
                       {page}
@@ -190,15 +190,14 @@ function page() {
                 ))}
                 <PaginationItem>
                   <PaginationEllipsis
-                    className="text-white bg-zinc-900 border border-zinc-800
+                    className="text-black dark:text-white dark:bg-zinc-900 bg-white border border-zinc-800
                       transition-all duration-200 ease-in-out h-8 w-8 sm:h-9 sm:w-9"
                   />
                 </PaginationItem>
                 <PaginationItem>
                   <PaginationNext
                     href="#"
-										className="text-white bg-zinc-900 border-zinc-800"
-
+										className="text-black dark:text-white dark:bg-zinc-900 bg-white border-zinc-800"
                   />
                 </PaginationItem>
               </PaginationContent>

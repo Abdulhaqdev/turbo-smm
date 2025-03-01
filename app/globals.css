@@ -93,7 +93,7 @@
 }
 
 .horizontal-marquee {
-  animation: horizontalScroll 6s linear infinite;
+  animation: horizontalScroll 10s linear infinite;
 }
 
 @layer base {

@@ -2,15 +2,15 @@ import Image from "next/image"
 
 export default function HeroAboutus() {
   return (
-    <main className="min-h-screen container">
+    <main className="min-h-screen container max-w-screen-xl mx-auto">
       {/* Hero Section */}
       <section className="py-16  md:py-24">
         <div className=" px-4 mx-auto">
           <div className="max-w-6xl mx-auto text-center mb-20">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-              <span className="text-white">Biz bilan bugun </span>
+              <span className="text-black dark:text-white">Biz bilan bugun </span>
               <span className="text-blue-500">Ijtimoiy tarmoqlardagi</span>
-              <span className="text-white"> profilingizni yaxshilang!</span>
+              <span className="text-black dark:text-white"> profilingizni yaxshilang!</span>
             </h1>
             <p className="text-gray-400 text-base md:text-lg mb-8 max-w-5xl mx-auto">
            {`   Veb-saytimizga xush kelibsiz! Biz bu yerda biznesingizni raqamli dunyoda rivojlanishi uchun yordam
@@ -30,7 +30,7 @@ export default function HeroAboutus() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12 items-center">
           {/* Text Content */}
           <div className="lg:max-w-xl text-center lg:text-start mx-auto lg:mx-0">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black dark:text-white mb-4">
               Ijtimoiy tarmoqlardagi ajoyib marketing xizmatlarimizni kashf eting!
             </h2>
             <p className="text-gray-400 text-base md:text-lg">

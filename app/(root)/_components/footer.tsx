@@ -3,83 +3,83 @@ import Link from "next/link"
 
 export default function Footer() {
   return (
-    <footer className=" border-gray-800 ">
+    <footer className=" border-gray-800  max-w-screen-xl mx-auto">
       <div className="container   mb-14 md:mb-10 md:px-6">
         <div className="mb-12 text-start max-w-3xl">
 				<Link className="flex items-center space-x-2" href="/">
 						<Image src={'/logo.svg' } alt='logo' width={150} height={20}/>
 					</Link>
-          <p className="mt-4 text-gray-400">
+          <p className="mt-4 dark:text-gray-400 text-black">
             Created by TURBO SMM, with a clean design and high-quality components and templates. An ideal choice for
             your SMM panel.
           </p>
         </div>
         <div className="grid  md:text-start grid-cols-2 gap-6 md:gap-12 md:grid-cols-2 lg:grid-cols-4 border-t border-gray-800 pt-8 md:flex-row">
           <div>
-            <h3 className="mb-6 text-sm font-semibold uppercase tracking-wider text-gray-400">Quick Links</h3>
+            <h3 className="mb-6 text-sm font-semibold uppercase tracking-wider dark:text-gray-400 text-black">Quick Links</h3>
             <ul className="space-y-4">
               <li>
-                <Link href="/" className="text-gray-300 hover:text-white">
+                <Link href="/" >
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/signup" className="text-gray-300 hover:text-white">
+                <Link href="/signup" >
                   Sign Up
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="text-gray-300 hover:text-white">
+                <Link href="/services" >
                   Services
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="mb-6 text-sm font-semibold uppercase tracking-wider text-gray-400">Company</h3>
-            <ul className="space-y-4">
+            <h3 className="mb-6 text-sm font-semibold uppercase tracking-wider dark:text-gray-400 text-black">Company</h3>
+            <ul className="space-y-4 dark:text-gray-400 text-black">
               <li>
-                <Link href="/terms" className="text-gray-300 hover:text-white">
+                <Link href="/terms" className=" ">
                   Service Terms
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-gray-300 hover:text-white">
+                <Link href="/about" className="">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/support" className="text-gray-300 hover:text-white">
+                <Link href="/support" className=" ">
                   Support
                 </Link>
               </li>
             </ul>
           </div>
           <div className=' '>
-            <h3 className="mb-6 text-sm font-semibold uppercase tracking-wider text-gray-400">Developers</h3>
+            <h3 className="mb-6 text-sm font-semibold uppercase tracking-wider dark:text-gray-400 text-black">Developers</h3>
             <ul className="space-y-4">
               <li>
-                <Link href="/api" className="text-gray-300 hover:text-white">
+                <Link href="/api" >
                   API
                 </Link>
               </li>
             </ul>
           </div>
           <div className=''>
-            <h3 className="mb-6 text-sm font-semibold uppercase tracking-wider text-gray-400">Pages</h3>
+            <h3 className="mb-6 text-sm font-semibold uppercase tracking-wider dark:text-gray-400 text-black">Pages</h3>
             <ul className="space-y-4">
               <li>
-                <Link href="/" className="text-gray-300 hover:text-white">
+                <Link href="/" className="dark:text-gray-400 text-black hover:text-white">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/service" className="text-gray-300 hover:text-white">
+                <Link href="/service" className="dark:text-gray-400 text-black hover:text-white">
                   Service
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-gray-300 hover:text-white">
+                <Link href="/about" className="dark:text-gray-400 text-black hover:text-white">
                   About Us
                 </Link>
               </li>

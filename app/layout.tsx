@@ -22,11 +22,11 @@ function RootLayout({ children }: ChilndProps) {
 	return (
 		<html lang='en' suppressHydrationWarning>
 			<body
-				className={`  ${noto_sans.variable} max-w-screen-xl mx-auto overflow-x-hidden`}
+				className={` ${noto_sans.variable}  dark:bg-[#101013]   overflow-x-hidden`}
 			>
 				<ThemeProvider
 					attribute='class'
-					defaultTheme='system'
+					defaultTheme='dark'
 					enableSystem
 					disableTransitionOnChange
 				>

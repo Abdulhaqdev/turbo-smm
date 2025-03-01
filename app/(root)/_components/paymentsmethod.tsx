@@ -1,6 +1,8 @@
 'use client'
 
 import Image from 'next/image'
+import { useTheme } from 'next-themes' // Import useTheme for theme detection
+import { useState, useEffect } from 'react' // Import useEffect for hydration handling
 
 const paymentLogos = [
 	{ name: 'Uzumbank', src: '/payments/Uzum.svg' },
@@ -9,8 +11,8 @@ const paymentLogos = [
 	{ name: 'TBC Bank', src: '/payments/Tbc.svg' },
 	{ name: 'SmartBank', src: '/payments/Smartbank.svg' },
 	{ name: 'Apelsin', src: '/payments/Apelsin.svg' },
-
 ]
+
 const paymentLogos2 = [
 	{ name: 'SQB', src: '/payments/Sqb.svg' },
 	{ name: 'InfinBank', src: '/payments/Infinback.svg' },
@@ -20,18 +22,64 @@ const paymentLogos2 = [
 	{ name: 'MBank', src: '/payments/Mk.svg' },
 ]
 
+const paymentLogoslight = [
+	{ name: 'Uzumbank', src: '/paymentslight/uzum.svg' },
+	{ name: 'Click', src: '/paymentslight/click.svg' },
+	{ name: 'Kapital Bank', src: '/paymentslight/kapitalbank.svg' },
+	{ name: 'TBC Bank', src: '/paymentslight/tbc.svg' },
+	{ name: 'SmartBank', src: '/paymentslight/smartbank.svg' },
+	{ name: 'Apelsin', src: '/paymentslight/apelsin.svg' },
+]
+
+const paymentLogoslight2 = [
+	{ name: 'SQB', src: '/paymentslight/sqb.svg' },
+	{ name: 'InfinBank', src: '/paymentslight/infinbank.svg' },
+	{ name: 'Payme', src: '/paymentslight/payme.svg' },
+	{ name: 'Aloqa Bank', src: '/paymentslight/aloqabank.svg' },
+	{ name: 'Anor Bank', src: '/paymentslight/accobank.svg' },
+	{ name: 'MBank', src: '/paymentslight/mkbank.svg' },
+]
 
 export default function PaymentMethods() {
+	const { resolvedTheme } = useTheme() // Use resolvedTheme for guaranteed value
+	const [mounted, setMounted] = useState(false) // Track if component is mounted on client
+
+	// Ensure the component is mounted on the client before rendering dynamic styles
+	useEffect(() => {
+		setMounted(true)
+	}, [])
+
+	// Determine which logos to use based on theme
+	const currentPaymentLogos = mounted
+		? resolvedTheme === 'dark'
+			? paymentLogos
+			: paymentLogoslight
+		: paymentLogoslight // Fallback for SSR (use light mode logos)
+
+	const currentPaymentLogos2 = mounted
+		? resolvedTheme === 'dark'
+			? paymentLogos2
+			: paymentLogoslight2
+		: paymentLogoslight2 // Fallback for SSR (use light mode logos)
+
 	return (
-		<section className='py-16 md:py-24 '>
+		<section className='py-16 md:py-24 max-w-screen-2xl mx-auto'>
 			<div className='container mx-auto max-w-screen-2xl md:px-20'>
 				<div className='mb-12 flex flex-col items-center text-center'>
+					
 					<Image
-						src='/Icon.svg'
-						width={40}
-						height={40}
-						alt='icon'
-						className='mb-6'
+						src={'/Group.svg'}
+						width={48}
+						height={48}
+						alt='group'
+						className='mb-6 flex dark:hidden'
+					/>
+					<Image
+						src={'/Icon.svg'}
+						width={48}
+						height={48}
+						alt='group'
+						className='mb-6 hidden dark:flex'
 					/>
 					<h2 className='mb-4 text-2xl font-bold bg-gradient-to-r from-green-400 to-green-700 bg-clip-text text-transparent md:text-4xl'>
 						{`Xavfsiz va Moslashuvchan To'lov Variantlari`}
@@ -41,12 +89,11 @@ export default function PaymentMethods() {
             Kredit va debet kartalari, banklar va boshqa variantlar orasidan tanlang. Sizning qulayligingiz va xavfsizligingiz biz uchun birinchi o'rinda.`}
 					</p>
 				</div>
-				{/* Marquee Container */}
-				<div className='relative w-full overflow-hidden before:absolute before:-left-1 before:top-0 before:z-10 before:h-full before:w-24 before:bg-gradient-to-r before:from-[#101013] before:to-transparent after:absolute after:-right-1 after:top-0 after:z-10 after:h-full after:w-24 after:bg-gradient-to-l after:from-[#101013] after:to-transparent'>
-					{/* Marquee Content 1 */}
-					<div className=' horizontal-marquee flex gap-6 py-1'>
+				{/* Marquee Container for First Set of Logos */}
+				<div className='relative w-full overflow-hidden before:absolute before:-left-1 before:top-0 before:z-10 before:h-full before:w-24 before:bg-gradient-to-r before:dark:from-[#101013] before:from-white before:to-transparent after:absolute after:-right-1 after:top-0 after:z-10 after:h-full after:w-24 after:bg-gradient-to-l after:dark:from-[#101013] after:from-white after:to-transparent'>
+					<div className='horizontal-marquee flex gap-6 '>
 						{/* First set of logos */}
-						{paymentLogos.map((logo, index) => (
+						{currentPaymentLogos.map((logo, index) => (
 							<div
 								key={index}
 								className='flex h-16 w-32 shrink-0 items-center justify-center'
@@ -57,12 +104,12 @@ export default function PaymentMethods() {
 									width={100}
 									height={40}
 									style={{ width: 'auto', height: 'auto' }}
-									className='object-contain brightness-0 invert'
+									className='object-contain'
 								/>
 							</div>
 						))}
 						{/* Duplicate set for seamless loop */}
-						{paymentLogos.map((logo, index) => (
+						{currentPaymentLogos.map((logo, index) => (
 							<div
 								key={`copy-${index}`}
 								className='flex h-16 w-32 shrink-0 items-center justify-center'
@@ -73,19 +120,21 @@ export default function PaymentMethods() {
 									width={100}
 									height={40}
 									style={{ width: 'auto', height: 'auto' }}
-									className='object-contain brightness-0 invert  '
+									className='object-contain'
 								/>
 							</div>
 						))}
 					</div>
+				</div>
 
-					{/* Marquee Content 2 */}
-          <div className=' horizontal-marquee flex gap-6 pl-14 py-1'>
+				{/* Marquee Container for Second Set of Logos */}
+				<div className='relative w-full overflow-hidden mt-8 before:absolute before:-left-1 before:top-0 before:z-10 before:h-full before:w-24 before:bg-gradient-to-r before:dark:from-[#101013] before:from-white before:to-transparent after:absolute after:-right-1 after:top-0 after:z-10 after:h-full after:w-24 after:bg-gradient-to-l after:dark:from-[#101013] after:from-white after:to-transparent'>
+					<div className='horizontal-marquee flex gap-6 ml-16 '>
 						{/* First set of logos */}
-						{paymentLogos2.map((logo, index) => (
+						{currentPaymentLogos2.map((logo, index) => (
 							<div
 								key={index}
-								className='flex h-16 w-32 shrink-0 items-center justify-center'
+								className='flex h-16 w-32 shrink-0 items-center  justify-center'
 							>
 								<Image
 									src={logo.src || '/placeholder.svg'}
@@ -93,12 +142,12 @@ export default function PaymentMethods() {
 									width={100}
 									height={40}
 									style={{ width: 'auto', height: 'auto' }}
-									className='object-contain brightness-0 invert '
+									className='object-contain'
 								/>
 							</div>
 						))}
 						{/* Duplicate set for seamless loop */}
-						{paymentLogos2.map((logo, index) => (
+						{currentPaymentLogos2.map((logo, index) => (
 							<div
 								key={`copy-${index}`}
 								className='flex h-16 w-32 shrink-0 items-center justify-center'
@@ -109,7 +158,7 @@ export default function PaymentMethods() {
 									width={100}
 									height={40}
 									style={{ width: 'auto', height: 'auto' }}
-									className='object-contain brightness-0 invert  '
+									className='object-contain'
 								/>
 							</div>
 						))}

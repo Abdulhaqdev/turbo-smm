@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 
 export default function ToolsSection() {
   return (
+    
 <section className="h-[500px] max-w-screen-xl mx-auto bg-[url('/Background.svg')] bg-cover bg-center flex items-center justify-center">
         <div className="container mx-auto ">
           <div className="mx-auto max-w-3xl text-center">

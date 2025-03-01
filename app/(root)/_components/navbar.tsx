@@ -13,19 +13,25 @@ export default function Navbar() {
 
 	return (
 		<>
+		
 			{/* Top Navbar (Sticky at the top, visible on all screens) */}
-			<nav className='sticky  inset-0 top-0 z-50 w-full  dark:text-white text-black bg-opacity-40 backdrop-blur-md'>
+			<nav className='sticky lg:px-28 max-w-screen-2xl mx-auto inset-0 top-0 z-50 w-full  dark:text-white text-black bg-opacity-40 backdrop-blur-md'>
 				<div className='container flex h-20 items-center justify-between'>
 					<div className='flex items-center'>
-						<Link className='flex items-center space-x-2' href='/'>
-							<Image src='/logo.svg' alt='logo' width={150} height={20} />
+						<Link className='dark:flex hidden items-center space-x-2' href='/'>
+							<Image src={`/logo.svg`} alt='logo' width={150} height={20} />
 						</Link>
+						<Link className=' dark:hidden flex items-center space-x-2' href='/'>
+							<Image src={`/turbosmm.svg`} alt='logo' width={150} height={20} />
+						</Link>
+
 					</div>
 
 					{/* Desktop Navigation */}
 					<div className='hidden md:flex md:items-center md:space-x-8'>
+						<div >
 						<ModeToggle />
-
+						</div>
 						{NAV_LINKS.map(link => (
 							<Link
 								key={link.href}
@@ -54,13 +60,13 @@ export default function Navbar() {
 			</nav>
 
 			{/* Bottom Navbar (Fixed at the bottom, visible only on mobile) */}
-			<div className='fixed bottom-0 left-0 right-0 z-30 grid grid-cols-3 border-t border-gray-800  md:hidden py-4'>
+			<div className='fixed bottom-0 left-0 right-0 z-30 grid grid-cols-3 border-t border-gray-800  md:hidden py-4 dark:text-black text-white dark:bg-black bg-white bg-opacity-40 backdrop-blur-md  '>
 				<Link
 					href='/'
 					className={`flex flex-col items-center gap-1 px-2 ${
 						pathname === '/'
 							? 'text-blue-500'
-							: 'text-white hover:text-blue-500'
+							: 'dark:text-white text-black hover:text-blue-500'
 					}`}
 				>
 					<svg
@@ -82,7 +88,7 @@ export default function Navbar() {
 					className={`flex flex-col items-center gap-1 px-2 ${
 						pathname === '/service'
 							? 'text-blue-500'
-							: 'text-white hover:text-blue-500'
+							: 'dark:text-white text-black hover:text-blue-500'
 					}`}
 				>
 					<svg
@@ -104,7 +110,7 @@ export default function Navbar() {
 					className={`flex flex-col items-center gap-1 px-2 ${
 						pathname === '/about'
 							? 'text-blue-500'
-							: 'text-white hover:text-blue-500'
+							: 'dark:text-white text-black hover:text-blue-500'
 					}`}
 				>
 					<svg
@@ -121,7 +127,7 @@ export default function Navbar() {
 					</svg>
 					<span className='text-xs'>Biz Haqimizda</span>
 				</Link>
-				<ModeToggle />
+				{/* <ModeToggle /> */}
 			</div>
 		</>
 	)

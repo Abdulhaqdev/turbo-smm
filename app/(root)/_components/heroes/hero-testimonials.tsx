@@ -88,7 +88,6 @@ export default function HeroTestimonials() {
             backgroundImage: `url('/cover.svg')`,
           }}
         >
-          {/* <div className="absolute dark:flex hidden  inset-0 bg-gradient-to-r from-black/10 to-black/30" /> */}
         </div>
 
         <div className="container relative px-4 mx-auto">

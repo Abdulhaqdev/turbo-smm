@@ -1,66 +1,62 @@
 'use client'
 
-import * as React from 'react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import Image from 'next/image'
-import { NAV_LINKS } from '@/constants' // Ensure both imports are correct
-import { usePathname } from 'next/navigation' // Import usePathname
 import ModeToggle from '@/components/shared/ModeToggle'
+import { NAV_LINKS } from '@/constants' // Ensure both imports are correct
+import Image from 'next/image'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation' // Import usePathname
 
 export default function Navbar() {
 	const pathname = usePathname() // Get the current route
-
+	const router = useRouter()
 	return (
 		<>
-		
 			{/* Top Navbar (Sticky at the top, visible on all screens) */}
-			<nav className='sticky lg:px-28 max-w-screen-2xl mx-auto inset-0 top-0 z-50 w-full  dark:text-white text-black bg-opacity-40 backdrop-blur-md'>
+			<nav className='sticky lg:px-28 max-w-screen-2xl mx-auto inset-0 top-0 z-50 w-full dark:text-white text-black bg-opacity-40 backdrop-blur-md'>
 				<div className='container flex h-20 items-center justify-between'>
 					<div className='flex items-center'>
-						<Link className='dark:flex hidden items-center space-x-2' href='/'>
+						{/* Logo links to homepage (/) */}
+						<div
+							className='dark:flex hidden items-center space-x-2'
+							onClick={() => router.push('/')}
+						>
 							<Image src={`/logo.svg`} alt='logo' width={150} height={20} />
-						</Link>
-						<Link className=' dark:hidden flex items-center space-x-2' href='/'>
+						</div>
+						<Link className='dark:hidden flex items-center space-x-2' href='/'>
 							<Image src={`/turbosmm.svg`} alt='logo' width={150} height={20} />
 						</Link>
-
 					</div>
 
 					{/* Desktop Navigation */}
 					<div className='hidden md:flex md:items-center md:space-x-8'>
-						<div >
-						<ModeToggle />
+						<div>
+							<ModeToggle />
 						</div>
 						{NAV_LINKS.map(link => (
 							<Link
 								key={link.href}
 								href={link.href}
 								className={`transition-colors hover:text-blue-500 ${
-									pathname === link.href
-										? 'text-blue-500 font-bold'
-										: ''
+									pathname === link.href ? 'text-blue-500 font-bold' : ''
 								}`}
 							>
 								{link.label}
 							</Link>
 						))}
-						<Button className='bg-blue-600 rounded-lg hover:bg-blue-700'>
-							Boshlash
-						</Button>
+						{/* <Button className='bg-blue-600 rounded-lg hover:bg-blue-700'>
+              Boshlash
+            </Button> */}
 					</div>
 
 					{/* Mobile Navigation (Top - "Boshlash" button only) */}
 					<div className='md:hidden'>
-						<Button className='bg-blue-600 rounded-lg text-white hover:bg-blue-700'>
-							Boshlash
-						</Button>
+						<ModeToggle />
 					</div>
 				</div>
 			</nav>
 
 			{/* Bottom Navbar (Fixed at the bottom, visible only on mobile) */}
-			<div className='fixed bottom-0 left-0 right-0 z-30 grid grid-cols-3 border-t border-gray-800  md:hidden py-4 dark:text-black text-white dark:bg-black bg-white bg-opacity-40 backdrop-blur-md  '>
+			<div className='fixed bottom-0 left-0 right-0 z-30 grid grid-cols-3 border-t border-gray-800 md:hidden py-4 dark:text-black text-white dark:bg-black bg-white bg-opacity-40 backdrop-blur-md'>
 				<Link
 					href='/'
 					className={`flex flex-col items-center gap-1 px-2 ${

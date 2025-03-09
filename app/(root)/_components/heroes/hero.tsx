@@ -27,7 +27,7 @@ export default function Page() {
   const defaultBackground = "/lighthero.png"; // Use a default image for SSR
 
   return (
-    <main className="max-w-screen-2xl mx-auto ">
+    <main className="max-w-screen-2xl mx-auto bg-black ">
       <div
         className="inset-0 flex bg-cover bg-center bg-no-repeat py-14"
         style={{

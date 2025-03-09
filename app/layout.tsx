@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import { Noto_Sans } from 'next/font/google'
 import './globals.css'
 import { ChilndProps } from '@/types'
-import Navbar from './(root)/_components/navbar'
-import Footer from './(root)/_components/footer'
+import Navbar from './(root)/_components/headers/navbar'
+import Footer from './(root)/_components/footers/footer'
 import { ThemeProvider } from '@/components/provider/theme-provider'
 
 const noto_sans = Noto_Sans({
@@ -20,8 +20,8 @@ export const metadata: Metadata = {
 
 function RootLayout({ children }: ChilndProps) {
 	return (
-		<html lang='en' suppressHydrationWarning>
-			<body
+		<html lang='en' suppressHydrationWarning className='scroll-smooth'>
+			<body id="top"
 				className={` ${noto_sans.variable}  dark:bg-[#101013]   overflow-x-hidden`}
 			>
 				<ThemeProvider

@@ -17,9 +17,7 @@ export default function HeroAboutus() {
               beramiz. Saytimizda ijtimoiy tarmoqlarda o'sish uchun juda arzon narxlarda sotib olishingiz mumkin bo'lgan
               ko'plab xizmatlar mavjud.`}
             </p>
-            {/* <Button className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 px-8 py-6 text-lg rounded-xl">
-              Boshlash
-            </Button> */}
+          
           </div>
         </div>
       </section>

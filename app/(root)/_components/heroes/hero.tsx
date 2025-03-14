@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // Router uchun import
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -12,22 +13,71 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { useTheme } from "next-themes"; // Ensure next-themes is installed
+import { useTheme } from "next-themes";
+import Link from "next/link";
+// import { apiService, ApiResponse } from "@/lib/apiService"; // API Service import
+// import { LoginData, LoginResponse, LoginErrors } from "./page"; // Type'lar import
+import Cookies from "js-cookie"; // Tokenni saqlash uchun
+import { ApiResponse, apiService } from '@/lib/apiservise'
+import { LoginData, LoginErrors, LoginResponse } from '@/types/login'
 
 export default function Page() {
-  const { resolvedTheme } = useTheme(); // Use resolvedTheme for guaranteed value
-  const [mounted, setMounted] = useState(false); // Track if component is mounted on client
+  const { resolvedTheme } = useTheme();
+  const router = useRouter(); // Router uchun
+  const [mounted, setMounted] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<LoginErrors>({ username: "", password: "", general: "" });
 
-  // Ensure the component is mounted on the client before rendering dynamic styles
+  // Komponentni client tomonida mount qilish
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Fallback background for SSR (use a static value or empty to avoid mismatches)
-  const defaultBackground = "/lighthero.png"; // Use a default image for SSR
+  // Login so'rovini yuborish
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setErrors({ username: "", password: "", general: "" });
+
+    const loginData: LoginData = { username, password };
+    const response: ApiResponse<LoginResponse> = await apiService.post("/api/token/", loginData);
+
+    if (response.status === 200 && response.data) {
+      // Tokenni cookie ga saqlash
+      Cookies.set("accessToken", response.data.access, {
+        expires: 1, // 1 kun
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+      });
+      if (rememberMe) {
+        Cookies.set("refreshToken", response.data.refresh, {
+          expires: 7, // 1 hafta
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "Strict",
+        });
+      }
+      console.log("Login: Token saqlandi:", Cookies.get("accessToken")); // Debug
+      setIsLoading(false);
+      router.push("/dashboard"); // Muvaffaqiyatli login qilinganda dashboard ga yo'naltirish
+    } else if (response.error) {
+      const newErrors: LoginErrors = {};
+      if (response.error.username) newErrors.username = response.error.username[0] || "Foydalanuvchi nomida xatolik!";
+      if (response.error.password) newErrors.password = response.error.password[0] || "Parolda xatolik!";
+      if (!newErrors.username && !newErrors.password) {
+        newErrors.general = response.error.detail || "Tizimga kirishda xatolik!";
+      }
+      setErrors((prev) => ({ ...prev, ...newErrors }));
+      setIsLoading(false);
+    }
+  };
+
+  const defaultBackground = "/lighthero.png";
 
   return (
-    <main className="max-w-screen-2xl mx-auto bg-black ">
+    <main className="max-w-screen-2xl mx-auto bg-black">
       <div
         className="inset-0 flex bg-cover bg-center bg-no-repeat py-14"
         style={{
@@ -35,7 +85,7 @@ export default function Page() {
             ? `url('${
                 resolvedTheme === "dark" ? "/backgroundhero.png" : "/lighthero.png"
               }')`
-            : `url('${defaultBackground}')`, // Fallback for SSR (consistent with server render)
+            : `url('${defaultBackground}')`,
         }}
       >
         <div className="container max-w-screen-xl mx-auto flex flex-col gap-10 lg:flex-row lg:gap-8">
@@ -53,14 +103,17 @@ export default function Page() {
             tarmoqlar uchun qo'llanilishining qandoy ekanligini ko'zating!`}
             </p>
             <div>
-              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
+              <Link
+                href="/register"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 py-2 px-5 rounded-md"
+              >
                 {`Hozirroq ro'yxatdan o'tish`}
-              </Button>
+              </Link>
             </div>
           </div>
           {/* Right Section - Login Form */}
           <div className="flex items-center justify-center lg:w-1/2 xl:w-2/5">
-            <Card className="w-full rounded-2xl border-0 bg-background  dark:shadow-indigo-50 shadow-[#155DFC] shadow-[0_5px_30px_rgba(0,0,0,0.25)]">
+            <Card className="w-full rounded-2xl border-0 bg-background dark:shadow-indigo-50 shadow-[#155DFC] shadow-[0_5px_30px_rgba(0,0,0,0.25)]">
               <CardHeader className="space-y-3">
                 <CardTitle className="text-xl font-normal text-foreground">
                   TURBO SMM hisobingiz bilan tizimga kiring
@@ -70,48 +123,70 @@ export default function Page() {
                   akkauntlaringizni ishlatmaslikka harakat qiling.
                 </p>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="username" className="text-foreground">
-                    Username
-                  </Label>
-                  <Input
-                    id="username"
-                    className="rounded-xl border-border bg-background text-foreground placeholder:text-muted-foreground"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-foreground">
-                      Parol
+              <form onSubmit={handleLogin}>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="username" className="text-foreground">
+                      Username
                     </Label>
+                    <Input
+                      id="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="rounded-xl border-border bg-background text-foreground placeholder:text-muted-foreground"
+                      required
+                    />
+                    {errors.username && <p className="text-sm text-destructive">{errors.username}</p>}
                   </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    className="rounded-xl border-border bg-background text-foreground placeholder:text-muted-foreground"
-                  />
-                </div>
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="remember" className="border-border" />
-                    <Label htmlFor="remember" className="text-sm text-muted-foreground">
-                      Meni eslab qol
-                    </Label>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password" className="text-foreground">
+                        Parol
+                      </Label>
+                    </div>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="rounded-xl border-border bg-background text-foreground placeholder:text-muted-foreground"
+                      required
+                    />
+                    {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                   </div>
-                  <Button variant="link" className="h-auto p-0 text-sm text-primary">
-                    Parolni unutdingizmi?
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="remember"
+                        className="border-border"
+                        checked={rememberMe}
+                        onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                      />
+                      <Label htmlFor="remember" className="text-sm text-muted-foreground">
+                        Meni eslab qol
+                      </Label>
+                    </div>
+                    <Button variant="link" className="h-auto p-0 text-sm text-primary">
+                      Parolni unutdingizmi?
+                    </Button>
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Kirish..." : "Kirish"}
                   </Button>
-                </div>
-                <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                  Kirish
-                </Button>
-              </CardContent>
-              <CardFooter className="justify-center">
-                <Button variant="link" className="text-primary">
-                  {`Hisobingiz yo'qmi? Ro'yxatdan o'tish`}
-                </Button>
-              </CardFooter>
+                  {errors.general && <p className="text-sm text-destructive text-center">{errors.general}</p>}
+                </CardContent>
+                <CardFooter className="justify-center">
+                  <Link href="/register">
+                    <Button variant="link" className="text-primary">
+                      {`Hisobingiz yo'qmi? Ro'yxatdan o'tish`}
+                    </Button>
+                  </Link>
+                </CardFooter>
+              </form>
             </Card>
           </div>
         </div>

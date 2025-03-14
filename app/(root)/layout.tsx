@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Noto_Sans } from "next/font/google";
-import "./globals.css";
+// import "../globals.css";
+import Navbar from "./_components/headers/navbar";
+import Footer from "./_components/footers/footer";
 import { ThemeProvider } from "@/components/provider/theme-provider";
 
 const noto_sans = Noto_Sans({
@@ -12,7 +14,7 @@ const noto_sans = Noto_Sans({
 export const metadata: Metadata = {
   title: "Turbo SMM | Ijtimoiy tarmoqlarda tez o'sish",
   description:
-    "Ijtimoiy tarmoqlarda tez va samarali o'sish uchun bizning yuqori sifatli xizmatlarimizdan foydalaning...",
+    "Ijtimoiy tarmoqlarda tez va samarali o'sish uchun bizning yuqori sifatli xizmatlarimizdan foydalaning. Ko'proq obunachilar, layklar yoki ko'rishlarni effektivligiga bo'lgan tez va ishonchli tarzda ta'minlaymiz. Minimal ta'sir o'tkazadigan bizga ishoning, real auditoriya orqali o'sishni ta'minlang! Barcha ijtimoiy tarmoqlar uchun qo'llanilishining qandoy ekanligini ko'zating!",
 };
 
 export default function RootLayout({
@@ -32,7 +34,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <Navbar />
+          <main className="min-h-screen">{children}</main>
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

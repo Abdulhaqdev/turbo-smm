@@ -4,11 +4,11 @@ import ModeToggle from '@/components/shared/ModeToggle'
 import { NAV_LINKS } from '@/constants' // Ensure both imports are correct
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation' // Import usePathname
+import { usePathname,  } from 'next/navigation' // Import usePathname
 
 export default function Navbar() {
 	const pathname = usePathname() // Get the current route
-	const router = useRouter()
+	// const router = useRouter()
 	return (
 		<>
 			{/* Top Navbar (Sticky at the top, visible on all screens) */}
@@ -16,12 +16,11 @@ export default function Navbar() {
 				<div className='container flex h-20 items-center justify-between'>
 					<div className='flex items-center'>
 						{/* Logo links to homepage (/) */}
-						<div
-							className='dark:flex hidden items-center space-x-2'
-							onClick={() => router.push('/')}
+						<Link
+							className='dark:flex hidden items-center space-x-2' href={'/'}
 						>
 							<Image src={`/logo.svg`} alt='logo' width={150} height={20} />
-						</div>
+						</Link>
 						<Link className='dark:hidden flex items-center space-x-2' href='/'>
 							<Image src={`/turbosmm.svg`} alt='logo' width={150} height={20} />
 						</Link>

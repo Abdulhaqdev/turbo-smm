@@ -16,6 +16,7 @@ export default function Home() {
       router.push("/login");
     }
   }, [router]);
+  
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -29,7 +30,7 @@ export default function Home() {
               <h2 className="mb-2 text-xl font-semibold">New Order</h2>
               <p className="mb-4 text-sm text-muted-foreground">Place a new order for social media services</p>
               <Button asChild className="w-full">
-                <Link href="/new-order">Place Order</Link>
+                <Link href="dashboard/new-order">Place Order</Link>
               </Button>
             </div>
 
@@ -37,7 +38,7 @@ export default function Home() {
               <h2 className="mb-2 text-xl font-semibold">Browse Services</h2>
               <p className="mb-4 text-sm text-muted-foreground">Explore our wide range of social media services</p>
               <Button asChild variant="outline" className="w-full">
-                <Link href="/services">View Services</Link>
+                <Link href="dashboard/services">View Services</Link>
               </Button>
             </div>
 
@@ -45,7 +46,7 @@ export default function Home() {
               <h2 className="mb-2 text-xl font-semibold">Add Funds</h2>
               <p className="mb-4 text-sm text-muted-foreground">Add funds to your account to place orders</p>
               <Button asChild variant="outline" className="w-full">
-                <Link href="/add-funds">Add Funds</Link>
+                <Link href="dashboard/add-funds">Add Funds</Link>
               </Button>
             </div>
           </div>

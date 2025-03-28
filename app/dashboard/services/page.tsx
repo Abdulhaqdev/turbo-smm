@@ -1,24 +1,18 @@
-// app/(root)/services/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { categories, serviceTypes, getCategoryById, getServiceTypeById } from "@/lib/data";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../_components/ui/select";
 import { Label } from "@/components/ui/label";
 import { ChevronLeft, ChevronRight, Filter, Search, X } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { Header } from '../_components/header';
-import { getSocialIcon } from '../_components/sidebar';
-import { ApiService } from '@/lib/apiservise'
-import { useToast } from '../_components/ui/use-toast'
-// import { ApiService } from "@/lib/apiService";
-// import { useToast } from "@/components/ui/use-toast";
+import { ApiService } from '@/lib/apiservise';
+import { useToast } from '../_components/ui/use-toast';
 
-// Define the Service interface (same as in ApiService)
 interface Service {
   id: number;
   name: string;
@@ -35,13 +29,26 @@ interface Service {
   is_active: boolean;
 }
 
+interface ServiceType {
+  id: number; // Raqam sifatida
+  name: string;
+  category: { id: number; name: string }; // API’dan kelgan tuzilma
+}
+
+interface Category {
+  id: number; // Raqam sifatida
+  name: string;
+}
+
 export default function ServicesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [serviceTypeFilter, setServiceTypeFilter] = useState("");
-  const [filteredServiceTypes, setFilteredServiceTypes] = useState(serviceTypes);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
+  const [filteredServiceTypes, setFilteredServiceTypes] = useState<ServiceType[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const servicesPerPage = 10;
@@ -49,31 +56,44 @@ export default function ServicesPage() {
   const { toast } = useToast();
   const apiService = new ApiService();
 
-  // Fetch services on component mount
+  // Fetch all data on component mount
   useEffect(() => {
-    const loadServices = async () => {
+    const loadData = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const response = await apiService.fetchServices();
-        if (response.status === 200 && response.data) {
-          // Filter only active services
-          const activeServices = response.data.filter(service => service.is_active);
+        const categoriesResponse = await apiService.fetchCategories();
+        // console.log("Categories:", categoriesResponse.data);
+        if (categoriesResponse.status === 200 && categoriesResponse.data) {
+          setCategories(categoriesResponse.data);
+        } else {
+          throw new Error("Failed to load categories");
+        }
+
+        const serviceTypesResponse = await apiService.fetchServiceTypes();
+        // console.log("Service Types:", serviceTypesResponse.data);
+        if (serviceTypesResponse.status === 200 && serviceTypesResponse.data) {
+          setServiceTypes(serviceTypesResponse.data);
+          setFilteredServiceTypes(serviceTypesResponse.data);
+        } else {
+          throw new Error("Failed to load service types");
+        }
+
+        const servicesResponse = await apiService.fetchServices();
+        // console.log("Services:", servicesResponse.data);
+        if (servicesResponse.status === 200 && servicesResponse.data) {
+          const activeServices = servicesResponse.data.filter((service) => service.is_active);
           setServices(activeServices);
         } else {
-          setError("Failed to load services. Please try again later.");
-          toast({
-            title: "Error",
-            description: "Failed to load services.",
-            variant: "destructive",
-          });
+          throw new Error("Failed to load services");
         }
       } catch (err) {
-        setError("An unexpected error occurred.");
+        console.error(err);
+        setError("An unexpected error occurred while fetching data.");
         toast({
           title: "Error",
-          description: "An unexpected error occurred while fetching services.",
+          description: "Failed to load data from the server.",
           variant: "destructive",
         });
       } finally {
@@ -81,68 +101,74 @@ export default function ServicesPage() {
       }
     };
 
-    loadServices();
+    loadData();
   }, []);
 
   // Update filtered service types when category changes
   useEffect(() => {
+    console.log("Category Filter:", categoryFilter);
     if (categoryFilter) {
-      setFilteredServiceTypes(serviceTypes.filter((type) => type.categoryId === categoryFilter));
+      const filtered = serviceTypes.filter((type) => type.category.id.toString() === categoryFilter);
+      setFilteredServiceTypes(filtered);
+      console.log("Filtered Service Types:", filtered);
       setServiceTypeFilter("");
     } else {
       setFilteredServiceTypes(serviceTypes);
     }
-  }, [categoryFilter]);
+  }, [categoryFilter, serviceTypes]);
 
-  // Filter services based on search term and filters
+  // Helper functions
+  const getCategoryById = (id: string) => categories.find((cat) => cat.id.toString() === id);
+  const getServiceTypeById = (id: string) => serviceTypes.find((type) => type.id.toString() === id);
+
+  // Filter services
   const filteredServices = services.filter((service) => {
-    const serviceType = getServiceTypeById(service.service_type);
-    const category = serviceType ? getCategoryById(serviceType.categoryId) : null;
+    const serviceType = getServiceTypeById(service.service_type.toString());
+    const category = serviceType ? getCategoryById(serviceType.category.id.toString()) : null;
 
     const matchesSearch =
       service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (serviceType?.name.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
       (category?.name.toLowerCase() || "").includes(searchTerm.toLowerCase());
 
-    const matchesCategory = !categoryFilter || (serviceType && serviceType.categoryId === categoryFilter);
-    const matchesServiceType = !serviceTypeFilter || service.service_type === serviceTypeFilter;
+    const matchesCategory = !categoryFilter || (serviceType && serviceType.category.id.toString() === categoryFilter);
+    const matchesServiceType = !serviceTypeFilter || service.service_type.toString() === serviceTypeFilter;
+
+    console.log(
+      `Service: ${service.name}, Matches Search: ${matchesSearch}, Matches Category: ${matchesCategory}, Matches Service Type: ${matchesServiceType}`
+    );
 
     return matchesSearch && matchesCategory && matchesServiceType;
   });
 
-  // Calculate pagination
+  // Pagination
   const indexOfLastService = currentPage * servicesPerPage;
   const indexOfFirstService = indexOfLastService - servicesPerPage;
   const currentServices = filteredServices.slice(indexOfFirstService, indexOfLastService);
   const totalPages = Math.ceil(filteredServices.length / servicesPerPage);
 
-  // Function to determine time color
+  // Time color and duration formatting
   const getTimeColor = (duration: number) => {
-    if (duration <= 60) return "text-blue-500"; // Less than or equal to 1 hour
-    if (duration <= 1440) return "text-green-500"; // Less than or equal to 1 day (1440 minutes)
-    return "text-yellow-500"; // More than 1 day
+    if (duration <= 60) return "text-blue-500";
+    if (duration <= 1440) return "text-green-500";
+    return "text-yellow-500";
   };
 
-  // Format duration into a readable string
   const formatDuration = (duration: number) => {
-    if (duration < 60) {
-      return `${duration} minute${duration !== 1 ? "s" : ""}`;
-    } else if (duration < 1440) {
+    if (duration < 60) return `${duration} minute${duration !== 1 ? "s" : ""}`;
+    if (duration < 1440) {
       const hours = Math.floor(duration / 60);
       return `${hours} hour${hours !== 1 ? "s" : ""}`;
-    } else {
-      const days = Math.floor(duration / 1440);
-      return `${days} day${days !== 1 ? "s" : ""}`;
     }
+    const days = Math.floor(duration / 1440);
+    return `${days} day${days !== 1 ? "s" : ""}`;
   };
 
-  // Handle page change
   const paginate = (pageNumber: number) => {
     setCurrentPage(pageNumber);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Clear all filters
   const clearFilters = () => {
     setCategoryFilter("");
     setServiceTypeFilter("");
@@ -212,13 +238,11 @@ export default function ServicesPage() {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <Label htmlFor="category-filter" className="mb-2 block">
-                  Category
-                </Label>
+                <Label htmlFor="category-filter" className="mb-2 block">Category</Label>
                 <Select
                   value={categoryFilter}
                   onValueChange={(value) => {
-                    setCategoryFilter(value);
+                    setCategoryFilter(value === "all" ? "" : value);
                     setCurrentPage(1);
                   }}
                 >
@@ -227,28 +251,20 @@ export default function ServicesPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Categories</SelectItem>
-                    {categories.map((category) => {
-                      const Icon = getSocialIcon(category.icon);
-                      return (
-                        <SelectItem key={category.id} value={category.id}>
-                          <div className="flex items-center gap-2">
-                            <Icon className="h-4 w-4" />
-                            <span>{category.name}</span>
-                          </div>
-                        </SelectItem>
-                      );
-                    })}
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id.toString()}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="service-type-filter" className="mb-2 block">
-                  Service Type
-                </Label>
+                <Label htmlFor="service-type-filter" className="mb-2 block">Service Type</Label>
                 <Select
                   value={serviceTypeFilter}
                   onValueChange={(value) => {
-                    setServiceTypeFilter(value);
+                    setServiceTypeFilter(value === "all" ? "" : value);
                     setCurrentPage(1);
                   }}
                   disabled={filteredServiceTypes.length === 0}
@@ -259,7 +275,7 @@ export default function ServicesPage() {
                   <SelectContent>
                     <SelectItem value="all">All Service Types</SelectItem>
                     {filteredServiceTypes.map((type) => (
-                      <SelectItem key={type.id} value={type.id}>
+                      <SelectItem key={type.id} value={type.id.toString()}>
                         {type.name}
                       </SelectItem>
                     ))}
@@ -285,9 +301,7 @@ export default function ServicesPage() {
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="text-sm">
-                  Page {currentPage} of {totalPages}
-                </span>
+                <span className="text-sm">Page {currentPage} of {totalPages}</span>
                 <Button
                   variant="outline"
                   size="sm"
@@ -317,9 +331,8 @@ export default function ServicesPage() {
                 </thead>
                 <tbody>
                   {currentServices.map((service, index) => {
-                    const serviceType = getServiceTypeById(service.service_type);
-                    const category = serviceType ? getCategoryById(serviceType.categoryId) : null;
-                    const Icon = category ? getSocialIcon(category.icon) : null;
+                    const serviceType = getServiceTypeById(service.service_type.toString());
+                    const category = serviceType ? getCategoryById(serviceType.category.id.toString()) : null;
 
                     return (
                       <tr key={service.id} className={index % 2 === 0 ? "" : "bg-muted/30"}>
@@ -327,14 +340,7 @@ export default function ServicesPage() {
                         <td className="px-4 py-4 text-left">
                           <div className="font-medium">{service.name}</div>
                         </td>
-                        <td className="px-4 py-4 text-left">
-                          {category && (
-                            <div className="flex items-center gap-2">
-                              {Icon && <Icon className="h-4 w-4" />}
-                              <span>{category.name}</span>
-                            </div>
-                          )}
-                        </td>
+                        <td className="px-4 py-4 text-left">{category?.name || "N/A"}</td>
                         <td className="px-4 py-4 text-right">
                           <div className="text-xs text-muted-foreground">
                             {service.min} - {service.max}
@@ -346,13 +352,12 @@ export default function ServicesPage() {
                         </td>
                         <td className="px-4 py-4 text-right">
                           <Button asChild size="sm">
-                            <Link href={`/new-order?serviceId=${service.id}`}>Buy now</Link>
+                            <Link href={`/dashboard/new-order`}>Buy now</Link>
                           </Button>
                         </td>
                       </tr>
                     );
                   })}
-
                   {currentServices.length === 0 && (
                     <tr>
                       <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
@@ -368,32 +373,20 @@ export default function ServicesPage() {
           {/* Mobile view - Cards */}
           <div className="grid gap-4 md:hidden">
             {currentServices.map((service, index) => {
-              const serviceType = getServiceTypeById(service.service_type);
-              const category = serviceType ? getCategoryById(serviceType.categoryId) : null;
-              const Icon = category ? getSocialIcon(category.icon) : null;
+              const serviceType = getServiceTypeById(service.service_type.toString());
+              const category = serviceType ? getCategoryById(serviceType.category.id.toString()) : null;
 
               return (
                 <Card key={service.id} className="bg-card">
                   <CardContent className="pt-6">
                     <div className="mb-2 text-sm text-muted-foreground">#{indexOfFirstService + index + 1}</div>
-
-                    {/* Service name and category */}
                     <div className="mb-4">
                       <div className="mb-2 font-medium">{service.name}</div>
-                      {category && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          {Icon && <Icon className="h-4 w-4" />}
-                          <span>{category.name}</span>
-                        </div>
-                      )}
+                      <div className="text-sm text-muted-foreground">{category?.name || "N/A"}</div>
                     </div>
-
-                    {/* Order limits */}
                     <div className="mb-2 text-sm text-muted-foreground">
                       Min order: {service.min} Max order: {service.max}
                     </div>
-
-                    {/* Rate and time */}
                     <div className="mb-4 grid gap-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-muted-foreground">Rate per 1000</span>
@@ -405,16 +398,14 @@ export default function ServicesPage() {
                       </div>
                     </div>
                   </CardContent>
-
                   <CardFooter>
                     <Button asChild className="w-full">
-                      <Link href={`/new-order?serviceId=${service.id}`}>Buy now</Link>
+                      <Link href={`dashboard/new-order`}>Buy now</Link>
                     </Button>
                   </CardFooter>
                 </Card>
               );
             })}
-
             {currentServices.length === 0 && (
               <div className="rounded-lg border border-dashed p-8 text-center">
                 <p className="text-muted-foreground">No services found matching your search.</p>
@@ -437,8 +428,6 @@ export default function ServicesPage() {
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-
-                {/* Page numbers */}
                 <div className="flex items-center">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     let pageNum;
@@ -451,7 +440,6 @@ export default function ServicesPage() {
                     } else {
                       pageNum = currentPage - 2 + i;
                     }
-
                     return (
                       <Button
                         key={pageNum}
@@ -465,7 +453,6 @@ export default function ServicesPage() {
                     );
                   })}
                 </div>
-
                 <Button
                   variant="outline"
                   size="sm"

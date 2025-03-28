@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // Router uchun import
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -15,15 +15,13 @@ import {
 import { Label } from "@/components/ui/label";
 import { useTheme } from "next-themes";
 import Link from "next/link";
-// import { apiService, ApiResponse } from "@/lib/apiService"; // API Service import
-// import { LoginData, LoginResponse, LoginErrors } from "./page"; // Type'lar import
-import Cookies from "js-cookie"; // Tokenni saqlash uchun
-import { ApiResponse, apiService } from '@/lib/apiservise'
-import { LoginData, LoginErrors, LoginResponse } from '@/types/login'
+import Cookies from "js-cookie";
+import { ApiResponse, apiService } from "@/lib/apiservise";
+import { LoginData, LoginErrors, LoginResponse } from "@/types/login";
 
 export default function Page() {
   const { resolvedTheme } = useTheme();
-  const router = useRouter(); // Router uchun
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -31,12 +29,10 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<LoginErrors>({ username: "", password: "", general: "" });
 
-  // Komponentni client tomonida mount qilish
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Login so'rovini yuborish
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -46,22 +42,21 @@ export default function Page() {
     const response: ApiResponse<LoginResponse> = await apiService.post("/api/token/", loginData);
 
     if (response.status === 200 && response.data) {
-      // Tokenni cookie ga saqlash
       Cookies.set("accessToken", response.data.access, {
-        expires: 1, // 1 kun
+        expires: 1,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
       });
       if (rememberMe) {
         Cookies.set("refreshToken", response.data.refresh, {
-          expires: 7, // 1 hafta
+          expires: 7,
           secure: process.env.NODE_ENV === "production",
           sameSite: "Strict",
         });
       }
-      console.log("Login: Token saqlandi:", Cookies.get("accessToken")); // Debug
+      console.log("Login: Token saqlandi:", Cookies.get("accessToken"));
       setIsLoading(false);
-      router.push("/dashboard"); // Muvaffaqiyatli login qilinganda dashboard ga yo'naltirish
+      router.push("/dashboard");
     } else if (response.error) {
       const newErrors: LoginErrors = {};
       if (response.error.username) newErrors.username = response.error.username[0] || "Foydalanuvchi nomida xatolik!";
@@ -74,18 +69,22 @@ export default function Page() {
     }
   };
 
-  const defaultBackground = "/lighthero.png";
+  if (!mounted) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <main className="max-w-screen-2xl mx-auto bg-black">
       <div
         className="inset-0 flex bg-cover bg-center bg-no-repeat py-14"
         style={{
-          backgroundImage: mounted
-            ? `url('${
-                resolvedTheme === "dark" ? "/backgroundhero.png" : "/lighthero.png"
-              }')`
-            : `url('${defaultBackground}')`,
+          backgroundImage: `url(${
+            resolvedTheme === "dark" ? "/backgroundhero.png" : "/lighthero.png"
+          })`,
         }}
       >
         <div className="container max-w-screen-xl mx-auto flex flex-col gap-10 lg:flex-row lg:gap-8">
@@ -98,9 +97,9 @@ export default function Page() {
             </h1>
             <p className="max-w-xl text-sm md:text-base text-muted-foreground">
               {`Ijtimoiy tarmoqlarda tez va samarali o'sish uchun bizning yuqori sifatli xizmatlarimizdan foydalaning.
-            Ko'proq obunachilar, layklar yoki ko'rishlarni effektivligiga bo'lgan tez va ishonchli tarzda ta'minlaymiz.
-            Minimal ta'sir o'tkazadigan bizga ishoning, real auditoriya orqali o'sishni ta'minlang! Barcha ijtimoiy
-            tarmoqlar uchun qo'llanilishining qandoy ekanligini ko'zating!`}
+              Ko'proq obunachilar, layklar yoki ko'rishlarni effektivligiga bo'lgan tez va ishonchli tarzda ta'minlaymiz.
+              Minimal ta'sir o'tkazadigan bizga ishoning, real auditoriya orqali o'sishni ta'minlang! Barcha ijtimoiy
+              tarmoqlar uchun qo'llanilishining qandoy ekanligini ko'zating!`}
             </p>
             <div>
               <Link
@@ -111,7 +110,6 @@ export default function Page() {
               </Link>
             </div>
           </div>
-          {/* Right Section - Login Form */}
           <div className="flex items-center justify-center lg:w-1/2 xl:w-2/5">
             <Card className="w-full rounded-2xl border-0 bg-background dark:shadow-indigo-50 shadow-[#155DFC] shadow-[0_5px_30px_rgba(0,0,0,0.25)]">
               <CardHeader className="space-y-3">
@@ -119,7 +117,7 @@ export default function Page() {
                   TURBO SMM hisobingiz bilan tizimga kiring
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Iltimos, TURBOSMM hisobingizdan foydalangan holda tizimga kiring. Ijtimoiy tarmoqlardagi
+                  Iltimos, TURBOSMM hisobingizdan foydalanib tizimga kiring. Ijtimoiy tarmoqlardagi
                   akkauntlaringizni ishlatmaslikka harakat qiling.
                 </p>
               </CardHeader>

@@ -5,40 +5,68 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../_components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../_components/ui/table";
 import { Search, ExternalLink, CalendarClock, Link2 } from "lucide-react";
-import { getCategoryById, getServiceById, getServiceTypeById } from "@/lib/data";
 import { useToast } from "../_components/ui/use-toast";
 import { formatCurrency } from "@/lib/utils";
-import { useFormattedDate } from "../../hooks/useFormattedDate";
-import { OrderDetailsDialog } from "../_components/orders/order-details-dialog";
+import { useFormattedDate } from "../../../hooks/useFormattedDate";
 import { Header } from "../_components/header";
 import { Badge } from "../_components/ui/badge";
-import { getSocialIcon, Sidebar } from "../_components/sidebar";
-import { apiService } from '@/lib/apiservise'
-import { User } from '@/lib/types'
-// import { apiService } from "@/lib/apiService";
-// import type { Order, User } from "@/lib/types";
+import { Sidebar } from "../_components/sidebar";
+import { apiService } from "@/lib/apiservise";
+import { Order, User, Service } from "@/lib/types";
+import Cookies from "js-cookie";
+import { OrderDetailsDialog } from '../_components/orders/order-details-dialog'
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order]>([]);
-  const [user, setUser] = useState<User| null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [user, setUser] = useState<User>();
+  const [services, setServices] = useState<Service[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null); // Tanlangan buyurtma uchun state
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // Dialog ochiq/yopiq holati
   const { toast } = useToast();
-  const { formatDateTime, isValidDate } = useFormattedDate();
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const { isValidDate } = useFormattedDate();
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Fetch user and orders on mount
+  // Faqat sanani formatlash uchun funksiya
+  const formatDateOnly = (dateString: string) => {
+    if (!isValidDate(dateString)) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  // Fetch user, services, and orders on mount
   useEffect(() => {
+    const userId = Cookies.get("userId");
+    const accessToken = Cookies.get("accessToken");
+    if (!accessToken || !userId) {
+      toast({
+        title: "Error",
+        description: "Please log in to view your account",
+        variant: "destructive",
+      });
+      router.push("/login");
+      return;
+    }
+
     const loadData = async () => {
       setIsLoading(true);
-
       try {
         // Fetch user data
-        const userResponse = await apiService.fetchUser();
+        const userResponse = await apiService.fetchUser(userId);
         if (userResponse.status === 200 && userResponse.data) {
           setUser(userResponse.data);
         } else if (userResponse.status === 401) {
@@ -53,10 +81,18 @@ export default function OrdersPage() {
           throw new Error("Failed to load user data");
         }
 
+        // Fetch services
+        const servicesResponse = await apiService.fetchServices();
+        if (servicesResponse.status === 200 && servicesResponse.data) {
+          setServices(servicesResponse.data);
+        } else {
+          throw new Error("Failed to load services");
+        }
+
         // Fetch orders
         const ordersResponse = await apiService.getOrders();
         if (ordersResponse.status === 200 && ordersResponse.data) {
-          const mappedOrders = ordersResponse.data.map((order: any) => ({
+          const mappedOrders = ordersResponse.data.map((order: Order) => ({
             id: order.id,
             service: order.service,
             price: order.price,
@@ -67,16 +103,17 @@ export default function OrdersPage() {
             updated_at: order.updated_at,
             link: order.url,
             createdAt: order.created_at,
-            quantity: 100, // Default value; fetch or calculate if possible
-            serviceTypeId: undefined, // Fetch from service if available
-            categoryId: undefined, // Fetch from service if available
-            estimatedCompletion: "N/A", // Default value; fetch or calculate if possible
+            quantity: order.quantity || 100,
+            serviceTypeId: order.serviceTypeId,
+            categoryId: order.categoryId,
+            estimatedCompletion: order.estimatedCompletion || "N/A",
           }));
           setOrders(mappedOrders);
         } else {
           throw new Error("Failed to load orders");
         }
       } catch (err) {
+        console.log(err);
         toast({
           title: "Error",
           description: "Failed to load data. Please try again later.",
@@ -92,13 +129,9 @@ export default function OrdersPage() {
 
   // Filter orders based on search term
   const filteredOrders = orders.filter((order) => {
-    const service = getServiceById(order.service);
-    const serviceType = getServiceTypeById(order.serviceTypeId || 0);
-    const category = getCategoryById(order.categoryId || 0);
+    const service = services.find((s) => s.id === order.service);
     return (
       (service?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
-      (serviceType?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
-      (category?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
       (order.link?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
       order.id.toString().toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -134,7 +167,6 @@ export default function OrdersPage() {
           description: "Your order has been processed and is now being fulfilled.",
           variant: "success",
         });
-        // Update local orders state
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order.id === orderId ? { ...order, status: "processing" } : order
@@ -144,6 +176,7 @@ export default function OrdersPage() {
         throw new Error("Failed to update order status");
       }
     } catch (err) {
+      console.log(err)
       toast({
         title: "Error completing order",
         description: "There was an error processing your order. Please try again.",
@@ -152,13 +185,12 @@ export default function OrdersPage() {
     }
   };
 
-  // Open order details dialog
-  const openOrderDetails = (order: Order) => {
+  // Handle opening the dialog
+  const handleOpenDialog = (order: Order) => {
     setSelectedOrder(order);
-    setIsDetailsOpen(true);
+    setIsDialogOpen(true);
   };
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col">
@@ -219,46 +251,28 @@ export default function OrdersPage() {
                   <TableBody>
                     {filteredOrders.length > 0 ? (
                       filteredOrders.map((order) => {
-                        const service = getServiceById(order.service);
-                        const category = getCategoryById(order.categoryId || 0);
-                        const serviceType = getServiceTypeById(order.serviceTypeId || 0);
-                        const Icon = category ? getSocialIcon(category.icon) : null;
-
+                        const service = services.find((s) => s.id === order.service);
                         return (
                           <TableRow key={order.id}>
                             <TableCell className="font-medium">{order.id}</TableCell>
                             <TableCell>
-                              <div>
-                                <div className="font-medium line-clamp-1">{service?.name ?? "Unknown Service"}</div>
-                                {category && (
-                                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                    {Icon && <Icon className="h-3 w-3" />}
-                                    <span>{category.name}</span>
-                                    {serviceType && (
-                                      <>
-                                        <span className="mx-1">•</span>
-                                        <span>{serviceType.name}</span>
-                                      </>
-                                    )}
-                                  </div>
-                                )}
+                              <div className="font-medium line-clamp-1">
+                                {service?.name ?? "Unknown Service"}
                               </div>
                             </TableCell>
                             <TableCell>{order.quantity || "N/A"}</TableCell>
                             <TableCell>{formatCurrency(order.price)}</TableCell>
-                            <TableCell>
-                              {isValidDate(order.created_at) ? formatDateTime(order.created_at) : "N/A"}
-                            </TableCell>
+                            <TableCell>{formatDateOnly(order.created_at)}</TableCell>
                             <TableCell>
                               <Badge
                                 variant={
                                   order.status === "completed"
                                     ? "default"
                                     : order.status === "processing"
-                                      ? "secondary"
-                                      : order.status === "pending"
-                                        ? "outline"
-                                        : "destructive"
+                                    ? "secondary"
+                                    : order.status === "pending"
+                                    ? "outline"
+                                    : "destructive"
                                 }
                               >
                                 {order.status}
@@ -270,12 +284,15 @@ export default function OrdersPage() {
                                   <Button
                                     size="sm"
                                     onClick={() => handleCompletePendingOrder(order.id, order.price)}
-                                    disabled={user?.balance < order.price}
                                   >
                                     Complete
                                   </Button>
                                 )}
-                                <Button variant="outline" size="sm" onClick={() => openOrderDetails(order)}>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleOpenDialog(order)} // Dialog ochiladi
+                                >
                                   <ExternalLink className="h-4 w-4 mr-1" />
                                   Details
                                 </Button>
@@ -299,11 +316,7 @@ export default function OrdersPage() {
               <div className="grid gap-4 md:hidden">
                 {filteredOrders.length > 0 ? (
                   filteredOrders.map((order) => {
-                    const service = getServiceById(order.service);
-                    const category = getCategoryById(order.categoryId || 0);
-                    const serviceType = getServiceTypeById(order.serviceTypeId || 0);
-                    const Icon = category ? getSocialIcon(category.icon) : null;
-
+                    const service = services.find((s) => s.id === order.service);
                     return (
                       <Card key={order.id} className="overflow-hidden">
                         <CardContent className="p-0">
@@ -312,37 +325,25 @@ export default function OrdersPage() {
                               <span className="text-xs text-muted-foreground mr-2">ID:</span>
                               {order.id}
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Badge
-                                variant={
-                                  order.status === "completed"
-                                    ? "default"
-                                    : order.status === "processing"
-                                      ? "secondary"
-                                      : order.status === "pending"
-                                        ? "outline"
-                                        : "destructive"
-                                }
-                              >
-                                {order.status}
-                              </Badge>
-                            </div>
+                            <Badge
+                              variant={
+                                order.status === "completed"
+                                  ? "default"
+                                  : order.status === "processing"
+                                  ? "secondary"
+                                  : order.status === "pending"
+                                  ? "outline"
+                                  : "destructive"
+                              }
+                            >
+                              {order.status}
+                            </Badge>
                           </div>
                           <div className="p-4 space-y-3">
                             <div>
-                              <div className="font-medium line-clamp-1">{service?.name ?? "Unknown Service"}</div>
-                              {category && (
-                                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                  {Icon && <Icon className="h-3 w-3" />}
-                                  <span>{category.name}</span>
-                                  {serviceType && (
-                                    <>
-                                      <span className="mx-1">•</span>
-                                      <span>{serviceType.name}</span>
-                                    </>
-                                  )}
-                                </div>
-                              )}
+                              <div className="font-medium line-clamp-1">
+                                {service?.name ?? "Unknown Service"}
+                              </div>
                             </div>
                             <div className="flex justify-between text-sm">
                               <div>
@@ -358,27 +359,15 @@ export default function OrdersPage() {
                               <Link2 className="h-3 w-3 text-muted-foreground" />
                               <span className="truncate text-muted-foreground">{order.link}</span>
                             </div>
-                            <div className="flex items-center justify-between text-sm">
-                              <div className="flex items-center gap-1 text-muted-foreground">
-                                <CalendarClock className="h-3 w-3" />
-                                <span>{isValidDate(order.created_at) ? formatDateTime(order.created_at) : "N/A"}</span>
-                              </div>
-                              <div className="text-green-500">{order.estimatedCompletion || "N/A"}</div>
+                            <div className="flex items-center text-sm">
+                              <CalendarClock className="h-3 w-3 text-muted-foreground mr-2" />
+                              <span>{formatDateOnly(order.created_at)}</span>
                             </div>
-                            {order.status === "pending" && (
-                              <Button
-                                className="w-full mt-2"
-                                onClick={() => handleCompletePendingOrder(order.id, order.price)}
-                                disabled={user?.balance < order.price}
-                              >
-                                {user?.balance < order.price ? "Insufficient Funds" : "Complete Order"}
-                              </Button>
-                            )}
                             <Button
                               variant="outline"
                               size="sm"
                               className="w-full"
-                              onClick={() => openOrderDetails(order)}
+                              onClick={() => handleOpenDialog(order)} // Dialog ochiladi
                             >
                               <ExternalLink className="h-4 w-4 mr-2" />
                               View Details
@@ -396,10 +385,15 @@ export default function OrdersPage() {
               </div>
             </>
           )}
-
-          <OrderDetailsDialog order={selectedOrder} open={isDetailsOpen} onOpenChange={setIsDetailsOpen} />
         </div>
       </main>
+
+      {/* OrderDetailsDialog qo'shildi */}
+      <OrderDetailsDialog
+        order={selectedOrder}
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+      />
     </div>
   );
 }

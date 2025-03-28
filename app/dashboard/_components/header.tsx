@@ -3,17 +3,13 @@
 import { useEffect, useState } from "react";
 import {  useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, ArrowLeft } from "lucide-react";
-// import { ThemeToggle } from "./theme-toggle";
 import { UserAccountNav } from "./account/user-account-nav";
-// import { apiService } from "@/lib/apiService";
 import { formatCurrency, convertToUZS } from "@/lib/utils";
 import { apiService } from '@/lib/apiservise'
 import ModeToggle from '@/components/shared/ModeToggle'
 import { UserProfile } from '@/lib/types'
-// import { UserProfile } from "@/types/user";
+import { ArrowLeft } from 'lucide-react'
 
 interface HeaderProps {
   showBackButton?: boolean;
@@ -72,10 +68,7 @@ export function Header({ showBackButton = false }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="relative hidden sm:block">
-          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input type="search" placeholder="Qidirish" className="w-[200px] pl-8 md:w-[300px]" />
-        </div>
+       
         <ModeToggle />
         <UserAccountNav mobile />
       </div>

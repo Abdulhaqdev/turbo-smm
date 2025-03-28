@@ -1,22 +1,17 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { ShoppingCart, LayoutGrid, Wallet, Receipt, LifeBuoy } from "lucide-react";
+import { Instagram, Send, Twitter, Youtube, Facebook } from "lucide-react";
+import TiktokIcon from './icons/tiktok-icon';
+import { UserAccountNav } from './account/user-account-nav';
+import Image from 'next/image';
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { ShoppingCart, LayoutGrid, Wallet, Receipt, LifeBuoy } from "lucide-react"
-// import { UserAccountNav } from "@/components/account/user-account-nav"
-import { Instagram, Send, Twitter, Youtube, Facebook } from "lucide-react"
-import TiktokIcon from './icons/tiktok-icon'
-import { UserAccountNav } from './account/user-account-nav'
-import Image from 'next/image'
-// import TiktokIcon from "@/components/icons/tiktok-icon"
-
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-export function Sidebar({ className }: SidebarProps) {
-  const pathname = usePathname()
+export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  const pathname = usePathname();
 
   const routes = [
     {
@@ -49,19 +44,17 @@ export function Sidebar({ className }: SidebarProps) {
       href: "/dashboard/support",
       active: pathname === "/support",
     },
-  ]
+  ];
 
   return (
-    <div className={cn("fixed left-0 top-0 bottom-0 z-40 flex w-64 flex-col border-r bg-card", className)}>
+    <div className={cn("fixed left-0 top-0 bottom-0 z-40 flex w-64 flex-col border-r bg-card", className)} {...props}>
       <div className="flex h-16 items-center border-b px-6">
-      <Link
-							className='dark:flex hidden items-center space-x-2' href={'/'}
-						>
-							<Image src={`/logo.svg`} alt='logo' width={150} height={20} />
-						</Link>
-						<Link className='dark:hidden flex items-center space-x-2' href='/'>
-							<Image src={`/turbosmm.svg`} alt='logo' width={150} height={20} />
-						</Link>
+        <Link className="dark:flex hidden items-center space-x-2" href="/">
+          <Image src="/logo.svg" alt="logo" width={150} height={20} />
+        </Link>
+        <Link className="dark:hidden flex items-center space-x-2" href="/">
+          <Image src="/turbosmm.svg" alt="logo" width={150} height={20} />
+        </Link>
       </div>
       <div className="flex-1 overflow-auto py-2">
         <nav className="grid items-start px-2 text-sm">
@@ -84,26 +77,25 @@ export function Sidebar({ className }: SidebarProps) {
         <UserAccountNav />
       </div>
     </div>
-  )
+  );
 }
 
 export function getSocialIcon(iconName: string) {
   switch (iconName) {
     case "instagram":
-      return Instagram
+      return Instagram;
     case "tiktok":
-      return TiktokIcon
+      return TiktokIcon;
     case "telegram":
     case "send":
-      return Send
+      return Send;
     case "twitter":
-      return Twitter
+      return Twitter;
     case "youtube":
-      return Youtube
+      return Youtube;
     case "facebook":
-      return Facebook
+      return Facebook;
     default:
-      return LayoutGrid
+      return LayoutGrid;
   }
 }
-

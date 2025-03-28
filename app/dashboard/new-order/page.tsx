@@ -14,9 +14,6 @@ import { FormError } from '../_components/common/FormError';
 import { Header } from '../_components/header';
 import { Category, Order, Service, ServiceType, User } from '@/lib/types'
 import { apiService } from '@/lib/apiservise'
-// import { getSocialIcon } from '../_components/sidebar';
-// import { apiService } from "@/lib/apiService";
-// import { Category, ServiceType, Service, Order, User } from "@/types/api";
 
 // Interface for saved form data in localStorage
 interface SavedOrder {
@@ -46,7 +43,7 @@ export default function NewOrderPage() {
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   // Derived state
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]); 
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [filteredServiceTypes, setFilteredServiceTypes] = useState<ServiceType[]>([]);
@@ -371,7 +368,7 @@ export default function NewOrderPage() {
       user: user.id, // Ensure this is an integer
     };
   
-    console.log("Submitting order:", newOrder); // Debug log
+    console.log("Submitting order:", newOrder);
   
     try {
       const response = await apiService.createOrder(newOrder);
@@ -397,7 +394,7 @@ export default function NewOrderPage() {
       console.log(err)
       toast({
         title: "Error",
-        description: `Failed to submit your order: ${err.message}. Please try again later.`,
+        description: `Failed to submit your order: ${err}. Please try again later.`,
         variant: "destructive",
       });
     }

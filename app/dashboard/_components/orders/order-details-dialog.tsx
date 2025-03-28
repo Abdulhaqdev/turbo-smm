@@ -1,176 +1,273 @@
-"use client"
+'use client'
 
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog'
-import { Button } from "@/components/ui/button"
-// import { Badge } from "@/components/ui/badge"
-import { getCategoryById, getServiceById, getServiceTypeById } from "@/lib/data"
-// import { getSocialIcon } from "@/components/sidebar"
-import { formatCurrency, convertToUZS } from "@/lib/utils"
-// import { useFormattedDate } from "@/hooks/useFormattedDate"
-import { CalendarClock, Link2, ExternalLink } from "lucide-react"
-import type { Order } from "@/lib/types"
-import { useStore } from "@/lib/store"
-import { useFormattedDate } from '@/app/hooks/useFormattedDate'
-import { useToast } from '../ui/use-toast'
-import { getSocialIcon } from '../sidebar'
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { CalendarClock, ExternalLink, Link2 } from 'lucide-react'
 import { Badge } from '../ui/badge'
-// import { useToast } from "@/components/ui/use-toast"
-                    
+import { useToast } from '../ui/use-toast'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { apiService } from '@/lib/apiservise'
+import { convertToUZS, formatCurrency } from '@/lib/utils'
+import { useFormattedDate } from '@/hooks/useFormattedDate'
+import type {  Service, ServiceType, Category } from '@/lib/types'
+import Cookies from 'js-cookie'
+
 interface OrderDetailsDialogProps {
   order: Order | null
   open: boolean
   onOpenChange: (open: boolean) => void
 }
-
-export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDialogProps) {
-  const { user, completePendingOrder } = useStore()
+export interface Order {
+  id: number
+  service: number // serviceId
+  price: number
+  url: string
+  status: string
+  user: number
+  created_at: string
+  updated_at: string
+  quantity?: number
+  estimatedCompletion?: string
+}
+export function OrderDetailsDialog({
+  order,
+  open,
+  onOpenChange,
+}: OrderDetailsDialogProps) {
   const { formatDateTime, isValidDate } = useFormattedDate()
   const { toast } = useToast()
+  const [service, setService] = useState<Service | null>(null)
+  const [serviceType, setServiceType] = useState<ServiceType | null>(null)
+  const [category, setCategory] = useState<Category | null>(null)
+  const [userBalance, setUserBalance] = useState<number>(0)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  // API dan ma'lumotlarni yuklash
+  useEffect(() => {
+		const userId = Cookies.get('userId')
+		const accessToken = Cookies.get('accessToken')
+		if (!accessToken || !userId) {
+			toast({
+				title: 'Error',
+				description: 'Please log in to view your account',
+				variant: 'destructive',
+			})
+			// router.push('/login')
+			return
+		}
+    if (!order || !open) return
+
+    const fetchOrderDetails = async () => {
+      setIsLoading(true)
+      try {
+        // Service ma'lumotlarini olish
+        const serviceResponse = await apiService.get<Service>(`/api/service/${order.service}/`)
+        if (serviceResponse.status === 200 && serviceResponse.data) {
+          setService(serviceResponse.data)
+          
+          // ServiceType ma'lumotlarini olish
+          const serviceTypeResponse = await apiService.get<ServiceType>(`/api/service-types/${serviceResponse.data.service_type}/`)
+          if (serviceTypeResponse.status === 200 && serviceTypeResponse.data) {
+            setServiceType(serviceTypeResponse.data)
+            
+            // Category ma'lumotlarini olish
+            const categoryResponse = await apiService.get<Category>(`/api/categories/${serviceTypeResponse.data.category.id}/`)
+            if (categoryResponse.status === 200 && categoryResponse.data) {
+              setCategory(categoryResponse.data)
+            }
+          }
+        }
+
+        // Foydalanuvchi balansini olish (user ID order dan keladi)
+        const userResponse = await apiService.fetchUser(userId)
+				console.log(userResponse)
+        if (userResponse.status === 200 && userResponse.data) {
+          setUserBalance(userResponse.data.balance)
+        }
+      } catch (error) {
+        console.error('Error fetching order details:', error)
+        toast({
+          title: 'Xatolik',
+          description: 'Buyurtma tafsilotlarini yuklashda xatolik yuz berdi.',
+          variant: 'destructive',
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchOrderDetails()
+  }, [order, open, toast])
 
   if (!order) return null
 
-  const service = getServiceById(order.serviceId)
-  const serviceType = getServiceTypeById(order.serviceTypeId)
-  const category = getCategoryById(order.categoryId)
-  const Icon = category ? getSocialIcon(category.icon) : null
 
   // Handle completing a pending order
-  const handleCompletePendingOrder = () => {
-    // Check if user has sufficient balance
-    if (user.balance < order.totalPrice) {
+  const handleCompletePendingOrder = async () => {
+    if (userBalance < order.price) {
       toast({
         title: "Mablag' yetarli emas",
-        description: `Sizning balansingiz ${formatCurrency(convertToUZS(user.balance))}, ammo bu buyurtma narxi ${formatCurrency(convertToUZS(order.totalPrice))}. Davom etish uchun hisobingizni to'ldiring.`,
-        variant: "destructive",
+        description: `Sizning balansingiz ${formatCurrency(
+          convertToUZS(userBalance)
+        )}, ammo bu buyurtma narxi ${formatCurrency(
+          convertToUZS(order.price)
+        )}. Davom etish uchun hisobingizni to'ldiring.`,
+        variant: 'destructive',
       })
       return
     }
 
-    // Complete the pending order
-    const success = completePendingOrder(order.id, order.totalPrice)
-
-    if (success) {
+    try {
+      const response = await apiService.updateOrderStatus(order.id, 'processing')
+      if (response.status === 200) {
+        toast({
+          title: 'Buyurtma muvaffaqiyatli yakunlandi!',
+          description: 'Buyurtmangiz qayta ishlandi va endi bajarilmoqda.',
+          variant: 'success',
+        })
+        onOpenChange(false)
+      } else {
+        throw new Error('Failed to update order status')
+      }
+    } catch (error) {
+			console.log(error)
+			
       toast({
-        title: "Buyurtma muvaffaqiyatli yakunlandi!",
-        description: "Buyurtmangiz qayta ishlandi va endi bajarilmoqda.",
-        variant: "success",
-      })
-      onOpenChange(false)
-    } else {
-      toast({
-        title: "Buyurtmani yakunlashda xatolik",
+        title: 'Buyurtmani yakunlashda xatolik',
         description: "Buyurtmangizni qayta ishlashda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.",
-        variant: "destructive",
+        variant: 'destructive',
       })
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className='sm:max-w-[500px]'>
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
+          <DialogTitle>
             <span>Buyurtma tafsilotlari</span>
             <Badge
               variant={
-                order.status === "completed"
-                  ? "default"
-                  : order.status === "processing"
-                    ? "secondary"
-                    : order.status === "pending"
-                      ? "outline"
-                      : "destructive"
+                order.status === 'true'
+                  ? 'default'
+                  : order.status === 'processing'
+                  ? 'secondary'
+                  : order.status === 'pending'
+                  ? 'outline'
+                  : 'destructive'
               }
             >
-              {order.status === "completed"
-                ? "Yakunlangan"
-                : order.status === "processing"
-                  ? "Jarayonda"
-                  : order.status === "pending"
-                    ? "Kutilmoqda"
-                    : "Bekor qilingan"}
+              {order.status === 'true'
+                ? 'Yakunlangan'
+                : order.status === 'processing'
+                ? 'Jarayonda'
+                : order.status === 'pending'
+                ? 'Kutilmoqda'
+                : 'Bekor qilingan'}
             </Badge>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          {/* Order ID and Date */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Buyurtma ID</p>
-              <p className="font-medium">{order.id.substring(0, 8)}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Sana</p>
-              <p>{isValidDate(order.createdAt) ? formatDateTime(order.createdAt) : "N/A"}</p>
-            </div>
+        {isLoading ? (
+          <div className="flex justify-center py-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
           </div>
-
-          {/* Service Details */}
-          <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1">Xizmat</p>
-            <p className="font-medium">{service?.name}</p>
-            {category && (
-              <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-                {Icon && <Icon className="h-4 w-4" />}
-                <span>{category.name}</span>
-                {serviceType && (
-                  <>
-                    <span className="mx-1">•</span>
-                    <span>{serviceType.name}</span>
-                  </>
-                )}
+        ) : (
+          <div className='space-y-4 py-4'>
+            {/* Order ID and Date */}
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <p className='text-sm font-medium text-muted-foreground'>Buyurtma ID</p>
+                <p className='font-medium'>{order.id}</p>
               </div>
-            )}
-          </div>
-
-          {/* Link */}
-          <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1 flex items-center gap-1">
-              <Link2 className="h-4 w-4" /> Havola
-            </p>
-            <div className="flex items-center gap-2">
-              <p className="truncate">{order.link}</p>
-              <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" asChild>
-                <a href={order.link} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              </Button>
+              <div>
+                <p className='text-sm font-medium text-muted-foreground'>Sana</p>
+                <p>
+                  {isValidDate(order.created_at)
+                    ? formatDateTime(order.created_at)
+                    : 'N/A'}
+                </p>
+              </div>
             </div>
-          </div>
 
-          {/* Quantity and Price */}
-          <div className="grid grid-cols-2 gap-4">
+            {/* Service Details */}
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Miqdor</p>
-              <p className="font-medium">{order.quantity.toLocaleString()}</p>
+              <p className='text-sm font-medium text-muted-foreground mb-1'>Xizmat</p>
+              <p className='font-medium'>{service?.name || 'N/A'}</p>
+              {category && (
+                <div className='flex items-center gap-2 mt-1 text-sm text-muted-foreground'>
+                  <span>{category.name}</span>
+                  {serviceType && (
+                    <>
+                      <span className='mx-1'>•</span>
+                      <span>{serviceType.name}</span>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
+
+            {/* Link */}
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Umumiy narx</p>
-              <p className="font-medium">{formatCurrency(convertToUZS(order.totalPrice))}</p>
+              <p className='text-sm font-medium text-muted-foreground mb-1 flex items-center gap-1'>
+                <Link2 className='h-4 w-4' /> Havola
+              </p>
+              <div className='flex items-center gap-2'>
+                <p className='truncate'>{order.url}</p>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='h-6 w-6 shrink-0'
+                  asChild
+                >
+                  <a href={order.url} target='_blank' rel='noopener noreferrer'>
+                    <ExternalLink className='h-4 w-4' />
+                  </a>
+                </Button>
+              </div>
+            </div>
+
+            {/* Quantity and Price */}
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <p className='text-sm font-medium text-muted-foreground'>Miqdor</p>
+                <p className='font-medium'>{order.quantity?.toLocaleString() || 'N/A'}</p>
+              </div>
+              <div>
+                <p className='text-sm font-medium text-muted-foreground'>Umumiy narx</p>
+                <p className='font-medium'>
+                  {formatCurrency(convertToUZS(order.price))}
+                </p>
+              </div>
+            </div>
+
+            {/* Estimated Completion */}
+            <div>
+              <p className='text-sm font-medium text-muted-foreground mb-1 flex items-center gap-1'>
+                <CalendarClock className='h-4 w-4' /> Taxminiy yakunlanish
+              </p>
+              <p className='text-green-500'>{order.estimatedCompletion || 'N/A'}</p>
             </div>
           </div>
+        )}
 
-          {/* Estimated Completion */}
-          <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1 flex items-center gap-1">
-              <CalendarClock className="h-4 w-4" /> Taxminiy yakunlanish
-            </p>
-            <p className="text-green-500">{order.estimatedCompletion}</p>
-          </div>
-        </div>
-
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-          {order.status === "pending" && (
+        <DialogFooter className='flex-col sm:flex-row gap-2'>
+          {order.status === 'true' && (
             <Button
               onClick={handleCompletePendingOrder}
-              disabled={user.balance < order.totalPrice}
-              className="w-full sm:w-auto"
+              disabled={isLoading || userBalance < order.price}
+              className='w-full sm:w-auto'
             >
-              {user.balance < order.totalPrice ? "Mablag' yetarli emas" : "Buyurtmani yakunlash"}
+              {userBalance < order.price
+                ? "Mablag' yetarli emas"
+                : 'Buyurtmani yakunlash'}
             </Button>
           )}
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
+          <Button
+            variant='outline'
+            onClick={() => onOpenChange(false)}
+            className='w-full sm:w-auto'
+          >
             Yopish
           </Button>
         </DialogFooter>
@@ -178,4 +275,3 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
     </Dialog>
   )
 }
-

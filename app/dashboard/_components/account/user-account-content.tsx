@@ -4,16 +4,17 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { LogOut, Settings, ShoppingBag, CreditCard, HelpCircle, Edit, ChevronRight, Mail } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, convertToUZS } from "@/lib/utils";
-import { EditProfileDialog } from "./edit-profile-dialog"; // To‘g‘ri yo‘lga ishora qiling
-import { SupportView } from "./support-view";
-import { TransactionsView } from "./transactions-view";
-import { OrdersView } from "./orders-view";
+// import { EditProfileDialog } from "./edit-profile-dialog"; // To‘g‘ri yo‘lga ishora qiling
+// import { SupportView } from "./support-view";
+// import { TransactionsView } from "./transactions-view";
+// import { OrdersView } from "./orders-view";
 import { Separator } from "../ui/separator";
 import { apiService } from "@/lib/apiservise";
 import { UserProfile } from "@/lib/types";
+import { EditProfileDialog } from './edit-profile-dialog'
 
 interface UserAccountContentProps {
   view: "main" | "orders" | "transactions" | "support";
@@ -45,7 +46,7 @@ export function UserAccountContent({ view, setView, onClose }: UserAccountConten
       }
     };
     fetchData();
-  }, [router]);
+  }, [router, userProfile]);
 
   const handleLogout = () => {
     Cookies.remove("accessToken");
@@ -71,7 +72,6 @@ export function UserAccountContent({ view, setView, onClose }: UserAccountConten
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
-                <AvatarImage src={userProfile.avatar} alt={userProfile.username} />
                 <AvatarFallback className="text-lg">{getInitials()}</AvatarFallback>
               </Avatar>
               <div>

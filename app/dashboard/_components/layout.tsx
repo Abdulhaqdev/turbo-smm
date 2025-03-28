@@ -3,7 +3,7 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useStore } from "@/lib/store"
+// import { useStore } from "@/lib/store"
 import { cn } from "@/lib/utils"
 import { Home, ShoppingCart, CreditCard, Package } from "lucide-react"
 
@@ -13,7 +13,6 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const pathname = usePathname()
-  const { user } = useStore()
 
   const navigation = [
     { name: "Home", href: "/", icon: Home },
@@ -23,6 +22,7 @@ export function Layout({ children }: LayoutProps) {
   ]
 
   return (
+    
     <div className="flex min-h-screen flex-col">
       {/* Header */}
       <header className="sticky top-0 z-40 border-b bg-background">
@@ -33,8 +33,8 @@ export function Layout({ children }: LayoutProps) {
             </Link>
           </div>
           <div className="flex items-center gap-4">
-            <div className="rounded-full bg-muted px-3 py-1 text-sm">Balance: ${user.balance.toFixed(2)}</div>
-            <div className="text-sm">{user.name}</div>
+            {/* <div className="rounded-full bg-muted px-3 py-1 text-sm">Balance: ${user.balance.toFixed(2)}</div>
+            <div className="text-sm">{user.name}</div> */}
           </div>
         </div>
       </header>

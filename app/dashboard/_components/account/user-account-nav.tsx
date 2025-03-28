@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import { ChevronDown, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback,  } from "@/components/ui/avatar";
 import { UserAccountContent } from "./user-account-content";
 import { UserProfile } from '@/lib/types'
 
@@ -20,7 +20,7 @@ interface UserAccountNavProps {
 
 export function UserAccountNav({ mobile = false }: UserAccountNavProps) {
   const router = useRouter();
-  const [userProfile, setUserProfile] = useState<Pick<UserProfile, "username" | "first_name" | "last_name" | "avatar"> | null>(null);
+  const [userProfile, setUserProfile] = useState<Pick<UserProfile, "username" | "first_name" | "last_name"  > | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState<"main" | "orders" | "transactions" | "support">("main");
 
@@ -41,7 +41,6 @@ export function UserAccountNav({ mobile = false }: UserAccountNavProps) {
           username: response.data.username,
           first_name: response.data.first_name,
           last_name: response.data.last_name,
-          avatar: response.data.avatar,
         });
       } else {
         console.log("Failed to fetch user profile, redirecting to /login");
@@ -94,7 +93,6 @@ export function UserAccountNav({ mobile = false }: UserAccountNavProps) {
       {mobile ? (
         <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full" onClick={goToAccountPage}>
           <Avatar className="h-9 w-9">
-            <AvatarImage src={userProfile.avatar} alt={userProfile.username} />
             <AvatarFallback>{getInitials()}</AvatarFallback>
           </Avatar>
         </Button>
@@ -103,7 +101,6 @@ export function UserAccountNav({ mobile = false }: UserAccountNavProps) {
           <SheetTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={userProfile.avatar} alt={userProfile.username} />
                 <AvatarFallback>{getInitials()}</AvatarFallback>
               </Avatar>
               <span className="hidden md:inline-block">{userProfile.username}</span>

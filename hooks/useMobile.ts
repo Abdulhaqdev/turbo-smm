@@ -12,3 +12,4 @@ export const useMobile = create<MobileState>((set) => ({
   setIsMobile: (isMobile) => set({ isMobile }),
 }))
 
+  

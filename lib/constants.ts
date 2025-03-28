@@ -3,12 +3,12 @@
  */
 export const ROUTES = {
   HOME: "/",
-  NEW_ORDER: "/new-order",
-  SERVICES: "/services",
-  ORDERS: "/orders",
-  ADD_FUNDS: "/add-funds",
+  NEW_ORDER: "dashboard/new-order",
+  SERVICES: "dashboard/services",
+  ORDERS: "dashboard/orders",
+  ADD_FUNDS: "dashboard/add-funds",
   ACCOUNT: "/dashboard/account",
-  SUPPORT: "/support",
+  SUPPORT: "dashboard/support",
 }
 
 /**

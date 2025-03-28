@@ -157,9 +157,12 @@ export class ApiService {
   }
 
   // New method to fetch user data
-  async fetchUser(): Promise<ApiResponse<User>> {
-    return this.get<User>("/api/users/");
+  async fetchUser(userId: string): Promise<ApiResponse<User>> {
+    return this.get<User>(`/api/users/${userId}`);
   }
+  async fetchUsers(): Promise<ApiResponse<User>> {
+    return this.get<User>(`/api/users/$`);
+  } 
 }
 
 export const apiService = new ApiService();

@@ -1,87 +1,49 @@
 // lib/store.ts
-import { create } from "zustand";
-import Cookies from "js-cookie";
-import { ApiResponse, apiService } from './apiservise'
-// import { apiService, ApiResponse } from "@/lib/apiService";
+import { create } from 'zustand';
+import { apiService } from '@/lib/apiservise';
+import Cookies from 'js-cookie';
+import { UserProfile } from '@/lib/types';
 
 interface UserState {
-  userProfile: {
-    id: number | null;
-    userId: number | null; // Login dan olingan user_id
-    username: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    balance: number | string;
-    phoneNumber: string;
-    apiKey: string;
-    avatar?: string;
-  };
-  setUserProfile: (profile: Partial<UserState["userProfile"]>) => void;
-  fetchUserProfile: (userId: number) => Promise<void>;
+  userProfile: UserProfile | null;
+  loading: boolean;
+  error: string | null;
+  fetchUserProfile: () => Promise<void>;
+  setUserProfile: (profile: UserProfile) => void;
   clearUserProfile: () => void;
 }
 
-export const useStore = create<UserState>((set) => ({
-  userProfile: {
-    id: null,
-    userId: null,
-    username: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    balance: 0,
-    phoneNumber: "",
-    apiKey: "",
-    avatar: "",
-  },
-  setUserProfile: (profile) => set((state) => ({ userProfile: { ...state.userProfile, ...profile } })),
-  fetchUserProfile: async (userId: number) => {
+export const useUserStore = create<UserState>((set) => ({
+  userProfile: null,
+  loading: false,
+  error: null,
+
+  fetchUserProfile: async () => {
+    const userId = Cookies.get("userId");
     const accessToken = Cookies.get("accessToken");
-    if (!accessToken) {
-      console.log("No access token found");
+
+    if (!accessToken || !userId) {
+      set({ error: "No access token or userId" });
       return;
     }
-console.log(userId)
+
+    set({ loading: true, error: null });
     try {
-      const response: ApiResponse<any> = await apiService.get(`/api/users/2/`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      const response = await apiService.get<UserProfile>(`/api/users/${userId}/`);
       if (response.status === 200 && response.data) {
-        set((state) => ({
-          userProfile: {
-            ...state.userProfile,
-            id: response.data.id,
-            userId,
-            username: response.data.username,
-            firstName: response.data.first_name,
-            lastName: response.data.last_name,
-            email: response.data.email,
-            balance: response.data.balance,
-            phoneNumber: response.data.phone_number,
-            apiKey: response.data.api_key,
-            avatar: response.data.avatar || "", // Agar backendda avatar bo'lsa
-          },
-        }));
+        set({ userProfile: response.data, loading: false });
       } else {
-        console.error("Failed to fetch user profile:", response.error);
+        throw new Error("Failed to fetch user profile");
       }
     } catch (error) {
-      console.error("Error fetching user profile:", error);
+      set({
+        error: error instanceof Error ? error.message : "Something went wrong",
+        loading: false,
+      });
     }
   },
-  clearUserProfile: () => set({
-    userProfile: {
-      id: null,
-      userId: null,
-      username: "",
-      firstName: "",
-      lastName: "",
-      email: "",
-      balance: 0,
-      phoneNumber: "",
-      apiKey: "",
-      avatar: "",
-    },
-  }),
+
+  setUserProfile: (profile: UserProfile) => set({ userProfile: profile }),
+
+  clearUserProfile: () => set({ userProfile: null, error: null, loading: false }),
 }));

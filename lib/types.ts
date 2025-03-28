@@ -53,11 +53,12 @@ export type UserProfile = {
   id: string
   username: string
   email: string
-  firstName: string
-  lastName: string
+  last_name: string
+  first_name: string
   avatar: string
   balance: number
   joinDate: string
+  phone_number: string
 }
 
 export type Transaction = {
@@ -166,9 +167,18 @@ export interface Service {
 }
 
 export interface Order {
-  service: number;
+  id: number;
+  service: number; // Bu number bo‘lsa, xatolik yuzaga keladi
   price: number;
   url: string;
   status: string;
   user: number;
+  created_at: string;
+  updated_at: string;
+  link: string;
+  createdAt: string;
+  quantity: number;
+  serviceTypeId?: string;
+  categoryId?: string;
+  estimatedCompletion?: string;
 }

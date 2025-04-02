@@ -52,30 +52,34 @@ export interface PaginatedResponse<T> {
 
 export class ApiService {
   private baseUrl: string = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.turbosmm.uz";
-
+  
   private async handleResponse<T>(response: Response, method: string): Promise<ApiResponse<T>> {
     const data = await response.json();
     if (!response.ok) {
       if (response.status === 401) {
         const refreshToken = Cookies.get("refreshToken");
-        if (refreshToken) {
-          const refreshResponse = await this.post<{ access: string }, { refresh: string }>("/api/token/refresh/", {
-            refresh: refreshToken,
-          });
-          if (refreshResponse.status === 200 && refreshResponse.data?.access) {
-            Cookies.set("accessToken", refreshResponse.data.access, {
-              expires: 1,
-              secure: process.env.NODE_ENV === "production",
-              sameSite: "Strict",
-            });
-            const newHeaders = {
-              ...this.getHeaders(),
-              Authorization: `Bearer ${refreshResponse.data.access}`,
-            };
-            return this.retryRequest(response.url.replace(this.baseUrl, ""), method, newHeaders, null);
-          }
+        if (!refreshToken) {
+          console.error("Refresh token topilmadi");
+          return { status: 401, error: { general: ["Sessiya tugadi, qayta kiring"] } };
         }
-        console.error("Refresh token failed or not available");
+        const refreshResponse = await this.post<{ access: string }, { refresh: string }>("/api/token/refresh/", {
+          refresh: refreshToken,
+        });
+        if (refreshResponse.status === 200 && refreshResponse.data?.access) {
+          Cookies.set("accessToken", refreshResponse.data.access, {
+            expires: 1,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Strict",
+          });
+          const newHeaders = {
+            ...this.getHeaders(),
+            Authorization: `Bearer ${refreshResponse.data.access}`,
+          };
+          return this.retryRequest(response.url.replace(this.baseUrl, ""), method, newHeaders, null);
+        } else {
+          console.error("Refresh token yangilash muvaffaqiyatsiz:", refreshResponse.error);
+          return { status: 401, error: { general: ["Sessiya yangilanmadi, qayta kiring"] } };
+        }
       }
       return { status: response.status, error: data };
     }

@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "../../_components/ui/use-toast";
+// import { useToast } from "../../_components/ui/use-toast";
 import { Header } from "../../_components/header";
 import { apiService } from '@/lib/apiservise'
+import { useToast } from '@/hooks/use-toast'
 // import { apiService } from "@/services/api-service"; // ApiService fayl yo‘liga moslashtiring
 
 interface UserProfile {
@@ -36,7 +37,7 @@ export default function EditProfilePage() {
 
   // Login vaqtidan saqlangan ID’ni olish
   useEffect(() => {
-    const storedUserId = localStorage.getItem("userId");
+    const storedUserId = localStorage.getItem("user_id");
     console.log(storedUserId)
     if (storedUserId) {
       setUserId(storedUserId);

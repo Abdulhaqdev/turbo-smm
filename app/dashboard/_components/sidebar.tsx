@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import { ShoppingCart, LayoutGrid, Wallet, Receipt, LifeBuoy } from "lucide-react";
 import { Instagram, Send, Twitter, Youtube, Facebook } from "lucide-react";
 import TiktokIcon from './icons/tiktok-icon';
-import { UserAccountNav } from './account/user-account-nav';
 import Image from 'next/image';
 
 export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
@@ -73,9 +72,9 @@ export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLDivEle
           ))}
         </nav>
       </div>
-      <div className="mt-auto border-t p-4">
+      {/* <div className="mt-auto border-t p-4">
         <UserAccountNav />
-      </div>
+      </div> */}
     </div>
   );
 }

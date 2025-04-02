@@ -47,7 +47,7 @@ export default function LoginPage() {
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
       });
-      Cookies.set("userId", response.data.user_id.toString(), {
+      Cookies.set("user_id", response.data.user_id.toString(), {
         expires: 1,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
@@ -60,9 +60,10 @@ export default function LoginPage() {
         });
       }
       setIsLoading(false);
-      router.push("/dashboard");
+      router.push("/dashboard/new-order");
     } else if (response.error) {
       const newErrors: LoginErrors = {};
+
       if (response.error.username) newErrors.username = response.error.username[0] || "Foydalanuvchi nomida xatolik!";
       if (response.error.password) newErrors.password = response.error.password[0] || "Parolda xatolik!";
       if (!newErrors.username && !newErrors.password) {

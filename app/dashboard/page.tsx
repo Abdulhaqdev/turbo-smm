@@ -30,7 +30,7 @@ export default function Home() {
               <h2 className="mb-2 text-xl font-semibold">New Order</h2>
               <p className="mb-4 text-sm text-muted-foreground">Place a new order for social media services</p>
               <Button asChild className="w-full">
-                <Link href="dashboard/new-order">Place Order</Link>
+                <Link href="/new-order">Place Order</Link>
               </Button>
             </div>
 

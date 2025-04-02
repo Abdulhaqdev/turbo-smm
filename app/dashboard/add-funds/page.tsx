@@ -8,8 +8,9 @@ import { Label } from "@/components/ui/label";
 import { CreditCard, Wallet, Plus, Minus } from "lucide-react";
 import { formatCurrency, convertToUZS } from "@/lib/utils";
 import Image from "next/image";
-import { useToast } from "../_components/ui/use-toast";
+// import { useToast } from "../_components/ui/use-toast";
 import { Header } from "../_components/header";
+import { useToast } from '@/hooks/use-toast'
 
 interface Transaction {
   id: number;
@@ -111,7 +112,7 @@ export default function AddFundsPage() {
       <Header />
       <main className="flex-1 p-4 md:p-6">
         <div className="mx-auto max-w-3xl">
-          <h1 className="mb-6 text-2xl font-bold">Hisobni to'ldirish</h1>
+          <h1 className="mb-6 text-2xl font-bold">{`Hisobni to'ldirish`}</h1>
 
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
@@ -133,9 +134,9 @@ export default function AddFundsPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CreditCard className="h-5 w-5" />
-                  Hisobni to'ldirish
+                 {` Hisobni to'ldirish`}
                 </CardTitle>
-                <CardDescription>Miqdorni kiriting va to'lov usulini tanlang</CardDescription>
+                <CardDescription>{`Miqdorni kiriting va to'lov usulini tanlang`}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -178,7 +179,7 @@ export default function AddFundsPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>To'lov usuli</Label>
+                    <Label>{`To'lov usuli`}</Label>
                     <div className="grid grid-cols-3 gap-2">
                       {paymentMethods.map((method) => (
                         <Button
@@ -218,11 +219,11 @@ export default function AddFundsPage() {
                   <Wallet className="h-5 w-5" />
                   Tranzaksiyalar tarixi
                 </CardTitle>
-                <CardDescription>Sizning so'nggi moliyaviy operatsiyalaringiz</CardDescription>
+                <CardDescription>{`Sizning so'nggi moliyaviy operatsiyalaringiz`}</CardDescription>
               </CardHeader>
               <CardContent>
                 {transactions.length === 0 ? (
-                  <div className="text-center py-6 text-muted-foreground">Hali tranzaksiyalar yo'q</div>
+                  <div className="text-center py-6 text-muted-foreground">{`Hali tranzaksiyalar yo'q`}</div>
                 ) : (
                   <div className="space-y-4">
                     {transactions.map((transaction) => (

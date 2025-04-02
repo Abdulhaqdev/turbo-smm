@@ -16,7 +16,7 @@ export default function DashboardLayout({
       <div className={`flex min-h-screen flex-col md:flex-row ${inter.className}`}>
         <Sidebar className="hidden md:flex" />
         <main className="flex-1  md:ml-64">{children}</main>
-        <MobileNavigation className="md:hidden" />
+        <MobileNavigation  />
         <Toaster />
       </div>
   );

@@ -54,9 +54,9 @@ export default function Page() {
           sameSite: "Strict",
         });
       }
-      console.log("Login: Token saqlandi:", Cookies.get("accessToken"));
+      // console.log("Login: Token saqlandi:", Cookies.get("accessToken"));
       setIsLoading(false);
-      router.push("/dashboard");
+      router.push("/dashboard/new-order");
     } else if (response.error) {
       const newErrors: LoginErrors = {};
       if (response.error.username) newErrors.username = response.error.username[0] || "Foydalanuvchi nomida xatolik!";

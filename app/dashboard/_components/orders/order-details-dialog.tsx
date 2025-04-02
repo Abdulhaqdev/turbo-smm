@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { CalendarClock, ExternalLink, Link2 } from 'lucide-react'
 import { Badge } from '../ui/badge'
-import { useToast } from '../ui/use-toast'
+// import { useToast } from '../ui/use-toast'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { apiService } from '@/lib/apiservise'
 import { convertToUZS, formatCurrency } from '@/lib/utils'
 import { useFormattedDate } from '@/hooks/useFormattedDate'
 import type {  Service, ServiceType, Category } from '@/lib/types'
 import Cookies from 'js-cookie'
+import { useToast } from '@/hooks/use-toast'
 
 interface OrderDetailsDialogProps {
   order: Order | null
@@ -44,7 +45,7 @@ export function OrderDetailsDialog({
 
   // API dan ma'lumotlarni yuklash
   useEffect(() => {
-		const userId = Cookies.get('userId')
+		const userId = Cookies.get('user_id')
 		const accessToken = Cookies.get('accessToken')
 		if (!accessToken || !userId) {
 			toast({

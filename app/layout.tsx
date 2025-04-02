@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   title: "Turbo SMM | Ijtimoiy tarmoqlarda tez o'sish",
   description:
     "Ijtimoiy tarmoqlarda tez va samarali o'sish uchun bizning yuqori sifatli xizmatlarimizdan foydalaning...",
+  icons: {
+    icon: "/favicon.png", // Fayl joylashuvi
+  },
 };
 
 export default function RootLayout({
@@ -26,6 +29,7 @@ export default function RootLayout({
         className={`${noto_sans.variable} dark:bg-[#101013] overflow-x-hidden`}
         id="top"
       >
+        
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

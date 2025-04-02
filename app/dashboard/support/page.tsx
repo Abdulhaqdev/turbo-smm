@@ -8,9 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "../_components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../_components/ui/select"
 import { Label } from "@/components/ui/label"
-import { useToast } from "../_components/ui/use-toast"
 import { MessageSquare, HelpCircle, FileQuestion } from "lucide-react"
 import { Header } from '../_components/header'
+import { useToast } from '@/hooks/use-toast'
 
 export default function SupportPage() {
   const { toast } = useToast()

@@ -7,14 +7,13 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ShoppingCart, LayoutGrid, Wallet, User } from "lucide-react"
 
-interface MobileNavigationProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-export function MobileNavigation({ className }: MobileNavigationProps) {
+export function MobileNavigation( ) {
   const pathname = usePathname()
 
   const routes = [
     {
-      label: "Yangi buyurtma",
+      label: "Yangi  buyurtma",
       icon: ShoppingCart,
       href: "/dashboard/new-order",
       active: pathname === "/new-order",
@@ -49,14 +48,14 @@ export function MobileNavigation({ className }: MobileNavigationProps) {
       <div className="h-16 md:hidden" aria-hidden="true" />
 
       {/* Mobile navigation */}
-      <div className={cn("fixed bottom-0 left-0 right-0 z-50 border-t bg-background md:hidden", className)}>
+      <div className={cn("fixed bottom-0 left-0 right-0 z-50 border-t bg-black md:hidden ", )}>
         <nav className="flex h-16 items-center justify-around">
           {routes.map((route) => (
             <Link
               key={route.href}
               href={route.href}
               className={cn(
-                "flex flex-1 flex-col items-center justify-center py-2 text-xs",
+                "flex flex-1 flex-col items-center justify-center py-2 text-[10px]",
                 route.active ? "text-primary" : "text-muted-foreground",
               )}
             >

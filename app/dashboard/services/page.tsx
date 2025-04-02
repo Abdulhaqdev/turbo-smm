@@ -9,9 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Label } from "@/components/ui/label";
 import { ChevronLeft, ChevronRight, Filter, Search, X } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { Header } from '../_components/header';
-import { ApiService } from '@/lib/apiservise';
-import { useToast } from '../_components/ui/use-toast';
+import { Header } from "../_components/header";
+import { apiService } from "@/lib/apiservise"; // Singleton import
+import { useToast } from '@/hooks/use-toast'
 
 interface Service {
   id: number;
@@ -22,41 +22,32 @@ interface Service {
   max: number;
   price: number;
   site_id: number;
-  service_type: number;
+  category: number;
   api: number;
   created_at: string;
   updated_at: string;
   is_active: boolean;
 }
 
-interface ServiceType {
-  id: number; // Raqam sifatida
-  name: string;
-  category: { id: number; name: string }; // API’dan kelgan tuzilma
-}
-
 interface Category {
-  id: number; // Raqam sifatida
+  id: number;
   name: string;
+  is_active?: boolean;
 }
 
 export default function ServicesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [serviceTypeFilter, setServiceTypeFilter] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
-  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
-  const [filteredServiceTypes, setFilteredServiceTypes] = useState<ServiceType[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const servicesPerPage = 10;
 
   const { toast } = useToast();
-  const apiService = new ApiService();
 
-  // Fetch all data on component mount
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
@@ -64,27 +55,17 @@ export default function ServicesPage() {
 
       try {
         const categoriesResponse = await apiService.fetchCategories();
-        // console.log("Categories:", categoriesResponse.data);
-        if (categoriesResponse.status === 200 && categoriesResponse.data) {
-          setCategories(categoriesResponse.data);
+        if (categoriesResponse.status === 200 && categoriesResponse.data?.results) {
+          setCategories(categoriesResponse.data.results.filter((cat) => cat.is_active !== false));
         } else {
           throw new Error("Failed to load categories");
         }
 
-        const serviceTypesResponse = await apiService.fetchServiceTypes();
-        // console.log("Service Types:", serviceTypesResponse.data);
-        if (serviceTypesResponse.status === 200 && serviceTypesResponse.data) {
-          setServiceTypes(serviceTypesResponse.data);
-          setFilteredServiceTypes(serviceTypesResponse.data);
-        } else {
-          throw new Error("Failed to load service types");
-        }
-
-        const servicesResponse = await apiService.fetchServices();
-        // console.log("Services:", servicesResponse.data);
-        if (servicesResponse.status === 200 && servicesResponse.data) {
-          const activeServices = servicesResponse.data.filter((service) => service.is_active);
+        const servicesResponse = await apiService.fetchServices(currentPage);
+        if (servicesResponse.status === 200 && servicesResponse.data?.results) {
+          const activeServices = servicesResponse.data.results.filter((service) => service.is_active);
           setServices(activeServices);
+          setTotalPages(Math.ceil(servicesResponse.data.count / servicesPerPage));
         } else {
           throw new Error("Failed to load services");
         }
@@ -102,52 +83,25 @@ export default function ServicesPage() {
     };
 
     loadData();
-  }, []);
+  }, [currentPage, toast]); // apiService o'rniga toast qo'shildi
 
-  // Update filtered service types when category changes
-  useEffect(() => {
-    console.log("Category Filter:", categoryFilter);
-    if (categoryFilter) {
-      const filtered = serviceTypes.filter((type) => type.category.id.toString() === categoryFilter);
-      setFilteredServiceTypes(filtered);
-      console.log("Filtered Service Types:", filtered);
-      setServiceTypeFilter("");
-    } else {
-      setFilteredServiceTypes(serviceTypes);
-    }
-  }, [categoryFilter, serviceTypes]);
-
-  // Helper functions
-  const getCategoryById = (id: string) => categories.find((cat) => cat.id.toString() === id);
-  const getServiceTypeById = (id: string) => serviceTypes.find((type) => type.id.toString() === id);
-
-  // Filter services
+  // Qolgan kod o'zgarmagan holda davom etadi...
   const filteredServices = services.filter((service) => {
-    const serviceType = getServiceTypeById(service.service_type.toString());
-    const category = serviceType ? getCategoryById(serviceType.category.id.toString()) : null;
+    const category = categories.find((cat) => cat.id === service.category);
 
     const matchesSearch =
       service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (serviceType?.name.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
       (category?.name.toLowerCase() || "").includes(searchTerm.toLowerCase());
 
-    const matchesCategory = !categoryFilter || (serviceType && serviceType.category.id.toString() === categoryFilter);
-    const matchesServiceType = !serviceTypeFilter || service.service_type.toString() === serviceTypeFilter;
+    const matchesCategory = !categoryFilter || service.category.toString() === categoryFilter;
 
-    console.log(
-      `Service: ${service.name}, Matches Search: ${matchesSearch}, Matches Category: ${matchesCategory}, Matches Service Type: ${matchesServiceType}`
-    );
-
-    return matchesSearch && matchesCategory && matchesServiceType;
+    return matchesSearch && matchesCategory;
   });
 
-  // Pagination
   const indexOfLastService = currentPage * servicesPerPage;
   const indexOfFirstService = indexOfLastService - servicesPerPage;
   const currentServices = filteredServices.slice(indexOfFirstService, indexOfLastService);
-  const totalPages = Math.ceil(filteredServices.length / servicesPerPage);
 
-  // Time color and duration formatting
   const getTimeColor = (duration: number) => {
     if (duration <= 60) return "text-blue-500";
     if (duration <= 1440) return "text-green-500";
@@ -165,14 +119,16 @@ export default function ServicesPage() {
   };
 
   const paginate = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const clearFilters = () => {
     setCategoryFilter("");
-    setServiceTypeFilter("");
     setSearchTerm("");
+    setCurrentPage(1);
   };
 
   if (isLoading) {
@@ -222,23 +178,24 @@ export default function ServicesPage() {
             </div>
           </div>
 
-          {/* Filters */}
           <div className="mb-6 rounded-lg border bg-card p-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium flex items-center">
                 <Filter className="h-4 w-4 mr-2" />
                 Filters
               </h2>
-              {(categoryFilter || serviceTypeFilter || searchTerm) && (
+              {(categoryFilter || searchTerm) && (
                 <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2">
                   <X className="h-4 w-4 mr-1" />
                   Clear filters
                 </Button>
               )}
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4">
               <div>
-                <Label htmlFor="category-filter" className="mb-2 block">Category</Label>
+                <Label htmlFor="category-filter" className="mb-2 block">
+                  Category
+                </Label>
                 <Select
                   value={categoryFilter}
                   onValueChange={(value) => {
@@ -259,36 +216,12 @@ export default function ServicesPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label htmlFor="service-type-filter" className="mb-2 block">Service Type</Label>
-                <Select
-                  value={serviceTypeFilter}
-                  onValueChange={(value) => {
-                    setServiceTypeFilter(value === "all" ? "" : value);
-                    setCurrentPage(1);
-                  }}
-                  disabled={filteredServiceTypes.length === 0}
-                >
-                  <SelectTrigger id="service-type-filter">
-                    <SelectValue placeholder="All Service Types" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Service Types</SelectItem>
-                    {filteredServiceTypes.map((type) => (
-                      <SelectItem key={type.id} value={type.id.toString()}>
-                        {type.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           </div>
 
-          {/* Results count and pagination info */}
           <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted-foreground mb-2 sm:mb-0">
-              Showing {currentServices.length > 0 ? indexOfFirstService + 1 : 0} to{" "}
+              Showing {filteredServices.length > 0 ? indexOfFirstService + 1 : 0} to{" "}
               {Math.min(indexOfLastService, filteredServices.length)} of {filteredServices.length} services
             </p>
             {totalPages > 1 && (
@@ -314,7 +247,6 @@ export default function ServicesPage() {
             )}
           </div>
 
-          {/* Desktop view - Table */}
           <div className="hidden md:block">
             <div className="rounded-lg border bg-card">
               <table className="w-full">
@@ -331,9 +263,7 @@ export default function ServicesPage() {
                 </thead>
                 <tbody>
                   {currentServices.map((service, index) => {
-                    const serviceType = getServiceTypeById(service.service_type.toString());
-                    const category = serviceType ? getCategoryById(serviceType.category.id.toString()) : null;
-
+                    const category = categories.find((cat) => cat.id === service.category);
                     return (
                       <tr key={service.id} className={index % 2 === 0 ? "" : "bg-muted/30"}>
                         <td className="px-4 py-4 text-left">{indexOfFirstService + index + 1}</td>
@@ -352,7 +282,7 @@ export default function ServicesPage() {
                         </td>
                         <td className="px-4 py-4 text-right">
                           <Button asChild size="sm">
-                            <Link href={`/dashboard/new-order`}>Buy now</Link>
+                            <Link href={`/dashboard/new-order?serviceId=${service.id}`}>Buy now</Link>
                           </Button>
                         </td>
                       </tr>
@@ -370,12 +300,9 @@ export default function ServicesPage() {
             </div>
           </div>
 
-          {/* Mobile view - Cards */}
           <div className="grid gap-4 md:hidden">
             {currentServices.map((service, index) => {
-              const serviceType = getServiceTypeById(service.service_type.toString());
-              const category = serviceType ? getCategoryById(serviceType.category.id.toString()) : null;
-
+              const category = categories.find((cat) => cat.id === service.category);
               return (
                 <Card key={service.id} className="bg-card">
                   <CardContent className="pt-6">
@@ -400,7 +327,7 @@ export default function ServicesPage() {
                   </CardContent>
                   <CardFooter>
                     <Button asChild className="w-full">
-                      <Link href={`dashboard/new-order`}>Buy now</Link>
+                      <Link href={`/dashboard/new-order?serviceId=${service.id}`}>Buy now</Link>
                     </Button>
                   </CardFooter>
                 </Card>
@@ -413,7 +340,6 @@ export default function ServicesPage() {
             )}
           </div>
 
-          {/* Pagination controls */}
           {totalPages > 1 && (
             <div className="mt-6 flex justify-center">
               <div className="flex items-center space-x-1">

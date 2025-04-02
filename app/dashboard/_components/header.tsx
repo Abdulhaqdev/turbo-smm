@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import {  useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { Button } from "@/components/ui/button";
-import { UserAccountNav } from "./account/user-account-nav";
 import { formatCurrency, convertToUZS } from "@/lib/utils";
 import { apiService } from '@/lib/apiservise'
 import ModeToggle from '@/components/shared/ModeToggle'
@@ -21,7 +20,7 @@ export function Header({ showBackButton = false }: HeaderProps) {
   const [userProfile, setUserProfile] = useState<Pick<UserProfile, "username" | "balance"> | null>(null);
 
   useEffect(() => {
-    const userId = Cookies.get("userId");
+    const userId = Cookies.get("user_id");
     const accessToken = Cookies.get("accessToken");
     if (!accessToken || !userId) {
       console.log("No access token or userId, redirecting to /login");
@@ -70,7 +69,7 @@ export function Header({ showBackButton = false }: HeaderProps) {
       <div className="flex items-center gap-2">
        
         <ModeToggle />
-        <UserAccountNav mobile />
+      
       </div>
     </header>
   );

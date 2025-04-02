@@ -19,7 +19,7 @@ export const useUserStore = create<UserState>((set) => ({
   error: null,
 
   fetchUserProfile: async () => {
-    const userId = Cookies.get("userId");
+    const userId = Cookies.get("user_id");
     const accessToken = Cookies.get("accessToken");
 
     if (!accessToken || !userId) {

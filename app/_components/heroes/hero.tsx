@@ -54,7 +54,6 @@ export default function Page() {
           sameSite: "Strict",
         });
       }
-      // console.log("Login: Token saqlandi:", Cookies.get("accessToken"));
       setIsLoading(false);
       router.push("/dashboard/new-order");
     } else if (response.error) {

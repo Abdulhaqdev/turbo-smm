@@ -10,9 +10,7 @@ export default function Home() {
   const router = useRouter();
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
-    console.log("Dashboard: Access Token:", accessToken); // Debug
     if (!accessToken) {
-      console.log("Dashboard: No token found, redirecting to /login");
       router.push("/login");
     }
   }, [router]);

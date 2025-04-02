@@ -97,7 +97,6 @@ export default function AccountPage() {
     Cookies.remove("accessToken");
     Cookies.remove("refreshToken");
     Cookies.remove("userId");
-    console.log("Logout: Tokenlar o'chirildi");
     router.push("/login");
   };
   const handleSaveProfile = async () => {

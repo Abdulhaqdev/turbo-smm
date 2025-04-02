@@ -87,8 +87,6 @@ export default function NewOrderPage() {
       setError(null);
 
       try {
-        const accessToken = Cookies.get("accessToken");
-        console.log("Access Token:", accessToken);
 
         const userIdFromCookie = Cookies.get("user_id");
         if (userIdFromCookie) {
@@ -104,7 +102,6 @@ export default function NewOrderPage() {
         }
 
         const categoriesResponse = await apiService.fetchCategories();
-        console.log("Categories Response:", categoriesResponse);
         if (categoriesResponse.status === 200 && categoriesResponse.data?.results) {
           const activeCategories = categoriesResponse.data.results.filter(
             (cat) => cat.is_active !== false
@@ -117,7 +114,6 @@ export default function NewOrderPage() {
         }
 
         const servicesResponse = await apiService.fetchServices();
-        console.log("Services Response:", servicesResponse);
         if (servicesResponse.status === 200 && servicesResponse.data?.results) {
           const activeServices = servicesResponse.data.results.filter((srv) => srv.is_active);
           setServices(activeServices);
@@ -143,8 +139,7 @@ export default function NewOrderPage() {
   }, [toast]);
 
   useEffect(() => {
-    console.log("Categories:", categories);
-    console.log("Services:", services);
+  
   }, [categories, services]);
 
   useEffect(() => {

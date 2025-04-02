@@ -39,7 +39,6 @@ export default function LoginPage() {
     const loginData: LoginData = { username, password };
 
     const response = await apiService.post<LoginResponse, LoginData>("/api/token/", loginData);
-    console.log("Login Response:", response);
 
     if (response.status === 200 && response.data) {
       Cookies.set("accessToken", response.data.access, {

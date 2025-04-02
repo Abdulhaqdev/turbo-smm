@@ -15,5 +15,4 @@ export default async function login(data:LoginData){
 	 const resData = await res.json()
 	 cookiStore.set("refresh_token", resData.refresh, {httpOnly:true, secure:true,sameSite:"strict"})
 
-	console.log(resData)
 }

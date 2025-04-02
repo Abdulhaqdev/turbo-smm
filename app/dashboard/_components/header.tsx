@@ -23,7 +23,6 @@ export function Header({ showBackButton = false }: HeaderProps) {
     const userId = Cookies.get("user_id");
     const accessToken = Cookies.get("accessToken");
     if (!accessToken || !userId) {
-      console.log("No access token or userId, redirecting to /login");
       router.push("/login");
       return;
     }
@@ -36,7 +35,6 @@ export function Header({ showBackButton = false }: HeaderProps) {
           balance: response.data.balance,
         });
       } else {
-        console.log("Failed to fetch user profile, redirecting to /login");
         router.push("/login");
       }
     };

@@ -55,16 +55,13 @@ export class ApiService {
 
   private async handleResponse<T>(response: Response, method: string): Promise<ApiResponse<T>> {
     const data = await response.json();
-    console.log("API Response:", response.status, data);
     if (!response.ok) {
       if (response.status === 401) {
         const refreshToken = Cookies.get("refreshToken");
-        console.log("Refresh Token:", refreshToken);
         if (refreshToken) {
           const refreshResponse = await this.post<{ access: string }, { refresh: string }>("/api/token/refresh/", {
             refresh: refreshToken,
           });
-          console.log("Refresh Response:", refreshResponse);
           if (refreshResponse.status === 200 && refreshResponse.data?.access) {
             Cookies.set("accessToken", refreshResponse.data.access, {
               expires: 1,

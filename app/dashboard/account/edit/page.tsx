@@ -38,7 +38,6 @@ export default function EditProfilePage() {
   // Login vaqtidan saqlangan ID’ni olish
   useEffect(() => {
     const storedUserId = localStorage.getItem("user_id");
-    console.log(storedUserId)
     if (storedUserId) {
       setUserId(storedUserId);
     } else {

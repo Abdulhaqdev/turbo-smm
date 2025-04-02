@@ -81,7 +81,6 @@ export function OrderDetailsDialog({
 
         // Foydalanuvchi balansini olish (user ID order dan keladi)
         const userResponse = await apiService.fetchUser(userId)
-				console.log(userResponse)
         if (userResponse.status === 200 && userResponse.data) {
           setUserBalance(userResponse.data.balance)
         }

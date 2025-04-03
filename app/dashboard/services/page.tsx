@@ -10,8 +10,9 @@ import { Label } from "@/components/ui/label";
 import { ChevronLeft, ChevronRight, Filter, Search, X } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { Header } from "../_components/header";
-import { apiService } from "@/lib/apiservise"; // Singleton import
-import { useToast } from '@/hooks/use-toast'
+import { apiService } from "@/lib/apiservise";
+import { useToast } from '@/hooks/use-toast';
+import SocialIcon from '@/components/shared/SocialIcon'
 
 interface Service {
   id: number;
@@ -33,6 +34,7 @@ interface Category {
   id: number;
   name: string;
   is_active?: boolean;
+  icon?: string; // Yangi xususiyat: ijtimoiy tarmoq ikonkasi
 }
 
 export default function ServicesPage() {
@@ -48,6 +50,22 @@ export default function ServicesPage() {
 
   const { toast } = useToast();
 
+  // Ijtimoiy tarmoqlar ro'yxati
+  const socialPlatforms = [
+    "Instagram",
+    "Facebook",
+    "Twitter",
+    "Spotify",
+    "TikTok",
+    "LinkedIn",
+    "Google",
+    "Telegram",
+    "Discord",
+    "Snapchat",
+    "Twitch",
+    "Youtube"
+  ];
+
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
@@ -56,7 +74,20 @@ export default function ServicesPage() {
       try {
         const categoriesResponse = await apiService.fetchCategories();
         if (categoriesResponse.status === 200 && categoriesResponse.data?.results) {
-          setCategories(categoriesResponse.data.results.filter((cat) => cat.is_active !== false));
+          const activeCategories = categoriesResponse.data.results
+            .filter((cat) => cat.is_active !== false)
+            .map((cat) => {
+              // Kategoriya nomi ijtimoiy tarmoq nomiga mos keladimi tekshiramiz
+              const normalizedCategoryName = cat.name.toLowerCase();
+              const matchingPlatform = socialPlatforms.find(
+                (platform) => platform.toLowerCase() === normalizedCategoryName
+              );
+              return {
+                ...cat,
+                icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined, // Agar moslik bo‘lsa ikonka qo‘shiladi
+              };
+            });
+          setCategories(activeCategories);
         } else {
           throw new Error("Failed to load categories");
         }
@@ -83,9 +114,8 @@ export default function ServicesPage() {
     };
 
     loadData();
-  }, [currentPage, toast]); // apiService o'rniga toast qo'shildi
+  }, [currentPage, toast]);
 
-  // Qolgan kod o'zgarmagan holda davom etadi...
   const filteredServices = services.filter((service) => {
     const category = categories.find((cat) => cat.id === service.category);
 
@@ -210,7 +240,10 @@ export default function ServicesPage() {
                     <SelectItem value="all">All Categories</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={category.id.toString()}>
-                        {category.name}
+                        <div className="flex items-center gap-2">
+                          {category.icon && <SocialIcon iconName={category.icon} className="h-5 w-5" />}
+                          <span>{category.name}</span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>

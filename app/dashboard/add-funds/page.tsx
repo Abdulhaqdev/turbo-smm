@@ -22,7 +22,7 @@ interface Transaction {
 
 export default function AddFundsPage() {
   const { toast } = useToast();
-  const [amount, setAmount] = useState<string>("10");
+  const [amount, setAmount] = useState<string>("10,000");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -32,7 +32,7 @@ export default function AddFundsPage() {
   }, []);
 
   const userBalance = 50;
-  const predefinedAmounts = [10, 25, 50, 100];
+  const predefinedAmounts = [10000, 50000, 100000];
   const paymentMethods = [
     { id: "click", name: "Click", icon: "/placeholder.svg?height=40&width=40" },
     { id: "payme", name: "Payme", icon: "/placeholder.svg?height=40&width=40" },
@@ -97,7 +97,7 @@ export default function AddFundsPage() {
         description: `${formatCurrency(convertToUZS(amountNum))} hisobingizga qo'shildi.`,
         variant: "success",
       });
-      setAmount("10");
+      setAmount("10000");
       setSelectedPaymentMethod(null);
       setIsProcessing(false);
     }, 1500);
@@ -147,10 +147,10 @@ export default function AddFundsPage() {
                         <Minus className="h-4 w-4" />
                       </Button>
                       <div className="relative flex-1">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"></span>
                         <Input
                           id="amount"
-                          placeholder="10.00"
+                          placeholder="10000"
                           className="pl-7"
                           value={amount}
                           onChange={(e) => handleAmountChange(e.target.value)}
@@ -161,11 +161,11 @@ export default function AddFundsPage() {
                       </Button>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Taxminiy: {formatCurrency(convertToUZS(Number.parseFloat(amount) || 0))}
+                      Taxminiy: {formatCurrency((Number.parseFloat(amount) || 0))}
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-3 gap-5">
                     {predefinedAmounts.map((value) => (
                       <Button
                         key={value}
@@ -173,7 +173,7 @@ export default function AddFundsPage() {
                         className={amount === value.toString() ? "border-primary" : ""}
                         onClick={() => handlePredefinedAmount(value)}
                       >
-                        {formatCurrency(convertToUZS(value))}
+                        {formatCurrency((value))}
                       </Button>
                     ))}
                   </div>

@@ -11,13 +11,15 @@ import { FormError } from "../_components/common/FormError";
 import { Header } from "../_components/header";
 import { apiService } from "@/lib/apiservise";
 import Cookies from "js-cookie";
-import { useToast } from '@/hooks/use-toast'
+import { useToast } from '@/hooks/use-toast';
+import SocialIcon from '@/components/shared/SocialIcon';
 
 // Interfeyslar...
 interface Category {
   id: number;
   name: string;
   is_active?: boolean;
+  icon?: string; // Yangi xususiyat: ijtimoiy tarmoq nomi
 }
 
 interface Service {
@@ -81,13 +83,28 @@ export default function NewOrderPage() {
 
   const [user, setUser] = useState<User | null>(null);
 
+  // Ijtimoiy tarmoqlar ro'yxati (frontendda ikonka qo‘shish uchun)
+  const socialPlatforms = [
+    "Instagram",
+    "Facebook",
+    "Twitter",
+    "Spotify",
+    "TikTok",
+    "LinkedIn",
+    "Google",
+    "Telegram",
+    "Discord",
+    "Snapchat",
+    "Twitch",
+    "Youtube"
+  ];
+
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-
         const userIdFromCookie = Cookies.get("user_id");
         if (userIdFromCookie) {
           setUser({ id: Number(userIdFromCookie), balance: 1000 });
@@ -103,9 +120,19 @@ export default function NewOrderPage() {
 
         const categoriesResponse = await apiService.fetchCategories();
         if (categoriesResponse.status === 200 && categoriesResponse.data?.results) {
-          const activeCategories = categoriesResponse.data.results.filter(
-            (cat) => cat.is_active !== false
-          );
+          const activeCategories = categoriesResponse.data.results
+            .filter((cat) => cat.is_active !== false)
+            .map((cat) => {
+              // Kategoriya nomi ijtimoiy tarmoq nomiga mos keladimi tekshiramiz
+              const normalizedCategoryName = cat.name.toLowerCase();
+              const matchingPlatform = socialPlatforms.find(
+                (platform) => platform.toLowerCase() === normalizedCategoryName
+              );
+              return {
+                ...cat,
+                icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined, // Agar moslik bo‘lsa ikonka qo‘shiladi, aks holda undefined
+              };
+            });
           setCategories(activeCategories);
         } else {
           throw new Error(
@@ -137,10 +164,6 @@ export default function NewOrderPage() {
 
     loadData();
   }, [toast]);
-
-  useEffect(() => {
-  
-  }, [categories, services]);
 
   useEffect(() => {
     const serviceIdFromUrl = searchParams.get("serviceId");
@@ -189,7 +212,7 @@ export default function NewOrderPage() {
       setSelectedService(null);
     }
     setQuantityError(null);
-  }, [serviceId, services, quantity]); // quantity qo'shildi
+  }, [serviceId, services, quantity]);
 
   useEffect(() => {
     if (selectedService && quantity) {
@@ -245,7 +268,7 @@ export default function NewOrderPage() {
       new URL(link);
       return true;
     } catch (e) {
-      console.log(e)
+      console.log(e);
       setLinkError("Please enter a valid URL");
       return false;
     }
@@ -388,6 +411,7 @@ export default function NewOrderPage() {
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={String(category.id)}>
                       <div className="flex items-center gap-2">
+                        {category.icon && <SocialIcon iconName={category.icon} className="h-5 w-5" />}
                         <span>{category.name}</span>
                       </div>
                     </SelectItem>
@@ -474,7 +498,15 @@ export default function NewOrderPage() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-2">
                     <span className="text-muted-foreground">Category:</span>
-                    <span>{categories.find((cat) => String(cat.id) === categoryId)?.name || ""}</span>
+                    <div className="flex items-center gap-2">
+                      {categoryId && categories.find((cat) => String(cat.id) === categoryId)?.icon && (
+                        <SocialIcon
+                          iconName={categories.find((cat) => String(cat.id) === categoryId)!.icon!}
+                          className="h-5 w-5"
+                        />
+                      )}
+                      <span>{categories.find((cat) => String(cat.id) === categoryId)?.name || ""}</span>
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <span className="text-muted-foreground">Service:</span>

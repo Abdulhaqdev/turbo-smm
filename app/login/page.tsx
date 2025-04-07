@@ -41,22 +41,11 @@ export default function LoginPage() {
     const response = await apiService.post<LoginResponse, LoginData>("/api/token/", loginData);
 
     if (response.status === 200 && response.data) {
-      Cookies.set("accessToken", response.data.access, {
-        expires: 1,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-      });
-      Cookies.set("user_id", response.data.user_id.toString(), {
-        expires: 1,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-      });
+      console.log("Saving tokens:", response.data);
+      Cookies.set("accessToken", response.data.access, { expires: 1, secure: true, sameSite: "Strict" });
+      Cookies.set("user_id", response.data.user_id.toString(), { expires: 1, secure: true, sameSite: "Strict" });
       if (rememberMe) {
-        Cookies.set("refreshToken", response.data.refresh, {
-          expires: 7,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "Strict",
-        });
+        Cookies.set("refreshToken", response.data.refresh, { expires: 7, secure: true, sameSite: "Strict" });
       }
       setIsLoading(false);
       router.push("/dashboard/new-order");

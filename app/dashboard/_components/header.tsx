@@ -29,19 +29,22 @@ export function Header({ showBackButton = false }: HeaderProps) {
       router.push("/login");
       return;
     }
-
+  
     const fetchData = async () => {
-      const response = await apiService.get<UserProfile>(`/api/users/${userId}/`);
-      if (response.status === 200 && response.data) {
-        setUserProfile({
-          username: response.data.username,
-					first_name: response.data.first_name,
-          balance: response.data.balance,
-					last_name: response.data.last_name,
-
-        });
-      } else {
-        console.log("Failed to fetch user profile, redirecting to /login");
+      try {
+        const response = await apiService.get<UserProfile>(`/api/users/${userId}/`);
+        if (response.status === 200 && response.data) {
+          setUserProfile({
+            username: response.data.username,
+            first_name: response.data.first_name,
+            balance: response.data.balance,
+            last_name: response.data.last_name,
+          });
+        } else {
+          throw new Error("Failed to fetch user profile");
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
         router.push("/login");
       }
     };

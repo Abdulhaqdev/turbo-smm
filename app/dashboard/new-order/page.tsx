@@ -14,12 +14,12 @@ import Cookies from "js-cookie";
 import { useToast } from '@/hooks/use-toast';
 import SocialIcon from '@/components/shared/SocialIcon';
 
-// Interfeyslar...
+// Interfeyslar
 interface Category {
   id: number;
   name: string;
   is_active?: boolean;
-  icon?: string; // Yangi xususiyat: ijtimoiy tarmoq nomi
+  icon?: string;
 }
 
 interface Service {
@@ -38,9 +38,14 @@ interface Service {
   is_active: boolean;
 }
 
-interface User {
+interface UserProfile {
   id: number;
   balance: number;
+  username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number: string;
 }
 
 interface Order {
@@ -81,73 +86,58 @@ export default function NewOrderPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
 
-  // Ijtimoiy tarmoqlar ro'yxati (frontendda ikonka qo‘shish uchun)
   const socialPlatforms = [
-    "Instagram",
-    "Facebook",
-    "Twitter",
-    "Spotify",
-    "TikTok",
-    "LinkedIn",
-    "Google",
-    "Telegram",
-    "Discord",
-    "Snapchat",
-    "Twitch",
-    "Youtube"
+    "Instagram", "Facebook", "Twitter", "Spotify", "TikTok", "LinkedIn",
+    "Google", "Telegram", "Discord", "Snapchat", "Twitch", "Youtube"
   ];
 
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       setError(null);
-  
+
       try {
-        const userIdFromCookie = Cookies.get("user_id");
-        if (userIdFromCookie) {
-          setUser({ id: Number(userIdFromCookie), balance: 1000 });
-        } else {
-          const userResponse = await apiService.fetchUser("me");
-          if (userResponse.status === 200 && userResponse.data) {
-            setUser(userResponse.data);
-            Cookies.set("userId", String(userResponse.data.id), { expires: 1 });
-          } else {
-            throw new Error("Failed to load user data");
-          }
+        const userId = Cookies.get("user_id");
+        const accessToken = Cookies.get("accessToken");
+        if (!accessToken || !userId) {
+          throw new Error("No access token or user ID found");
         }
-  
+
+        // AccountPage'dagi usuldan foydalanib user ma'lumotlarini olish
+        const profileResponse = await apiService.get<UserProfile>(`/api/users/${userId}/`);
+        if (profileResponse.status === 200 && profileResponse.data) {
+          setUser(profileResponse.data);
+        } else {
+          throw new Error(profileResponse.error?.general?.[0] || "Failed to fetch user profile");
+        }
+
         const categoriesResponse = await apiService.fetchCategories();
         if (categoriesResponse.status === 200 && categoriesResponse.data?.results) {
           const activeCategories = categoriesResponse.data.results
             .filter((cat) => cat.is_active !== false)
             .map((cat) => {
               const normalizedCategoryName = cat.name.toLowerCase();
-              // Kategoriya nomida ijtimoiy tarmoq so‘zi borligini tekshiramiz
               const matchingPlatform = socialPlatforms.find((platform) =>
                 normalizedCategoryName.includes(platform.toLowerCase())
               );
               return {
                 ...cat,
-                icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined, // Moslik bo‘lsa ikonka qo‘shiladi
+                icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined,
               };
             });
           setCategories(activeCategories);
         } else {
-          throw new Error(
-            "Failed to load categories: " + (categoriesResponse.error?.general?.[0] || "Unknown error")
-          );
+          throw new Error(categoriesResponse.error?.general?.[0] || "Failed to load categories");
         }
-  
+
         const servicesResponse = await apiService.fetchServices();
         if (servicesResponse.status === 200 && servicesResponse.data?.results) {
           const activeServices = servicesResponse.data.results.filter((srv) => srv.is_active);
           setServices(activeServices);
         } else {
-          throw new Error(
-            "Failed to load services: " + (servicesResponse.error?.general?.[0] || "Unknown error")
-          );
+          throw new Error(servicesResponse.error?.general?.[0] || "Failed to load services");
         }
       } catch (err) {
         console.error("Load Data Error:", err);
@@ -157,17 +147,17 @@ export default function NewOrderPage() {
           description: "Failed to load categories, services, or user data.",
           variant: "destructive",
         });
+        router.push("/login"); // Xatolik bo'lsa login sahifasiga yo'naltirish
       } finally {
         setIsLoading(false);
       }
     };
-  
+
     loadData();
-  }, [toast]);
+  }, [toast, router]);
 
   useEffect(() => {
     const serviceIdFromUrl = searchParams.get("serviceId");
-
     const savedOrder = localStorage.getItem("savedOrder");
     if (savedOrder) {
       const parsedOrder: SavedOrder = JSON.parse(savedOrder);
@@ -230,18 +220,15 @@ export default function NewOrderPage() {
 
   const validateQuantity = (): boolean => {
     setQuantityError(null);
-
     if (!quantity.trim()) {
       setQuantityError("Quantity is required");
       return false;
     }
-
     const quantityNum = Number.parseInt(quantity);
     if (isNaN(quantityNum)) {
       setQuantityError("Quantity must be a valid number");
       return false;
     }
-
     if (selectedService) {
       if (quantityNum < selectedService.min) {
         setQuantityError(`Quantity must be at least ${selectedService.min}`);
@@ -252,18 +239,15 @@ export default function NewOrderPage() {
         return false;
       }
     }
-
     return true;
   };
 
   const validateLink = (): boolean => {
     setLinkError(null);
-
     if (!link.trim()) {
       setLinkError("Link is required");
       return false;
     }
-
     try {
       new URL(link);
       return true;

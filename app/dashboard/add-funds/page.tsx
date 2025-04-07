@@ -6,45 +6,75 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CreditCard, Wallet, Plus, Minus } from "lucide-react";
-import { formatCurrency, convertToUZS } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils"; // `convertToUZS` ni olib tashladim, chunki hozircha kerak emas
 import Image from "next/image";
-// import { useToast } from "../_components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Header } from "../_components/header";
-import { useToast } from '@/hooks/use-toast'
+import Cookies from "js-cookie";
+import { apiService } from "@/lib/apiservise";
+import { useRouter } from "next/navigation";
+import { UserProfile } from '@/lib/types'
 
-interface Transaction {
-  id: number;
-  amount: number;
-  payment_method: string;
-  created_at: string;
-  status: string;
-}
+// interface Transaction {
+//   id: number;
+//   amount: number;
+//   payment_method: string;
+//   created_at: string;
+//   status: string;
+// }
 
 export default function AddFundsPage() {
+  const router = useRouter();
   const { toast } = useToast();
-  const [amount, setAmount] = useState<string>("10,000");
+
+  const [amount, setAmount] = useState<string>("10000");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [userProfile, setUserProfile] = useState<
+    Pick<UserProfile, "username" | "balance" | "first_name" | "last_name"> | null
+  >(null);
 
   useEffect(() => {
-    setIsMounted(true); // Komponent faqat klientda yuklanadi
+    const userId = Cookies.get("user_id");
+    const accessToken = Cookies.get("accessToken");
+    if (!accessToken || !userId) {
+      console.log("No access token or userId, redirecting to /login");
+      router.push("/login");
+      return;
+    }
+
+    const fetchData = async () => {
+      const response = await apiService.get<UserProfile>(`/api/users/${userId}/`);
+      if (response.status === 200 && response.data) {
+        setUserProfile({
+          username: response.data.username,
+          first_name: response.data.first_name,
+          last_name: response.data.last_name,
+          balance: response.data.balance,
+        });
+      } else {
+        console.log("Failed to fetch user profile, redirecting to /login");
+        router.push("/login");
+      }
+    };
+    fetchData();
+  }, [router]);
+
+  useEffect(() => {
+    setIsMounted(true);
   }, []);
 
-  const userBalance = 50;
   const predefinedAmounts = [10000, 50000, 100000];
   const paymentMethods = [
-    { id: "click", name: "Click", icon: "/placeholder.svg?height=40&width=40" },
-    { id: "payme", name: "Payme", icon: "/placeholder.svg?height=40&width=40" },
-    { id: "uzumbank", name: "Uzumbank", icon: "/placeholder.svg?height=40&width=40" },
-  ];
-  const transactions: Transaction[] = [
-    { id: 1, amount: 20, payment_method: "Click", created_at: "2025-03-20T10:00:00Z", status: "completed" },
-    { id: 2, amount: -15, payment_method: "Payme", created_at: "2025-03-21T15:30:00Z", status: "completed" },
+    { id: "click", name: "Click", icon: "/click.png" },
+    // Boshqa to'lov usullari hozircha faolsiz
+    { id: "payme", name: "Payme", icon: "/payme.jpg" },
+    { id: "octobank", name: "Octobank", icon: "/octobank.jpeg" },
   ];
 
   const handleAmountChange = (value: string) => {
-    const regex = /^[0-9]*\.?[0-9]*$/;
+    const regex = /^[0-9]*$/; // Faqat butun sonlar uchun
     if (value === "" || regex.test(value)) {
       setAmount(value);
     }
@@ -55,14 +85,14 @@ export default function AddFundsPage() {
   };
 
   const handleIncrement = () => {
-    const currentAmount = Number.parseFloat(amount) || 0;
-    setAmount((currentAmount + 5).toString());
+    const currentAmount = Number.parseInt(amount) || 0;
+    setAmount((currentAmount + 5000).toString());
   };
 
   const handleDecrement = () => {
-    const currentAmount = Number.parseFloat(amount) || 0;
-    if (currentAmount >= 5) {
-      setAmount((currentAmount - 5).toString());
+    const currentAmount = Number.parseInt(amount) || 0;
+    if (currentAmount >= 5000) {
+      setAmount((currentAmount - 5000).toString());
     }
   };
 
@@ -70,7 +100,7 @@ export default function AddFundsPage() {
     setSelectedPaymentMethod(methodId);
   };
 
-  const handleAddFunds = () => {
+  const handleAddFunds = async () => {
     if (!amount || !selectedPaymentMethod) {
       toast({
         title: "To'ldirilmagan forma",
@@ -80,7 +110,7 @@ export default function AddFundsPage() {
       return;
     }
 
-    const amountNum = Number.parseFloat(amount);
+    const amountNum = Number.parseInt(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
       toast({
         title: "Noto'g'ri miqdor",
@@ -90,21 +120,38 @@ export default function AddFundsPage() {
       return;
     }
 
-    setIsProcessing(true);
-    setTimeout(() => {
+    if (selectedPaymentMethod !== "click") {
       toast({
-        title: "Mablag' muvaffaqiyatli qo'shildi!",
-        description: `${formatCurrency(convertToUZS(amountNum))} hisobingizga qo'shildi.`,
-        variant: "success",
+        title: "Hozircha faqat Click qo'llab-quvvatlanadi",
+        description: "Iltimos, Click to'lov usulini tanlang.",
+        variant: "destructive",
       });
-      setAmount("10000");
-      setSelectedPaymentMethod(null);
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const userId = Cookies.get("user_id");
+      if (!userId) {
+        throw new Error("Foydalanuvchi ID topilmadi");
+      }
+
+      // Click to'lov sahifasiga yo'naltirish
+      const paymentUrl = `https://my.click.uz/services/pay?service_id=70317&merchant_id=37916&amount=${amountNum}&transaction_param=${userId}&return_url=https://turbosmm.uz/success`;
+      window.location.href = paymentUrl;
+    } catch (error) {
+      toast({
+        title: "Xatolik yuz berdi",
+        description: error instanceof Error ? error.message : "Noma'lum xato",
+        variant: "destructive",
+      });
       setIsProcessing(false);
-    }, 1500);
+    }
   };
 
   if (!isMounted) {
-    return null; // Serverda render qilinmaydi
+    return null;
   }
 
   return (
@@ -124,7 +171,7 @@ export default function AddFundsPage() {
               </CardHeader>
               <CardContent className="flex flex-col items-center justify-center py-6">
                 <div className="text-3xl font-bold text-primary">
-                  {formatCurrency(convertToUZS(userBalance))}
+                  {userProfile?.balance ? `${formatCurrency(Number(userProfile.balance))} UZS` : "0 UZS"}
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">Sizning joriy hisobingiz</p>
               </CardContent>
@@ -134,24 +181,23 @@ export default function AddFundsPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CreditCard className="h-5 w-5" />
-                 {` Hisobni to'ldirish`}
+                  {`Hisobni to'ldirish`}
                 </CardTitle>
                 <CardDescription>{`Miqdorni kiriting va to'lov usulini tanlang`}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="amount">Miqdor</Label>
+                    <Label htmlFor="amount">Miqdor (UZS)</Label>
                     <div className="flex">
                       <Button variant="outline" size="icon" className="rounded-r-none" onClick={handleDecrement}>
                         <Minus className="h-4 w-4" />
                       </Button>
                       <div className="relative flex-1">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"></span>
                         <Input
                           id="amount"
                           placeholder="10000"
-                          className="pl-7"
+                          className="pl-3"
                           value={amount}
                           onChange={(e) => handleAmountChange(e.target.value)}
                         />
@@ -161,11 +207,11 @@ export default function AddFundsPage() {
                       </Button>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Taxminiy: {formatCurrency((Number.parseFloat(amount) || 0))}
+                      Taxminiy: {formatCurrency(Number(amount) || 0)} UZS
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-5">
+                  <div className="grid grid-cols-3 gap-2">
                     {predefinedAmounts.map((value) => (
                       <Button
                         key={value}
@@ -173,7 +219,7 @@ export default function AddFundsPage() {
                         className={amount === value.toString() ? "border-primary" : ""}
                         onClick={() => handlePredefinedAmount(value)}
                       >
-                        {formatCurrency((value))}
+                        {formatCurrency(value)}
                       </Button>
                     ))}
                   </div>
@@ -189,6 +235,7 @@ export default function AddFundsPage() {
                             selectedPaymentMethod === method.id ? "border-primary" : ""
                           }`}
                           onClick={() => handlePaymentMethodSelect(method.id)}
+                          disabled={method.id !== "click"} // Faqat Click faol
                         >
                           <div className="mb-2 h-10 w-10 relative">
                             <Image src={method.icon} alt={method.name} fill className="object-contain" />
@@ -212,6 +259,7 @@ export default function AddFundsPage() {
             </Card>
           </div>
 
+          {/* Tranzaksiyalar tarixi */}
           <div className="mt-6">
             <Card>
               <CardHeader>
@@ -222,32 +270,8 @@ export default function AddFundsPage() {
                 <CardDescription>{`Sizning so'nggi moliyaviy operatsiyalaringiz`}</CardDescription>
               </CardHeader>
               <CardContent>
-                {transactions.length === 0 ? (
-                  <div className="text-center py-6 text-muted-foreground">{`Hali tranzaksiyalar yo'q`}</div>
-                ) : (
-                  <div className="space-y-4">
-                    {transactions.map((transaction) => (
-                      <div key={transaction.id} className="flex justify-between items-center border-b py-2">
-                        <div>
-                          <p className="font-medium">{transaction.payment_method}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(transaction.created_at).toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p
-                            className={`font-medium ${
-                              transaction.amount > 0 ? "text-green-500" : "text-red-500"
-                            }`}
-                          >
-                            {formatCurrency(convertToUZS(transaction.amount))}
-                          </p>
-                          <p className="text-sm text-muted-foreground">{transaction.status}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                {/* Hozircha statik ma'lumotlar */}
+                <div className="text-center py-6 text-muted-foreground">{`Hali tranzaksiyalar yo'q`}</div>
               </CardContent>
             </Card>
           </div>

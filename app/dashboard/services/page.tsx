@@ -66,55 +66,55 @@ export default function ServicesPage() {
     "Youtube"
   ];
 
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      setError(null);
+useEffect(() => {
+  const loadData = async () => {
+    setIsLoading(true);
+    setError(null);
 
-      try {
-        const categoriesResponse = await apiService.fetchCategories();
-        if (categoriesResponse.status === 200 && categoriesResponse.data?.results) {
-          const activeCategories = categoriesResponse.data.results
-            .filter((cat) => cat.is_active !== false)
-            .map((cat) => {
-              // Kategoriya nomi ijtimoiy tarmoq nomiga mos keladimi tekshiramiz
-              const normalizedCategoryName = cat.name.toLowerCase();
-              const matchingPlatform = socialPlatforms.find(
-                (platform) => platform.toLowerCase() === normalizedCategoryName
-              );
-              return {
-                ...cat,
-                icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined, // Agar moslik bo‘lsa ikonka qo‘shiladi
-              };
-            });
-          setCategories(activeCategories);
-        } else {
-          throw new Error("Failed to load categories");
-        }
-
-        const servicesResponse = await apiService.fetchServices(currentPage);
-        if (servicesResponse.status === 200 && servicesResponse.data?.results) {
-          const activeServices = servicesResponse.data.results.filter((service) => service.is_active);
-          setServices(activeServices);
-          setTotalPages(Math.ceil(servicesResponse.data.count / servicesPerPage));
-        } else {
-          throw new Error("Failed to load services");
-        }
-      } catch (err) {
-        console.error(err);
-        setError("An unexpected error occurred while fetching data.");
-        toast({
-          title: "Error",
-          description: "Failed to load data from the server.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
+    try {
+      const categoriesResponse = await apiService.fetchCategories();
+      if (categoriesResponse.status === 200 && categoriesResponse.data?.results) {
+        const activeCategories = categoriesResponse.data.results
+          .filter((cat) => cat.is_active !== false)
+          .map((cat) => {
+            const normalizedCategoryName = cat.name.toLowerCase();
+            // Ijtimoiy tarmoqlar ro'yxatidan moslikni qidiramiz
+            const matchingPlatform = socialPlatforms.find((platform) =>
+              normalizedCategoryName.includes(platform.toLowerCase())
+            );
+            return {
+              ...cat,
+              icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined, // Agar moslik bo‘lsa ikonka qo‘shiladi
+            };
+          });
+        setCategories(activeCategories);
+      } else {
+        throw new Error("Failed to load categories");
       }
-    };
 
-    loadData();
-  }, [currentPage, toast]);
+      const servicesResponse = await apiService.fetchServices(currentPage);
+      if (servicesResponse.status === 200 && servicesResponse.data?.results) {
+        const activeServices = servicesResponse.data.results.filter((service) => service.is_active);
+        setServices(activeServices);
+        setTotalPages(Math.ceil(servicesResponse.data.count / servicesPerPage));
+      } else {
+        throw new Error("Failed to load services");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("An unexpected error occurred while fetching data.");
+      toast({
+        title: "Error",
+        description: "Failed to load data from the server.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  loadData();
+}, [currentPage, toast]);
 
   const filteredServices = services.filter((service) => {
     const category = categories.find((cat) => cat.id === service.category);
@@ -224,7 +224,7 @@ export default function ServicesPage() {
             <div className="grid gap-4">
               <div>
                 <Label htmlFor="category-filter" className="mb-2 block">
-                  Category
+                Kategoriyalar
                 </Label>
                 <Select
                   value={categoryFilter}
@@ -234,17 +234,17 @@ export default function ServicesPage() {
                   }}
                 >
                   <SelectTrigger id="category-filter">
-                    <SelectValue placeholder="All Categories" />
+                    <SelectValue placeholder="Barcha kategoriyalar" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="all">Barcha kategoriyalar</SelectItem>
                     {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id.toString()}>
-                        <div className="flex items-center gap-2">
-                          {category.icon && <SocialIcon iconName={category.icon} className="h-5 w-5" />}
-                          <span>{category.name}</span>
-                        </div>
-                      </SelectItem>
+                     <SelectItem key={category.id} value={category.id.toString()}>
+                     <div className="flex items-center gap-2">
+                       {category.icon && <SocialIcon iconName={category.icon} className="h-5 w-5" />}
+                       <span>{category.name}</span>
+                     </div>
+                   </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

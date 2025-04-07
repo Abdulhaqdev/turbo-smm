@@ -103,7 +103,7 @@ export default function NewOrderPage() {
     const loadData = async () => {
       setIsLoading(true);
       setError(null);
-
+  
       try {
         const userIdFromCookie = Cookies.get("user_id");
         if (userIdFromCookie) {
@@ -117,20 +117,20 @@ export default function NewOrderPage() {
             throw new Error("Failed to load user data");
           }
         }
-
+  
         const categoriesResponse = await apiService.fetchCategories();
         if (categoriesResponse.status === 200 && categoriesResponse.data?.results) {
           const activeCategories = categoriesResponse.data.results
             .filter((cat) => cat.is_active !== false)
             .map((cat) => {
-              // Kategoriya nomi ijtimoiy tarmoq nomiga mos keladimi tekshiramiz
               const normalizedCategoryName = cat.name.toLowerCase();
-              const matchingPlatform = socialPlatforms.find(
-                (platform) => platform.toLowerCase() === normalizedCategoryName
+              // Kategoriya nomida ijtimoiy tarmoq so‘zi borligini tekshiramiz
+              const matchingPlatform = socialPlatforms.find((platform) =>
+                normalizedCategoryName.includes(platform.toLowerCase())
               );
               return {
                 ...cat,
-                icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined, // Agar moslik bo‘lsa ikonka qo‘shiladi, aks holda undefined
+                icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined, // Moslik bo‘lsa ikonka qo‘shiladi
               };
             });
           setCategories(activeCategories);
@@ -139,7 +139,7 @@ export default function NewOrderPage() {
             "Failed to load categories: " + (categoriesResponse.error?.general?.[0] || "Unknown error")
           );
         }
-
+  
         const servicesResponse = await apiService.fetchServices();
         if (servicesResponse.status === 200 && servicesResponse.data?.results) {
           const activeServices = servicesResponse.data.results.filter((srv) => srv.is_active);
@@ -161,7 +161,7 @@ export default function NewOrderPage() {
         setIsLoading(false);
       }
     };
-
+  
     loadData();
   }, [toast]);
 
@@ -402,7 +402,7 @@ export default function NewOrderPage() {
 
           <div className="mb-6 space-y-4">
             <div>
-              <h2 className="mb-2 text-lg font-medium">Step 1: Select Category</h2>
+              <h2 className="mb-2 text-lg font-medium">Kategoriyalar</h2>
               <Select value={categoryId} onValueChange={setCategoryId}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select category" />
@@ -421,7 +421,7 @@ export default function NewOrderPage() {
             </div>
 
             <div>
-              <h2 className="mb-2 text-lg font-medium">Step 2: Select Service</h2>
+              <h2 className="mb-2 text-lg font-medium">Xizmatlar</h2>
               <Select
                 value={serviceId}
                 onValueChange={setServiceId}

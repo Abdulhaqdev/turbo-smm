@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import {  useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { Button } from "@/components/ui/button";
-import { formatCurrency, convertToUZS } from "@/lib/utils";
 import { apiService } from '@/lib/apiservise'
 import ModeToggle from '@/components/shared/ModeToggle'
 import { UserProfile } from '@/lib/types'
@@ -83,7 +82,7 @@ export function Header({ showBackButton = false }: HeaderProps) {
       </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="rounded-full bg-muted/50 px-3 py-1.5 text-xs sm:text-sm">
-            Balans: {userProfile ? formatCurrency(convertToUZS(userProfile.balance)): ""}
+            Balans: {userProfile ? (userProfile.balance): ""}
           </div>
         </div>
       </div>

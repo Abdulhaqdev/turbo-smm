@@ -12,6 +12,7 @@ import { useFormattedDate } from '@/hooks/useFormattedDate'
 import type {  Service, ServiceType, Category } from '@/lib/types'
 import Cookies from 'js-cookie'
 import { useToast } from '@/hooks/use-toast'
+import { useRouter } from 'next/navigation'
 
 interface OrderDetailsDialogProps {
   order: Order | null
@@ -42,6 +43,7 @@ export function OrderDetailsDialog({
   const [category, setCategory] = useState<Category | null>(null)
   const [userBalance, setUserBalance] = useState<number>(0)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const router = useRouter();
 
   // API dan ma'lumotlarni yuklash
   useEffect(() => {
@@ -53,7 +55,7 @@ export function OrderDetailsDialog({
 				description: 'Please log in to view your account',
 				variant: 'destructive',
 			})
-			// router.push('/login')
+			router.push('/login')
 			return
 		}
     if (!order || !open) return

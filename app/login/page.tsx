@@ -66,7 +66,7 @@ export default function LoginPage() {
       if (response.error.username) newErrors.username = response.error.username[0] || "Foydalanuvchi nomida xatolik!";
       if (response.error.password) newErrors.password = response.error.password[0] || "Parolda xatolik!";
       if (!newErrors.username && !newErrors.password) {
-        newErrors.general = response.error.detail || "Tizimga kirishda xatolik!";
+        newErrors.general = response.error.detail || "login yoki Parol xato!";
       }
       setErrors((prev) => ({ ...prev, ...newErrors }));
       setIsLoading(false);

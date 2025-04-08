@@ -42,6 +42,8 @@ export default function Page() {
     const response: ApiResponse<LoginResponse> = await apiService.post("/api/token/", loginData);
 
     if (response.status === 200 && response.data) {
+      console.log("Saving tokens:", response.data);
+
       Cookies.set("accessToken", response.data.access, {
         expires: 1,
         secure: process.env.NODE_ENV === "production",

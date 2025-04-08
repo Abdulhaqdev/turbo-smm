@@ -29,8 +29,7 @@ interface User {
 }
 
 interface Order {
-  service: number;
-  price: number;
+  service_id: number;
   url: string;
   status: string;
   user: number;

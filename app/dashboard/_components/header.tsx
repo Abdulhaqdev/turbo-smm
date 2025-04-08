@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from "react";
 import {  useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+// import Cookies from "js-cookie";
 import { Button } from "@/components/ui/button";
-import { apiService } from '@/lib/apiservise'
+// import { apiService } from '@/lib/apiservise'
 import ModeToggle from '@/components/shared/ModeToggle'
-import { UserProfile } from '@/lib/types'
+// import { UserProfile } from '@/lib/types'
 import { ArrowLeft } from 'lucide-react'
 import { Avatar, AvatarFallback } from './ui/avatar'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useSession } from '@/hooks/useSession'
+import { IUser } from '@/types/session'
 
 interface HeaderProps {
   showBackButton?: boolean;
@@ -19,41 +21,15 @@ interface HeaderProps {
 export function Header({ showBackButton = false }: HeaderProps) {
   const router = useRouter();
   // const pathname = usePathname();
-  const [userProfile, setUserProfile] = useState<Pick<UserProfile, "username" | "balance"| "first_name"| "last_name"> | null>(null);
+    const {session} = useSession()
+    console.log(session)
+    const [userProfile, setUserProfile] = useState<IUser | undefined | null>( );
+    useEffect(()=> {
+      setUserProfile(session?.user)   
 
-  useEffect(() => {
-    const userId = Cookies.get("user_id");
-    const accessToken = Cookies.get("accessToken");
-    if (!accessToken || !userId) {
-      console.log("No access token or userId, redirecting to /login");
-      router.push("/login");
-      return;
-    }
-  
-    const fetchData = async () => {
-      try {
-        const response = await apiService.get<UserProfile>(`/api/users/${userId}/`);
-        if (response.status === 200 && response.data) {
-          setUserProfile({
-            username: response.data.username,
-            first_name: response.data.first_name,
-            balance: response.data.balance,
-            last_name: response.data.last_name,
-          });
-        } else {
-          throw new Error("Failed to fetch user profile");
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-        router.push("/login");
-      }
-    };
-    fetchData();
-  }, [router]);
-
-
-	// Get user initials for avatar fallback
-	const getInitials = () => {
+    },[session])
+ 
+  const getInitials = () => {
 		return userProfile
 			? `${userProfile.first_name.charAt(0)}${userProfile.last_name.charAt(0)}`
 			: ''
@@ -103,12 +79,7 @@ export function Header({ showBackButton = false }: HeaderProps) {
 						<AvatarFallback>{getInitials()}</AvatarFallback>
 					</Avatar>
 				</Button>
-        {/* <div className='hidden md:flex'>
-        <UserAccountNav mobile />
-        </div>
-        <div className='flex md:hidden'>
-        <UserAccountNav  />
-        </div> */}
+    
       </div>
     </header>
   );

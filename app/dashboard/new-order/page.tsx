@@ -49,11 +49,10 @@ interface UserProfile {
 }
 
 interface Order {
-  service: number;
-  price: number;
+  service_id: number;
   url: string;
   status: string;
-  user: number;
+  user: string;
   quantity: number;
 }
 
@@ -92,12 +91,12 @@ export default function NewOrderPage() {
     "Instagram", "Facebook", "Twitter", "Spotify", "TikTok", "LinkedIn",
     "Google", "Telegram", "Discord", "Snapchat", "Twitch", "Youtube"
   ];
+  // const {session} = useSession()
 
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       setError(null);
-
       try {
         const userId = Cookies.get("user_id");
         const accessToken = Cookies.get("accessToken");
@@ -316,11 +315,10 @@ export default function NewOrderPage() {
     }
 
     const newOrder: Order = {
-      service: Number(serviceId),
-      price: totalPrice,
+      service_id: 1, 
       url: link,
-      status: "true",
-      user: user.id,
+      status: "padding",
+      user: toString(user.id),
       quantity: quantityNum,
     };
 

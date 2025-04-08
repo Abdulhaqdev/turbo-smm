@@ -1,6 +1,6 @@
 'use client'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
 	Card,
@@ -9,7 +9,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card'
-import { useFormattedDate } from '@/hooks/useFormattedDate'
 import { apiService } from '@/lib/apiservise'
 import { ROUTES } from '@/lib/constants'
 import Cookies from 'js-cookie'
@@ -18,25 +17,27 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Header } from '../_components/header'
 import { useToast } from '@/hooks/use-toast'
+import { useSession } from '@/hooks/useSession'
 // import { useToast } from "../_components/ui/use-toast";
 
 // Interfeyslar
 interface UserProfile {
-	first_name: string
-	last_name: string
-	username: string
-	email: string
-	phone_number: string
-	avatar?: string
-	balance?: string
-	joinDate?: string
+		first_name: string
+		last_name: string
+		balance: string
+		username: string
+		email: string
+		id:number
+		phone_number: string
+		api_key: string
+		created_at:string
+
 }
 
 export default function AccountPage() {
 	const router = useRouter()
-	const { formatShortDate, isValidDate } = useFormattedDate()
 	const { toast } = useToast()
-	const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+	const [userProfile, setUserProfile] = useState<UserProfile | undefined| null>(null)
 	const [isEditing, setIsEditing] = useState(false)
 	const [editedUser, setEditedUser] = useState({
 		first_name: '',
@@ -46,6 +47,12 @@ export default function AccountPage() {
 		phone_number: '',
 	})
 
+	const {session} = useSession()
+	console.log(session)
+
+	useEffect(() => {
+		setUserProfile(session?.user)
+	},[session])
 	// Fetch user profile
 	useEffect(() => {
 		const userId = Cookies.get('user_id')
@@ -137,9 +144,7 @@ export default function AccountPage() {
 		}
 	}
 
-	const joinDateDisplay = isValidDate(userProfile?.joinDate)
-		? formatShortDate(userProfile?.joinDate)
-		: 'N/A'
+	
 
 	return (
 		<div className='flex min-h-screen flex-col'>
@@ -175,10 +180,6 @@ export default function AccountPage() {
 								<div className='flex flex-col gap-6 md:flex-row'>
 									<div className='flex items-center gap-4'>
 										<Avatar className='h-20 w-20'>
-											<AvatarImage
-												src={userProfile?.avatar || ''}
-												alt={userProfile?.username || 'User'}
-											/>
 											<AvatarFallback className='text-2xl'>
 												{userProfile?.first_name?.charAt(0) || 'U'}
 											</AvatarFallback>
@@ -189,7 +190,7 @@ export default function AccountPage() {
 												{userProfile?.last_name || ''}
 											</h3>
 											<p className='text-sm text-muted-foreground'>
-												Member since {joinDateDisplay}
+												Member since {userProfile?.created_at}
 											</p>
 											<div className='mt-2 flex items-center gap-2'>
 												<span className='text-sm font-medium'>Balance:</span>

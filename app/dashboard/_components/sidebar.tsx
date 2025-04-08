@@ -48,10 +48,10 @@ export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLDivEle
   return (
     <div className={cn("fixed left-0 top-0 bottom-0 z-40 flex w-64 flex-col border-r bg-card", className)} {...props}>
       <div className="flex h-16 items-center border-b px-6">
-        <Link className="dark:flex hidden items-center space-x-2" href="/">
+        <Link className="dark:flex hidden items-center space-x-2" href="/dashboard/new-order">
           <Image src="/logo.svg" alt="logo" width={150} height={20} />
         </Link>
-        <Link className="dark:hidden flex items-center space-x-2" href="/">
+        <Link className="dark:hidden flex items-center space-x-2" href="/dashboard/new-order">
           <Image src="/turbosmm.svg" alt="logo" width={150} height={20} />
         </Link>
       </div>

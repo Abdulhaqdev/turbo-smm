@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/provider/theme-provider";
+import getSession from './actions/session'
+import { use } from 'react'
+import SessionProvider from '@/components/provider/session-provider'
 
 const noto_sans = Noto_Sans({
   variable: "--font-noto-sans",
@@ -23,6 +26,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = use(getSession())
   return (
     <html lang="en" className="scroll-smooth dark" suppressHydrationWarning>
       <body
@@ -36,7 +40,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <SessionProvider session={session}>
           {children}
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

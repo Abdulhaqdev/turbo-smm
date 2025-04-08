@@ -112,7 +112,7 @@ export default function RegisterPage() {
         );
 
         if (response.status === 201 && response.data) {
-          setIsLoading(false);
+          setIsLoading(false);  
           router.push("/login");
         } else if (response.error) {
           const apiErrors: FormErrors = {};

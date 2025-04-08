@@ -2,18 +2,18 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Header } from './_components/header'
-import { useEffect } from "react";
-import Cookies from "js-cookie";
-import { useRouter } from 'next/navigation'
+// import { useEffect } from "react";
+// import Cookies from "js-cookie";
+// import { useRouter } from 'next/navigation'
 
 export default function Home() {
-  const router = useRouter();
-  useEffect(() => {
-    const accessToken = Cookies.get("accessToken");
-    if (!accessToken) {
-      router.push("/login");
-    }
-  }, [router]);
+  // const router = useRouter();
+  // useEffect(() => {
+  //   const accessToken = Cookies.get("accessToken");
+  //   if (!accessToken) {
+  //     router.push("/login");
+  //   }
+  // }, [router]);
   
   return (
     <div className="flex min-h-screen flex-col">
@@ -28,7 +28,7 @@ export default function Home() {
               <h2 className="mb-2 text-xl font-semibold">New Order</h2>
               <p className="mb-4 text-sm text-muted-foreground">Place a new order for social media services</p>
               <Button asChild className="w-full">
-                <Link href="/new-order">Place Order</Link>
+                <Link href="dashboard/new-order">Place Order</Link>
               </Button>
             </div>
 

@@ -139,7 +139,7 @@ export default function AddFundsPage() {
 
       // Click to'lov sahifasiga yo'naltirish
       const paymentUrl = `https://my.click.uz/services/pay?service_id=70317&merchant_id=37916&amount=${amountNum}&transaction_param=${userId}&return_url=https://turbosmm.uz/success`;
-      window.location.href = paymentUrl;
+      window.open(paymentUrl, '_blank');
     } catch (error) {
       toast({
         title: "Xatolik yuz berdi",

@@ -4,8 +4,10 @@ import { LoginData } from '@/types/login'
 import { cookies } from 'next/headers'
 
 export default async function login(data:LoginData){
+  const baseUrl:string | undefined = process.env.NEXT_PUBLIC_API_BASE_URL ;
+
 	const cookiStore = await cookies()
-	const res = await fetch("https://api.turbosmm.uz/api/token/", {
+	const res = await fetch(`${baseUrl}/api/token/`, {
 		method:"POST",
 		headers: {
 			'Content-Type': 'application/json'

@@ -41,7 +41,7 @@ export default function LoginPage() {
     const response = await apiService.post<LoginResponse, LoginData>("/api/token/", loginData);
 
     if (response.status === 200 && response.data) {
-      console.log("Saving tokens:", response.data);
+      // console.log("Saving tokens:", response.data);
       Cookies.set("accessToken", response.data.access, { expires: 1, secure: true, sameSite: "Strict" });
       Cookies.set("user_id", response.data.user_id.toString(), { expires: 1, secure: true, sameSite: "Strict" });
       if (rememberMe) {

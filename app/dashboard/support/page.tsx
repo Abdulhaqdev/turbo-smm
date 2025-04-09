@@ -1,103 +1,98 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-// import { Header } from "@/components/header"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "../_components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../_components/ui/select"
-import { Label } from "@/components/ui/label"
-import { MessageSquare, HelpCircle, FileQuestion } from "lucide-react"
-import { Header } from '../_components/header'
-import { useToast } from '@/hooks/use-toast'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "../_components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../_components/ui/select";
+import { Label } from "@/components/ui/label";
+import { MessageSquare, HelpCircle, FileQuestion } from "lucide-react";
+import { Header } from "../_components/header";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SupportPage() {
-  const { toast } = useToast()
+  const { toast } = useToast();
 
-  const [subject, setSubject] = useState<string>("")
-  const [orderId, setOrderId] = useState<string>("")
-  const [message, setMessage] = useState<string>("")
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [subject, setSubject] = useState<string>("");
+  const [orderId, setOrderId] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const handleSubmit = () => {
-    // Validate form
     if (!subject || !message) {
       toast({
-        title: "Incomplete form",
-        description: "Please select a subject and enter a message.",
+        title: "Forma to‘liq emas",
+        description: "Iltimos, mavzuni tanlang va xabar yozing.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    // Simulate form submission
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     setTimeout(() => {
-      // Show success toast
       toast({
-        title: "Support ticket submitted",
-        description: "We've received your message and will respond shortly.",
+        title: "Qo‘llab-quvvatlash so‘rovi yuborildi",
+        description: "Xabaringizni qabul qildik va tez orada javob beramiz.",
         variant: "success",
-      })
+      });
 
-      // Reset form
-      setSubject("")
-      setOrderId("")
-      setMessage("")
-      setIsSubmitting(false)
-    }, 1500)
-  }
+      setSubject("");
+      setOrderId("");
+      setMessage("");
+      setIsSubmitting(false);
+    }, 1500);
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 p-4 md:p-6">
         <div className="mx-auto max-w-3xl">
-          <h1 className="mb-6 text-2xl font-bold">Support</h1>
+          <h1 className="mb-6 text-2xl font-bold">Qo‘llab-quvvatlash</h1>
 
           <div className="grid gap-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
-                  Contact Support
+                  Qo‘llab-quvvatlash bilan bog‘lanish
                 </CardTitle>
-                <CardDescription>Get help with your orders or account</CardDescription>
+                <CardDescription>Buyurtmalar yoki hisobingiz bo‘yicha yordam oling</CardDescription>
               </CardHeader>
               <CardContent>
                 <form className="grid gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="subject">Subject</Label>
+                    <Label htmlFor="subject">Mavzu</Label>
                     <Select value={subject} onValueChange={setSubject}>
                       <SelectTrigger id="subject">
-                        <SelectValue placeholder="Select subject" />
+                        <SelectValue placeholder="Mavzuni tanlang" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="order">Order Issue</SelectItem>
-                        <SelectItem value="payment">Payment Problem</SelectItem>
-                        <SelectItem value="account">Account Question</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="order">Buyurtma muammosi</SelectItem>
+                        <SelectItem value="payment">To‘lov muammosi</SelectItem>
+                        <SelectItem value="account">Hisob savoli</SelectItem>
+                        <SelectItem value="other">Boshqa</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="order-id">Order ID (Optional)</Label>
+                    <Label htmlFor="order-id">Buyurtma ID (Ixtiyoriy)</Label>
                     <Input
                       id="order-id"
-                      placeholder="Enter order ID if applicable"
+                      placeholder="Agar mavjud bo‘lsa, buyurtma ID sini kiriting"
                       value={orderId}
                       onChange={(e) => setOrderId(e.target.value)}
                     />
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="message">Message</Label>
+                    <Label htmlFor="message">Xabar</Label>
                     <Textarea
                       id="message"
-                      placeholder="Describe your issue in detail"
+                      placeholder="Muammoingizni batafsil tasvirlab bering"
                       rows={5}
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
@@ -107,7 +102,7 @@ export default function SupportPage() {
               </CardContent>
               <CardFooter>
                 <Button className="w-full" onClick={handleSubmit} disabled={isSubmitting}>
-                  {isSubmitting ? "Submitting..." : "Submit Ticket"}
+                  {isSubmitting ? "Yuborilmoqda..." : "So‘rov yuborish"}
                 </Button>
               </CardFooter>
             </Card>
@@ -117,36 +112,35 @@ export default function SupportPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <HelpCircle className="h-5 w-5" />
-                    FAQ
+                    Tez-tez so‘raladigan savollar
                   </CardTitle>
-                  <CardDescription>Frequently asked questions</CardDescription>
+                  <CardDescription>Ko‘p beriladigan savollar</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <h3 className="font-medium">How long do orders take to complete?</h3>
+                      <h3 className="font-medium">Buyurtmalar qancha vaqt ichida bajariladi?</h3>
                       <p className="text-sm text-muted-foreground">
-                        Order completion times vary by service. You can see the average time for each service on the
-                        services page.
+                        Buyurtma bajarilish vaqti xizmatga qarab farq qiladi. Har bir xizmatning o‘rtacha vaqtini xizmatlar sahifasida ko‘rishingiz mumkin.
                       </p>
                     </div>
                     <div>
-                      <h3 className="font-medium">What payment methods do you accept?</h3>
+                      <h3 className="font-medium">Qanday to‘lov usullarini qabul qilasiz?</h3>
                       <p className="text-sm text-muted-foreground">
-                        We currently accept credit and debit cards for payments.
+                        Hozirda biz kredit va debet kartalari orqali to‘lovlarni qabul qilamiz.
                       </p>
                     </div>
                     <div>
-                      <h3 className="font-medium">Is my order guaranteed?</h3>
+                      <h3 className="font-medium">Buyurtmam kafolatlanganmi?</h3>
                       <p className="text-sm text-muted-foreground">
-                        Yes, all orders are guaranteed. If we cannot deliver, you will receive a full refund.
+                        Ha, barcha buyurtmalar kafolatlangan. Agar biz yetkazib bera olmasak, to‘liq pul qaytariladi.
                       </p>
                     </div>
                   </div>
                 </CardContent>
                 <CardFooter>
                   <Button variant="outline" className="w-full">
-                    View All FAQs
+                    Barcha savollarni ko‘rish
                   </Button>
                 </CardFooter>
               </Card>
@@ -155,35 +149,35 @@ export default function SupportPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <FileQuestion className="h-5 w-5" />
-                    Knowledge Base
+                    Bilimlar bazasi
                   </CardTitle>
-                  <CardDescription>Guides and tutorials</CardDescription>
+                  <CardDescription>Qo‘llanmalar va darsliklar</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <h3 className="font-medium">How to place your first order</h3>
+                      <h3 className="font-medium">Birinchi buyurtmani qanday joylashtirish kerak</h3>
                       <p className="text-sm text-muted-foreground">
-                        A step-by-step guide to placing your first order on TurboSMM.
+                        TurboSMM’da birinchi buyurtmangizni joylashtirish bo‘yicha qadam-baqadam qo‘llanma.
                       </p>
                     </div>
                     <div>
-                      <h3 className="font-medium">Understanding service metrics</h3>
+                      <h3 className="font-medium">Xizmat ko‘rsatkichlarini tushunish</h3>
                       <p className="text-sm text-muted-foreground">
-                        Learn what the different metrics and terms mean for our services.
+                        Xizmatlarimizdagi turli ko‘rsatkichlar va atamalar nimani anglatishini bilib oling.
                       </p>
                     </div>
                     <div>
-                      <h3 className="font-medium">Tips for maximizing results</h3>
+                      <h3 className="font-medium">Natijalarni oshirish uchun maslahatlar</h3>
                       <p className="text-sm text-muted-foreground">
-                        Best practices for getting the most out of your social media marketing.
+                        Ijtimoiy media marketingdan maksimal foyda olish uchun eng yaxshi amaliyotlar.
                       </p>
                     </div>
                   </div>
                 </CardContent>
                 <CardFooter>
                   <Button variant="outline" className="w-full">
-                    Browse Knowledge Base
+                    Bilimlar bazasini ko‘rish
                   </Button>
                 </CardFooter>
               </Card>
@@ -192,6 +186,5 @@ export default function SupportPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }
-

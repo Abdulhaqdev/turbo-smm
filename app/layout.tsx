@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/provider/theme-provider";
-import getSession from './actions/session'
-import { use } from 'react'
-import SessionProvider from '@/components/provider/session-provider'
+import getSession from './actions/session';
+import { use } from 'react';
+import SessionProvider from '@/components/provider/session-provider';
 
 const noto_sans = Noto_Sans({
   variable: "--font-noto-sans",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description:
     "Ijtimoiy tarmoqlarda tez va samarali o'sish uchun bizning yuqori sifatli xizmatlarimizdan foydalaning...",
   icons: {
-    icon: "/favicon.png", // Fayl joylashuvi
+    icon: "/favicon.png",
   },
 };
 
@@ -26,14 +26,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = use(getSession())
+  const rawSession = use(getSession());
+  const session = rawSession
+    ? { accessToken: rawSession.access_token, user: rawSession.user }
+    : undefined;
   return (
     <html lang="en" className="scroll-smooth dark" suppressHydrationWarning>
       <body
         className={`${noto_sans.variable} dark:bg-[#101013] overflow-x-hidden`}
         id="top"
       >
-        
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -41,7 +43,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <SessionProvider session={session}>
-          {children}
+            {children}
           </SessionProvider>
         </ThemeProvider>
       </body>

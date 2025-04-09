@@ -150,6 +150,22 @@ export interface ServiceType {
   is_active: boolean;
 }
 
+// export interface Service {
+//   id: number;
+//   name: string;
+//   description: string;
+//   duration: number;
+//   min: number;
+//   max: number;
+//   price: number;
+//   site_id: number;
+//   service_type: number;
+//   api: number;
+//   created_at: string;
+//   updated_at: string;
+//   is_active: boolean;
+// }
+
 export interface Service {
   id: number;
   name: string;
@@ -159,7 +175,7 @@ export interface Service {
   max: number;
   price: number;
   site_id: number;
-  service_type: number;
+  category: number;
   api: number;
   created_at: string;
   updated_at: string;
@@ -168,17 +184,55 @@ export interface Service {
 
 export interface Order {
   id: number;
-  service: number; // Bu number bo‘lsa, xatolik yuzaga keladi
-  price: number;
+  service: Service;
+  price: string; // API dan string sifatida keladi
   url: string;
   status: string;
-  user: number;
+  quantity: number;
   created_at: string;
   updated_at: string;
-  link: string;
-  createdAt: string;
+  user: number;
+  external_order_id: string;
+}
+
+export interface Service {
+  id: number;
+  name: string;
+  description: string;
+  duration: number;
+  min: number;
+  max: number;
+  price: number;
+  site_id: number;
+  category: number;
+  api: number;
+  created_at: string;
+  updated_at: string;
+  is_active: boolean;
+}
+
+export interface Orders {
+  id: number;
+  service: Service;
+  price: string;
+  url: string;
+  status: string;
   quantity: number;
-  serviceTypeId?: string;
-  categoryId?: string;
-  estimatedCompletion?: string;
+  created_at: string;
+  updated_at: string;
+  user: number;
+  external_order_id: string;
+}
+
+export interface ApiResponse<T> {
+  data?: T;
+  error?: unknown; // ApiErrorResponse ni o‘rniga any ishlatamiz yoki kerakli turi aniqlanadi
+  status: number;
+}
+
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
 }

@@ -1,17 +1,24 @@
-"use client"
+"use client";
 
-import { useSession } from '@/hooks/useSession'
-import { ISession } from '@/types/session'
-import { FC, Fragment, ReactNode, useEffect } from 'react'
+import { useSession } from '@/hooks/useSession';
+import { ISession } from '@/types/session';
+import { FC, ReactNode, useEffect } from 'react';
 
 type Props = {
-	session?: ISession
-	children?: ReactNode
-}
+  session?: ISession | undefined;
+  children?: ReactNode;
+};
 
 const SessionProvider: FC<Props> = ({ session, children }) => {
-	useEffect(() => useSession.getState().setSession(session), [session])
-	return <Fragment>{children}</Fragment>
-}
+  const { setSession } = useSession();
 
-export default SessionProvider
+  useEffect(() => {
+    if (session) {
+      setSession(session); // Prop o‘zgarganda store ni yangilash
+    }
+  }, [session, setSession]);
+
+  return <>{children}</>;
+};
+
+export default SessionProvider;

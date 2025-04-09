@@ -22,7 +22,7 @@ export function Header({ showBackButton = false }: HeaderProps) {
   const router = useRouter();
   // const pathname = usePathname();
     const {session} = useSession()
-    console.log(session)
+    // console.log(session)
     const [userProfile, setUserProfile] = useState<IUser | undefined | null>( );
     useEffect(()=> {
       setUserProfile(session?.user)   

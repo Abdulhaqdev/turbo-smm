@@ -10,9 +10,9 @@ import { formatCurrency } from "@/lib/utils";
 import { FormError } from "../_components/common/FormError";
 import { Header } from "../_components/header";
 import { apiService } from "@/lib/apiservise";
-import Cookies from "js-cookie";
 import { useToast } from '@/hooks/use-toast';
 import SocialIcon from '@/components/shared/SocialIcon';
+import { useSession } from '@/hooks/useSession';
 
 // Interfeyslar
 interface Category {
@@ -38,21 +38,10 @@ interface Service {
   is_active: boolean;
 }
 
-interface UserProfile {
-  id: number;
-  balance: number;
-  username: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-}
-
 interface Order {
   service_id: number;
   url: string;
   status: string;
-  user: string;
   quantity: number;
 }
 
@@ -67,6 +56,7 @@ export default function NewOrderPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
+  const { session } = useSession();
 
   const [categoryId, setCategoryId] = useState<string>("");
   const [serviceId, setServiceId] = useState<string>("");
@@ -85,32 +75,24 @@ export default function NewOrderPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [user, setUser] = useState<UserProfile | null>(null);
-
   const socialPlatforms = [
     "Instagram", "Facebook", "Twitter", "Spotify", "TikTok", "LinkedIn",
     "Google", "Telegram", "Discord", "Snapchat", "Twitch", "Youtube"
   ];
-  // const {session} = useSession()
 
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       setError(null);
-      try {
-        const userId = Cookies.get("user_id");
-        const accessToken = Cookies.get("accessToken");
-        if (!accessToken || !userId) {
-          throw new Error("No access token or user ID found");
-        }
 
-        // AccountPage'dagi usuldan foydalanib user ma'lumotlarini olish
-        const profileResponse = await apiService.get<UserProfile>(`/api/users/${userId}/`);
-        if (profileResponse.status === 200 && profileResponse.data) {
-          setUser(profileResponse.data);
-        } else {
-          throw new Error(profileResponse.error?.general?.[0] || "Failed to fetch user profile");
-        }
+      if (!session) {
+        router.push('/') 
+      }
+
+      try {
+        // if (!session?.user) {
+        //   throw new Error("Foydalanuvchi ma'lumotlari mavjud emas");
+        // }
 
         const categoriesResponse = await apiService.fetchCategories();
         if (categoriesResponse.status === 200 && categoriesResponse.data?.results) {
@@ -128,7 +110,7 @@ export default function NewOrderPage() {
             });
           setCategories(activeCategories);
         } else {
-          throw new Error(categoriesResponse.error?.general?.[0] || "Failed to load categories");
+          throw new Error(categoriesResponse.error?.general?.[0] || "Kategoriyalarni yuklab bo‘lmadi");
         }
 
         const servicesResponse = await apiService.fetchServices();
@@ -136,24 +118,24 @@ export default function NewOrderPage() {
           const activeServices = servicesResponse.data.results.filter((srv) => srv.is_active);
           setServices(activeServices);
         } else {
-          throw new Error(servicesResponse.error?.general?.[0] || "Failed to load services");
+          throw new Error(servicesResponse.error?.general?.[0] || "Xizmatlarni yuklab bo‘lmadi");
         }
       } catch (err) {
-        console.error("Load Data Error:", err);
-        setError("Failed to load data. Please try again later.");
+        console.error("Ma'lumotlarni yuklash xatosi:", err);
+        setError("Ma'lumotlarni yuklashda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko‘ring.");
         toast({
-          title: "Error",
-          description: "Failed to load categories, services, or user data.",
+          title: "Xatolik",
+          description: "Kategoriyalar yoki xizmatlarni yuklab bo‘lmadi.",
           variant: "destructive",
         });
-        router.push("/login"); // Xatolik bo'lsa login sahifasiga yo'naltirish
+        router.push("/login");
       } finally {
         setIsLoading(false);
       }
     };
 
     loadData();
-  }, [toast, router]);
+  }, [toast, router, session, ]);
 
   useEffect(() => {
     const serviceIdFromUrl = searchParams.get("serviceId");
@@ -167,8 +149,8 @@ export default function NewOrderPage() {
       localStorage.removeItem("savedOrder");
 
       toast({
-        title: "Order form restored",
-        description: "Your previous order details have been restored.",
+        title: "Buyurtma formasi tiklandi",
+        description: "Oldingi buyurtma ma'lumotlaringiz tiklandi.",
         variant: "default",
       });
     } else if (serviceIdFromUrl && services.length > 0) {
@@ -220,21 +202,21 @@ export default function NewOrderPage() {
   const validateQuantity = (): boolean => {
     setQuantityError(null);
     if (!quantity.trim()) {
-      setQuantityError("Quantity is required");
+      setQuantityError("Miqdor kiritilishi shart");
       return false;
     }
     const quantityNum = Number.parseInt(quantity);
     if (isNaN(quantityNum)) {
-      setQuantityError("Quantity must be a valid number");
+      setQuantityError("Miqdor haqiqiy raqam bo‘lishi kerak");
       return false;
     }
     if (selectedService) {
       if (quantityNum < selectedService.min) {
-        setQuantityError(`Quantity must be at least ${selectedService.min}`);
+        setQuantityError(`Miqdor kamida ${selectedService.min} bo‘lishi kerak`);
         return false;
       }
       if (quantityNum > selectedService.max) {
-        setQuantityError(`Quantity cannot exceed ${selectedService.max}`);
+        setQuantityError(`Miqdor ${selectedService.max} dan oshmasligi kerak`);
         return false;
       }
     }
@@ -244,7 +226,7 @@ export default function NewOrderPage() {
   const validateLink = (): boolean => {
     setLinkError(null);
     if (!link.trim()) {
-      setLinkError("Link is required");
+      setLinkError("Havola kiritilishi shart");
       return false;
     }
     try {
@@ -252,7 +234,7 @@ export default function NewOrderPage() {
       return true;
     } catch (e) {
       console.log(e);
-      setLinkError("Please enter a valid URL");
+      setLinkError("Iltimos, haqiqiy URL kiriting");
       return false;
     }
   };
@@ -269,8 +251,8 @@ export default function NewOrderPage() {
 
     if (!categoryId || !serviceId) {
       toast({
-        title: "Incomplete form",
-        description: "Please select a category and service to place an order.",
+        title: "Forma to‘liq emas",
+        description: "Buyurtma berish uchun kategoriya va xizmatni tanlang.",
         variant: "destructive",
       });
       return;
@@ -283,10 +265,10 @@ export default function NewOrderPage() {
       return;
     }
 
-    if (!user) {
+    if (!session?.user) {
       toast({
-        title: "Error",
-        description: "User data not available. Please log in to place an order.",
+        title: "Xatolik",
+        description: "Foydalanuvchi ma'lumotlari mavjud emas. Buyurtma berish uchun tizimga kiring.",
         variant: "destructive",
       });
       router.push("/login");
@@ -295,7 +277,7 @@ export default function NewOrderPage() {
 
     const quantityNum = Number.parseInt(quantity);
 
-    if (user.balance < totalPrice) {
+    if (Number(session.user.balance) < totalPrice) {
       const savedOrder: SavedOrder = {
         categoryId,
         serviceId,
@@ -305,8 +287,8 @@ export default function NewOrderPage() {
       localStorage.setItem("savedOrder", JSON.stringify(savedOrder));
 
       toast({
-        title: "Insufficient funds",
-        description: `Your balance is ${formatCurrency(user.balance)}, but this order costs ${formatCurrency(totalPrice)}. Please add funds to continue.`,
+        title: "Mablag‘ yetarli emas",
+        description: `Sizning balansingiz ${(session.user.balance)}, lekin bu buyurtma ${(totalPrice)} turadi. Davom etish uchun pul qo‘shing.`,
         variant: "destructive",
       });
 
@@ -315,10 +297,9 @@ export default function NewOrderPage() {
     }
 
     const newOrder: Order = {
-      service_id: 1, 
+      service_id: Number(serviceId), // Tanlangan xizmat ID si
       url: link,
-      status: "padding",
-      user: toString(user.id),
+      status: "padding", // Backendda status "pending" deb qayta nomlanishi mumkin
       quantity: quantityNum,
     };
 
@@ -326,8 +307,8 @@ export default function NewOrderPage() {
       const response = await apiService.createOrder(newOrder);
       if (response.status === 201 && response.data) {
         toast({
-          title: "Order placed successfully!",
-          description: `Your order for ${quantityNum} units has been placed.`,
+          title: "Buyurtma muvaffaqiyatli joylashtirildi!",
+          description: `${quantityNum} dona uchun buyurtmangiz joylashtirildi.`,
           variant: "success",
         });
 
@@ -337,13 +318,13 @@ export default function NewOrderPage() {
         setQuantity("");
         setFormSubmitted(false);
       } else {
-        throw new Error(response.error?.general?.[0] || "Failed to create order");
+        throw new Error(response.error?.general?.[0] || "Buyurtma yaratishda xatolik yuz berdi");
       }
     } catch (err) {
       console.log(err);
       toast({
-        title: "Error",
-        description: "Failed to submit your order. Please try again later.",
+        title: "Xatolik",
+        description: "Buyurtmani yuborishda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko‘ring.",
         variant: "destructive",
       });
     }
@@ -380,14 +361,14 @@ export default function NewOrderPage() {
       <Header />
       <main className="flex-1 p-4 md:p-6">
         <div className="mx-auto max-w-3xl">
-          <h1 className="mb-6 text-2xl font-bold">New Order</h1>
+          <h1 className="mb-6 text-2xl font-bold">Yangi Buyurtma</h1>
 
           <div className="mb-6 space-y-4">
             <div>
               <h2 className="mb-2 text-lg font-medium">Kategoriyalar</h2>
               <Select value={categoryId} onValueChange={setCategoryId}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder="Kategoriyani tanlang" />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
@@ -413,10 +394,10 @@ export default function NewOrderPage() {
                   <SelectValue
                     placeholder={
                       !categoryId
-                        ? "Select a category first"
+                        ? "Avval kategoriyani tanlang"
                         : filteredServices.length === 0
-                        ? "No services available"
-                        : "Select service"
+                        ? "Xizmatlar mavjud emas"
+                        : "Xizmatni tanlang"
                     }
                   />
                 </SelectTrigger>
@@ -426,7 +407,7 @@ export default function NewOrderPage() {
                       <div className="flex flex-col">
                         <span>{service.name}</span>
                         <span className="text-xs text-muted-foreground">
-                          {formatCurrency(service.price)} per 1000 • Min: {service.min} • Max: {service.max}
+                          {formatCurrency(service.price)} har 1000 ga • Min: {service.min} • Max: {service.max}
                         </span>
                       </div>
                     </SelectItem>
@@ -436,9 +417,9 @@ export default function NewOrderPage() {
             </div>
 
             <div>
-              <h2 className="mb-2 text-lg font-medium">Link</h2>
+              <h2 className="mb-2 text-lg font-medium">Havola</h2>
               <Input
-                placeholder="Enter link (e.g., https://example.com)"
+                placeholder="Havolani kiriting (masalan, https://example.com)"
                 value={link}
                 onChange={(e) => {
                   setLink(e.target.value);
@@ -453,10 +434,10 @@ export default function NewOrderPage() {
             </div>
 
             <div>
-              <h2 className="mb-2 text-lg font-medium">Quantity</h2>
+              <h2 className="mb-2 text-lg font-medium">Miqdor</h2>
               <Input
                 type="number"
-                placeholder="Enter quantity"
+                placeholder="Miqdorni kiriting"
                 value={quantity}
                 onChange={(e) => handleQuantityChange(e.target.value)}
                 disabled={!serviceId}
@@ -473,13 +454,13 @@ export default function NewOrderPage() {
 
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
+              <CardTitle>Buyurtma xulosasi</CardTitle>
             </CardHeader>
             <CardContent>
               {selectedService ? (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-2">
-                    <span className="text-muted-foreground">Category:</span>
+                    <span className="text-muted-foreground">Kategoriya:</span>
                     <div className="flex items-center gap-2">
                       {categoryId && categories.find((cat) => String(cat.id) === categoryId)?.icon && (
                         <SocialIcon
@@ -491,24 +472,24 @@ export default function NewOrderPage() {
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <span className="text-muted-foreground">Service:</span>
+                    <span className="text-muted-foreground">Xizmat:</span>
                     <span>{selectedService.name}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <span className="text-muted-foreground">Quantity:</span>
+                    <span className="text-muted-foreground">Miqdor:</span>
                     <span>{quantity}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <span className="text-muted-foreground">Rate:</span>
-                    <span>{formatCurrency(selectedService.price)} per 1000</span>
+                    <span className="text-muted-foreground">Narx:</span>
+                    <span>{formatCurrency(selectedService.price)} har 1000 ga</span>
                   </div>
                   <div className="border-t pt-4 flex items-center justify-between">
-                    <span className="text-muted-foreground font-medium">Total Price</span>
+                    <span className="text-muted-foreground font-medium">Umumiy narx</span>
                     <span className="text-xl font-bold">{formatCurrency(totalPrice)}</span>
                   </div>
                 </div>
               ) : (
-                <p className="text-muted-foreground">Select a service to see order summary</p>
+                <p className="text-muted-foreground">Buyurtma xulosasini ko‘rish uchun xizmatni tanlang</p>
               )}
             </CardContent>
             <CardFooter>
@@ -518,7 +499,7 @@ export default function NewOrderPage() {
                 onClick={handleSubmit}
                 disabled={!categoryId || !serviceId || !link || !quantity}
               >
-                Submit Order
+                Buyurtmani yuborish
               </Button>
             </CardFooter>
           </Card>

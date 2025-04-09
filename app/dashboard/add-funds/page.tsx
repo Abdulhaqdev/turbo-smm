@@ -10,10 +10,9 @@ import { formatCurrency } from "@/lib/utils"; // `convertToUZS` ni olib tashladi
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { Header } from "../_components/header";
-import Cookies from "js-cookie";
-import { apiService } from "@/lib/apiservise";
 import { useRouter } from "next/navigation";
-import { UserProfile } from '@/lib/types'
+import { useSession } from '@/hooks/useSession'
+import { IUser } from '@/types/session'
 
 // interface Transaction {
 //   id: number;
@@ -27,40 +26,21 @@ export default function AddFundsPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const [amount, setAmount] = useState<string>("10000");
+  const [amount, setAmount] = useState<string>("1000");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [userProfile, setUserProfile] = useState<
-    Pick<UserProfile, "username" | "balance" | "first_name" | "last_name"> | null
-  >(null);
+  const [userProfile, setUserProfile] = useState<IUser | null>();
 
-  useEffect(() => {
-    const userId = Cookies.get("user_id");
-    const accessToken = Cookies.get("accessToken");
-    if (!accessToken || !userId) {
-      console.log("No access token or userId, redirecting to /login");
-      router.push("/login");
-      return;
-    }
-
-    const fetchData = async () => {
-      const response = await apiService.get<UserProfile>(`/api/users/${userId}/`);
-      if (response.status === 200 && response.data) {
-        setUserProfile({
-          username: response.data.username,
-          first_name: response.data.first_name,
-          last_name: response.data.last_name,
-          balance: response.data.balance,
-        });
-      } else {
-        console.log("Failed to fetch user profile, redirecting to /login");
+    const { session } = useSession();  
+    useEffect(() => {
+      setUserProfile(session?.user);
+      if (!session) {
         router.push("/login");
       }
-    };
-    fetchData();
-  }, [router]);
-
+    }, [session]);
+  
+  
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -132,7 +112,7 @@ export default function AddFundsPage() {
     setIsProcessing(true);
 
     try {
-      const userId = Cookies.get("user_id");
+      const userId = userProfile?.id
       if (!userId) {
         throw new Error("Foydalanuvchi ID topilmadi");
       }

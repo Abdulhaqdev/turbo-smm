@@ -1,5 +1,6 @@
-import { ApiErrorResponse } from "@/types/register";
 import Cookies from "js-cookie";
+import { ApiErrorResponse } from "@/types/register";
+import { Orders } from './types'
 
 interface Category {
   id: number;
@@ -32,7 +33,6 @@ interface Order {
   service_id: number;
   url: string;
   status: string;
-  user: number;
   quantity: number;
 }
 
@@ -50,15 +50,30 @@ export interface PaginatedResponse<T> {
 }
 
 export class ApiService {
-  private baseUrl: string = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.turbosmm.uz";
-  
+  private baseUrl: string | undefined = process.env.NEXT_PUBLIC_API_BASE_URL;
+
   private async handleResponse<T>(response: Response, method: string): Promise<ApiResponse<T>> {
-    const data = await response.json();
+    const text = await response.text(); // Avval matn sifatida o‘qiymiz
+    let data;
+    try {
+      data = JSON.parse(text); // JSON ga aylantirishga harakat qilamiz
+    } catch (e) {
+      console.log(e)
+      console.error("JSON parse xatosi:", text);
+      return { status: response.status, error: { general: ["Serverdan noto‘g‘ri javob keldi"] } };
+    }
+
     if (!response.ok) {
       if (response.status === 401) {
         const refreshToken = Cookies.get("refreshToken");
         if (!refreshToken) {
           console.error("Refresh token topilmadi");
+          Cookies.remove("accessToken");
+          Cookies.remove("refreshToken");
+          Cookies.remove("userId");
+          if (typeof window !== "undefined") {
+            window.location.href = "/login"; // Refresh token yo‘q bo‘lsa, login ga yo‘naltirish
+          }
           return { status: 401, error: { general: ["Sessiya tugadi, qayta kiring"] } };
         }
         const refreshResponse = await this.post<{ access: string }, { refresh: string }>("/api/token/refresh/", {
@@ -74,9 +89,20 @@ export class ApiService {
             ...this.getHeaders(),
             Authorization: `Bearer ${refreshResponse.data.access}`,
           };
-          return this.retryRequest(response.url.replace(this.baseUrl, ""), method, newHeaders, null);
+          return this.retryRequest(
+            this.baseUrl ? response.url.replace(this.baseUrl, "") : response.url,
+            method,
+            newHeaders,
+            null
+          );
         } else {
           console.error("Refresh token yangilash muvaffaqiyatsiz:", refreshResponse.error);
+          Cookies.remove("accessToken");
+          Cookies.remove("refreshToken");
+          Cookies.remove("userId");
+          if (typeof window !== "undefined") {
+            window.location.href = "/login"; // Refresh token ishlamasa, login ga yo‘naltirish
+          }
           return { status: 401, error: { general: ["Sessiya yangilanmadi, qayta kiring"] } };
         }
       }
@@ -91,12 +117,12 @@ export class ApiService {
     headers: HeadersInit,
     body?: string | null
   ): Promise<ApiResponse<T>> {
-    const response = await fetch(`${this.baseUrl}${url}`, {
+    const response = await fetch(`${this.baseUrl || ""}${url}`, {
       method,
       headers,
       body: body || undefined,
     });
-    return this.handleResponse<T>(response, method); // Pass method here too
+    return this.handleResponse<T>(response, method);
   }
 
   private getHeaders(): HeadersInit {
@@ -109,27 +135,33 @@ export class ApiService {
 
   async get<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      const response = await fetch(`${this.baseUrl || ""}${endpoint}`, {
         ...options,
         method: "GET",
         headers: { ...this.getHeaders(), ...options.headers },
       });
-      return this.handleResponse<T>(response, "GET"); // Pass "GET" as method
+      return this.handleResponse<T>(response, "GET");
     } catch (error) {
       console.error("API Error (GET):", error);
+      Cookies.remove("accessToken");
+      Cookies.remove("refreshToken");
+      Cookies.remove("userId");
+      if (typeof window !== "undefined") {
+        window.location.href = "/login"; // Xatolik bo‘lsa, login ga yo‘naltirish
+      }
       return { status: 500, error: { general: ["Server bilan bog'lanishda xatolik!"] } };
     }
   }
 
   async post<T, B>(endpoint: string, body: B, options: RequestInit = {}): Promise<ApiResponse<T>> {
     try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      const response = await fetch(`${this.baseUrl || ""}${endpoint}`, {
         ...options,
         method: "POST",
         headers: { ...this.getHeaders(), ...options.headers },
         body: JSON.stringify(body),
       });
-      return this.handleResponse<T>(response, "POST"); // Pass "POST" as method
+      return this.handleResponse<T>(response, "POST");
     } catch (error) {
       console.error("API Error (POST):", error);
       return { status: 500, error: { general: ["Server bilan bog'lanishda xatolik!"] } };
@@ -138,13 +170,13 @@ export class ApiService {
 
   async put<T, B>(endpoint: string, body: B, options: RequestInit = {}): Promise<ApiResponse<T>> {
     try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      const response = await fetch(`${this.baseUrl || ""}${endpoint}`, {
         ...options,
         method: "PUT",
         headers: { ...this.getHeaders(), ...options.headers },
         body: JSON.stringify(body),
       });
-      return this.handleResponse<T>(response, "PUT"); // Pass "PUT" as method
+      return this.handleResponse<T>(response, "PUT");
     } catch (error) {
       console.error("API Error (PUT):", error);
       return { status: 500, error: { general: ["Server bilan bog'lanishda xatolik!"] } };
@@ -153,13 +185,13 @@ export class ApiService {
 
   async patch<T, B>(endpoint: string, body: B, options: RequestInit = {}): Promise<ApiResponse<T>> {
     try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      const response = await fetch(`${this.baseUrl || ""}${endpoint}`, {
         ...options,
         method: "PATCH",
         headers: { ...this.getHeaders(), ...options.headers },
         body: JSON.stringify(body),
       });
-      return this.handleResponse<T>(response, "PATCH"); // Pass "PATCH" as method
+      return this.handleResponse<T>(response, "PATCH");
     } catch (error) {
       console.error("API Error (PATCH):", error);
       return { status: 500, error: { general: ["Server bilan bog'lanishda xatolik!"] } };
@@ -168,12 +200,12 @@ export class ApiService {
 
   async delete<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      const response = await fetch(`${this.baseUrl || ""}${endpoint}`, {
         ...options,
         method: "DELETE",
         headers: { ...this.getHeaders(), ...options.headers },
       });
-      return this.handleResponse<T>(response, "DELETE"); // Pass "DELETE" as method
+      return this.handleResponse<T>(response, "DELETE");
     } catch (error) {
       console.error("API Error (DELETE):", error);
       return { status: 500, error: { general: ["Server bilan bog'lanishda xatolik!"] } };
@@ -189,10 +221,11 @@ export class ApiService {
   }
 
   async createOrder(order: Order): Promise<ApiResponse<Order>> {
-    return this.post<Order, Order>("/api/orders/", order)
+    return this.post<Order, Order>("/api/orders/", order);
   }
-  fetchOrders(): Promise<ApiResponse<Order[]>> {
-    return this.get<Order[]>("/api/orders/");
+
+  async fetchOrders(): Promise<ApiResponse<PaginatedResponse<Orders>>> {
+    return this.get<PaginatedResponse<Orders>>("/api/orders/?type=user");
   }
 
   async updateOrderStatus(orderId: number, status: string): Promise<ApiResponse<Order>> {

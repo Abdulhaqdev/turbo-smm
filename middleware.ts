@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl; // So'rovning yo'lini olish
-  const accessToken = request.cookies.get("accessToken")?.value; // Cookies dan accessToken ni olish
+  const accessToken = request.cookies.get("refresh_token")?.value; // Cookies dan accessToken ni olish
 
   // /dashboard yo'lini tekshirish
   if (pathname.startsWith("/dashboard")) {

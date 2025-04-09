@@ -1,20 +1,18 @@
 "use server"
 
-import { LoginData } from '@/types/login'
 import { cookies } from 'next/headers'
+import axios from '@/lib/axios'
+import { LoginFormData } from '@/app/login/page'
 
-export default async function login(data:LoginData){
-  const baseUrl:string | undefined = process.env.NEXT_PUBLIC_API_BASE_URL ;
-
-	const cookiStore = await cookies()
-	const res = await fetch(`${baseUrl}/api/token/`, {
-		method:"POST",
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body:JSON.stringify(data),
-	})
-	 const resData = await res.json()
-	 cookiStore.set("refresh_token", resData.refresh, {httpOnly:true, secure:true,sameSite:"strict"})
+export default async function login(data: LoginFormData) {
+	try {
+		const cookiStore = await cookies()
+		const loginRes = axios.post("/api/token/", data)
+		cookiStore.set("refresh_token", (await loginRes).data.refresh, { httpOnly: true, secure: true, sameSite: "strict" })
+		return { message: "Login successful" };
+	} catch (error) {
+		if (axios.isAxiosError(error)) { throw new Error(error.response?.data.detail) }
+		throw new Error("Something went wrong");
+	}
 
 }

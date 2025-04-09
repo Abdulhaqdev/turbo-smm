@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/provider/theme-provider";
 import getSession from './actions/session';
 import { use } from 'react';
 import SessionProvider from '@/components/provider/session-provider';
+import { Toaster } from "sonner";
 
 const noto_sans = Noto_Sans({
   variable: "--font-noto-sans",
@@ -26,10 +27,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const rawSession = use(getSession());
-  const session = rawSession
-    ? { accessToken: rawSession.access_token, user: rawSession.user }
-    : undefined;
+  const session = use(getSession());
+
   return (
     <html lang="en" className="scroll-smooth dark" suppressHydrationWarning>
       <body
@@ -44,6 +43,7 @@ export default function RootLayout({
         >
           <SessionProvider session={session}>
             {children}
+            <Toaster richColors />
           </SessionProvider>
         </ThemeProvider>
       </body>

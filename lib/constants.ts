@@ -30,3 +30,4 @@ export const TRANSACTION_TYPES = {
   ORDER: "order",
 }
 
+export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL

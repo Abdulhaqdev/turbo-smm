@@ -2,9 +2,10 @@
 
 import ModeToggle from '@/components/shared/ModeToggle'
 import { NAV_LINKS } from '@/constants' // Ensure both imports are correct
+import { useSession } from '@/hooks/useSession'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname,  } from 'next/navigation' // Import usePathname
+import { usePathname, } from 'next/navigation' // Import usePathname
 
 export default function Navbar() {
 	const pathname = usePathname() // Get the current route
@@ -35,9 +36,8 @@ export default function Navbar() {
 							<Link
 								key={link.href}
 								href={link.href}
-								className={`transition-colors hover:text-blue-500 ${
-									pathname === link.href ? 'text-blue-500 font-bold' : ''
-								}`}
+								className={`transition-colors hover:text-blue-500 ${pathname === link.href ? 'text-blue-500 font-bold' : ''
+									}`}
 							>
 								{link.label}
 							</Link>
@@ -58,11 +58,10 @@ export default function Navbar() {
 			<div className='fixed bottom-0 left-0 right-0 z-30 grid grid-cols-3 border-t border-gray-800 md:hidden py-4 dark:text-black text-white dark:bg-black bg-white bg-opacity-40 backdrop-blur-md'>
 				<Link
 					href='/'
-					className={`flex flex-col items-center gap-1 px-2 ${
-						pathname === '/'
-							? 'text-blue-500'
-							: 'dark:text-white text-black hover:text-blue-500'
-					}`}
+					className={`flex flex-col items-center gap-1 px-2 ${pathname === '/'
+						? 'text-blue-500'
+						: 'dark:text-white text-black hover:text-blue-500'
+						}`}
 				>
 					<svg
 						width='25'
@@ -80,11 +79,10 @@ export default function Navbar() {
 				</Link>
 				<Link
 					href='/service'
-					className={`flex flex-col items-center gap-1 px-2 ${
-						pathname === '/service'
-							? 'text-blue-500'
-							: 'dark:text-white text-black hover:text-blue-500'
-					}`}
+					className={`flex flex-col items-center gap-1 px-2 ${pathname === '/service'
+						? 'text-blue-500'
+						: 'dark:text-white text-black hover:text-blue-500'
+						}`}
 				>
 					<svg
 						width='24'
@@ -102,11 +100,10 @@ export default function Navbar() {
 				</Link>
 				<Link
 					href='/about'
-					className={`flex flex-col items-center gap-1 px-2 ${
-						pathname === '/about'
-							? 'text-blue-500'
-							: 'dark:text-white text-black hover:text-blue-500'
-					}`}
+					className={`flex flex-col items-center gap-1 px-2 ${pathname === '/about'
+						? 'text-blue-500'
+						: 'dark:text-white text-black hover:text-blue-500'
+						}`}
 				>
 					<svg
 						width='30'

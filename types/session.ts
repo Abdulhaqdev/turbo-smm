@@ -3,14 +3,14 @@ export interface IUser {
 	last_name: string
 	balance: string
 	username: string
-	id:number
+	id: number
 	email: string
 	phone_number: string
 	api_key: string
-	created_at:string
+	created_at: string
 }
 
-export interface ISession {
-	accessToken: string|null
-	user: IUser|null
+export interface UserSession {
+	user: IUser | null;
+	token: string | null;
 }

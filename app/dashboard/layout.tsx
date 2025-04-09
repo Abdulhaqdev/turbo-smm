@@ -3,7 +3,6 @@ import { ReactNode } from "react";
 import { Inter } from "next/font/google";
 import { Sidebar } from './_components/sidebar';
 import { MobileNavigation } from './_components/mobile-navigation';
-import { Toaster } from './_components/ui/toaster';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,7 +16,6 @@ export default function DashboardLayout({
         <Sidebar className="hidden md:flex" />
         <main className="flex-1  md:ml-64">{children}</main>
         <MobileNavigation  />
-        <Toaster />
       </div>
   );
 }

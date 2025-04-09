@@ -32,9 +32,9 @@ interface UserProfile {
 }
 
 export default function AccountPage() {
-	const router = useRouter();
+  const router = useRouter();
   const { toast } = useToast();
-  const { session,   } = useSession();
+  const { session, } = useSession();
   const [userProfile, setUserProfile] = useState<UserProfile | undefined | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState({
@@ -45,20 +45,23 @@ export default function AccountPage() {
     phone_number: "",
   });
 
-  useEffect(() => {
-    if (!session) {
-			router.push("/");
-    } else {
-      setUserProfile(session.user);
-      setEditedUser({
-        first_name: session.user?.first_name || "",
-        last_name: session.user?.last_name || "",
-        username: session.user?.username || "",
-        email: session.user?.email || "",
-        phone_number: session.user?.phone_number || "",
-      });
-    }
-  }, [session]);
+
+  // useEffect(() => {
+  //   if (!session) {
+  //     router.push("/");
+  //   } else {
+  //     setUserProfile(session.user);
+  //     setEditedUser({
+  //       first_name: session.user?.first_name || "",
+  //       last_name: session.user?.last_name || "",
+  //       username: session.user?.username || "",
+  //       email: session.user?.email || "",
+  //       phone_number: session.user?.phone_number || "",
+  //     });
+  //   }
+  // }, [session]);
+
+  console.log(session)
 
   const handleLogout = () => {
     Cookies.remove("accessToken");
@@ -69,7 +72,7 @@ export default function AccountPage() {
   };
 
   const handleSaveProfile = async () => {
-    const userId = userProfile?.id;
+    const userId = session?.user?.id;
     if (!userId) return;
 
     const updatedProfile = {
@@ -138,21 +141,21 @@ export default function AccountPage() {
                   <div className="flex items-center gap-4">
                     <Avatar className="h-20 w-20">
                       <AvatarFallback className="text-2xl">
-                        {userProfile?.first_name?.charAt(0) || "F"}
+                        {session?.user?.first_name?.charAt(0) || "F"}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <h3 className="text-lg font-medium">
-                        {userProfile?.first_name || "Foydalanuvchi"}{" "}
-                        {userProfile?.last_name || ""}
+                        {session?.user?.first_name || "Foydalanuvchi"}{" "}
+                        {session?.user?.last_name || ""}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {`A'zo bo‘lgan sanasi`}: {userProfile?.created_at}
+                        {`A'zo bo‘lgan sanasi`}: {session?.user?.created_at}
                       </p>
                       <div className="mt-2 flex items-center gap-2">
                         <span className="text-sm font-medium">Balans:</span>
                         <span className="font-semibold text-primary">
-                          {userProfile?.balance || "0"} UZS
+                          {session?.user?.balance || "0"} UZS
                         </span>
                         <Button
                           variant="outline"
@@ -259,31 +262,31 @@ export default function AccountPage() {
                         <div className="space-y-1">
                           <p className="text-sm text-muted-foreground">Ism</p>
                           <p className="font-medium">
-                            {userProfile?.first_name || "Kiritilmagan"}
+                            {session?.user?.first_name || "Kiritilmagan"}
                           </p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-sm text-muted-foreground">Familiya</p>
                           <p className="font-medium">
-                            {userProfile?.last_name || "Kiritilmagan"}
+                            {session?.user?.last_name || "Kiritilmagan"}
                           </p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-sm text-muted-foreground">Foydalanuvchi nomi</p>
                           <p className="font-medium">
-                            {userProfile?.username || "Kiritilmagan"}
+                            {session?.user?.username || "Kiritilmagan"}
                           </p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-sm text-muted-foreground">Elektron pochta</p>
                           <p className="font-medium">
-                            {userProfile?.email || "Kiritilmagan"}
+                            {session?.user?.email || "Kiritilmagan"}
                           </p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-sm text-muted-foreground">Telefon raqami</p>
                           <p className="font-medium">
-                            {userProfile?.phone_number || "Kiritilmagan"}
+                            {session?.user?.phone_number || "Kiritilmagan"}
                           </p>
                         </div>
                         <Button
@@ -306,11 +309,11 @@ export default function AccountPage() {
                     onClick={() => {
                       setIsEditing(false);
                       setEditedUser({
-                        first_name: userProfile?.first_name || "",
-                        last_name: userProfile?.last_name || "",
-                        username: userProfile?.username || "",
-                        email: userProfile?.email || "",
-                        phone_number: userProfile?.phone_number || "",
+                        first_name: session?.user?.first_name || "",
+                        last_name: session?.user?.last_name || "",
+                        username: session?.user?.username || "",
+                        email: session?.user?.email || "",
+                        phone_number: session?.user?.phone_number || "",
                       });
                     }}
                   >
@@ -348,7 +351,7 @@ export default function AccountPage() {
                 <CardContent className="h-[200px] flex flex-col justify-center items-center gap-4 text-center">
                   <p>Joriy Balans</p>
                   <p className="text-3xl font-bold text-primary">
-                    {userProfile?.balance || "0"} UZS
+                    {session?.user?.balance || "0"} UZS
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Buyurtma berish uchun hisobingizga pul qo‘shing

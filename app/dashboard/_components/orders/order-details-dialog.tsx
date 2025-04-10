@@ -4,12 +4,11 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { CalendarClock, ExternalLink, Link2 } from 'lucide-react'
 import { Badge } from '../ui/badge'
-// import { useToast } from '../ui/use-toast'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { apiService } from '@/lib/apiservise'
 import { convertToUZS, formatCurrency } from '@/lib/utils'
 import { useFormattedDate } from '@/hooks/useFormattedDate'
-import type {  Service, ServiceType, Category } from '@/lib/types'
+import type { Service, ServiceType, Category } from '@/lib/types'
 import Cookies from 'js-cookie'
 import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
@@ -47,17 +46,17 @@ export function OrderDetailsDialog({
 
   // API dan ma'lumotlarni yuklash
   useEffect(() => {
-		const userId = Cookies.get('user_id')
-		const accessToken = Cookies.get('accessToken')
-		if (!accessToken || !userId) {
-			toast({
-				title: 'Error',
-				description: 'Please log in to view your account',
-				variant: 'destructive',
-			})
-			router.push('/login')
-			return
-		}
+    const userId = Cookies.get('user_id')
+    const accessToken = Cookies.get('accessToken')
+    if (!accessToken || !userId) {
+      toast({
+        title: 'Error',
+        description: 'Please log in to view your account',
+        variant: 'destructive',
+      })
+      router.push('/login')
+      return
+    }
     if (!order || !open) return
 
     const fetchOrderDetails = async () => {
@@ -67,12 +66,12 @@ export function OrderDetailsDialog({
         const serviceResponse = await apiService.get<Service>(`/api/service/${order.service}/`)
         if (serviceResponse.status === 200 && serviceResponse.data) {
           setService(serviceResponse.data)
-          
+
           // ServiceType ma'lumotlarini olish
           const serviceTypeResponse = await apiService.get<ServiceType>(`/api/service-types/${serviceResponse.data.service_type}/`)
           if (serviceTypeResponse.status === 200 && serviceTypeResponse.data) {
             setServiceType(serviceTypeResponse.data)
-            
+
             // Category ma'lumotlarini olish
             const categoryResponse = await apiService.get<Category>(`/api/categories/${serviceTypeResponse.data.category.id}/`)
             if (categoryResponse.status === 200 && categoryResponse.data) {
@@ -99,7 +98,7 @@ export function OrderDetailsDialog({
     }
 
     fetchOrderDetails()
-  }, [order, open, toast])
+  }, [order, open, toast, router])
 
   if (!order) return null
 
@@ -132,8 +131,8 @@ export function OrderDetailsDialog({
         throw new Error('Failed to update order status')
       }
     } catch (error) {
-			console.log(error)
-			
+      console.log(error)
+
       toast({
         title: 'Buyurtmani yakunlashda xatolik',
         description: "Buyurtmangizni qayta ishlashda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.",
@@ -153,19 +152,19 @@ export function OrderDetailsDialog({
                 order.status === 'true'
                   ? 'default'
                   : order.status === 'processing'
-                  ? 'secondary'
-                  : order.status === 'pending'
-                  ? 'outline'
-                  : 'destructive'
+                    ? 'secondary'
+                    : order.status === 'pending'
+                      ? 'outline'
+                      : 'destructive'
               }
             >
               {order.status === 'true'
                 ? 'Yakunlangan'
                 : order.status === 'processing'
-                ? 'Jarayonda'
-                : order.status === 'pending'
-                ? 'Kutilmoqda'
-                : 'Bekor qilingan'}
+                  ? 'Jarayonda'
+                  : order.status === 'pending'
+                    ? 'Kutilmoqda'
+                    : 'Bekor qilingan'}
             </Badge>
           </DialogTitle>
         </DialogHeader>

@@ -6,60 +6,34 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Header } from "../_components/header";
 import { Sidebar } from "../_components/sidebar";
-import { apiService } from "@/lib/apiservise";
-import { useToast } from "@/hooks/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useSession } from "@/hooks/useSession";
 import { Order } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
+import axios from "@/lib/axios";
 
 export default function OrdersPage() {
-  const { toast } = useToast();
   const { session } = useSession();
   const [orders, setOrders] = useState<Order[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error,] = useState<string | null>(null);
+
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      if (!session) {
-        // Session yo‘q bo‘lsa yangilash
-      }
-
-      if (!session?.user) {
-        setError("Foydalanuvchi ma'lumotlari mavjud emas. Iltimos, tizimga kiring.");
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        // API dan buyurtmalarni olish
-        const response = await apiService.fetchOrders();
-        console.log("API javobi:", response);
-        if (response.status === 200 && response.data?.results) {
-          setOrders(response.data.results);
-        } else {
-          throw new Error(response.error?.general?.[0] || "Buyurtmalarni yuklab bo‘lmadi");
-        }
-      } catch (err) {
-        console.error("Buyurtmalarni yuklashda xatolik:", err);
-        setError("Buyurtmalarni yuklashda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko‘ring.");
-        toast({
-          title: "Xatolik",
-          description: "Buyurtmalarni yuklab bo‘lmadi.",
-          variant: "destructive",
-        });
-      } finally {
+    if (session) {
+      const loadData = async () => {
+        setIsLoading(true);
+        const res = await axios.get("/api/orders?type=user",
+          { headers: { Authorization: `Bearer ${session?.token}` } }
+        );
+        setOrders(res.data.results);
         setIsLoading(false);
       }
-    };
+      loadData();
+    }
+  }, [session])
 
-    fetchOrders();
-  }, [toast, session]);
 
   // Qidiruv funksiyasi
   const filteredOrders = orders.filter((order) =>

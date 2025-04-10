@@ -12,7 +12,6 @@ export default async function getSession() {
 			const userRes = await axios.get("/api/me/", { headers: { Authorization: `Bearer ${tokenRes.data.access}` } })
 			return { token: tokenRes.data.access, user: userRes.data }
 		}
-		cookieStore.delete("refresh_token");
 		return { token: null, user: null }
 	} catch {
 		cookieStore.delete("refresh_token");

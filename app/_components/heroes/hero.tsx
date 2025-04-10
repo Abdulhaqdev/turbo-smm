@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,69 +14,47 @@ import {
 import { Label } from "@/components/ui/label";
 import { useTheme } from "next-themes";
 import Link from "next/link";
-import Cookies from "js-cookie";
-import { ApiResponse, apiService } from "@/lib/apiservise";
-import { LoginData, LoginErrors, LoginResponse } from "@/types/login";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {  useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import login from "@/app/actions/login";
+import { toast } from 'react-hot-toast'
+
+const schema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters long"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+});
+
+export type LoginFormData = z.infer<typeof schema>;
 
 export default function Page() {
+  const [isMounted, setIsMounted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { resolvedTheme } = useTheme();
-  const router = useRouter();
-  const [mounted, setMounted] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<LoginErrors>({ username: "", password: "", general: "" });
+  const method = useForm<LoginFormData>({ resolver: zodResolver(schema) });
+  const { replace } = useRouter()
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrors({ username: "", password: "", general: "" });
 
-    const loginData: LoginData = { username, password };
-    const response: ApiResponse<LoginResponse> = await apiService.post("/api/token/", loginData);
-
-    if (response.status === 200 && response.data) {
-      console.log("Saving tokens:", response.data);
-
-      Cookies.set("accessToken", response.data.access, {
-        expires: 1,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-      });
-      if (rememberMe) {
-        Cookies.set("refreshToken", response.data.refresh, {
-          expires: 7,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "Strict",
-        });
-      }
-      setIsLoading(false);
-      router.push("/dashboard/new-order");
-    } else if (response.error) {
-      const newErrors: LoginErrors = {};
-      if (response.error.username) newErrors.username = response.error.username[0] || "Foydalanuvchi nomida xatolik!";
-      if (response.error.password) newErrors.password = response.error.password[0] || "Parolda xatolik!";
-      if (!newErrors.username && !newErrors.password) {
-        newErrors.general = response.error.detail || "login yoki Parol xato!";
-      }
-      setErrors((prev) => ({ ...prev, ...newErrors }));
-      setIsLoading(false);
-    }
+  const onSubmit = async (data: LoginFormData) => {
+    await toast.promise(login(data), {
+      loading: "Aniqlanmoqda...",
+      success: (res) => res.message,
+      error: (error) => error.message,
+    });
+    replace("dashboard")
   };
+  useEffect(()=>setIsMounted(true),[])
+  
+  if (!isMounted) return (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+    </div>
+  );;
 
-  if (!mounted) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
+  
   return (
     <main className="max-w-screen-2xl mx-auto bg-black">
       <div
@@ -122,7 +99,7 @@ export default function Page() {
                   akkauntlaringizni ishlatmaslikka harakat qiling.
                 </p>
               </CardHeader>
-              <form onSubmit={handleLogin}>
+              <form onSubmit={method.handleSubmit(onSubmit)}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="username" className="text-foreground">
@@ -130,37 +107,51 @@ export default function Page() {
                     </Label>
                     <Input
                       id="username"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      {...method.register("username")}
                       className="rounded-xl border-border bg-background text-foreground placeholder:text-muted-foreground"
+                      placeholder="Foydalanuvchi nomi"
                       required
                     />
-                    {errors.username && <p className="text-sm text-destructive">{errors.username}</p>}
+                    {method.formState.errors.username && (
+                      <p className="text-sm text-destructive">
+                        {method.formState.errors.username.message}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password" className="text-foreground">
-                        Parol
-                      </Label>
+                    <Label htmlFor="password" className="text-foreground">
+                      Parol
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        {...method.register("password")}
+                        className="rounded-xl border-border bg-background text-foreground placeholder:text-muted-foreground"
+                        placeholder="Parol"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
                     </div>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="rounded-xl border-border bg-background text-foreground placeholder:text-muted-foreground"
-                      required
-                    />
-                    {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+                    {method.formState.errors.password && (
+                      <p className="text-sm text-destructive">
+                        {method.formState.errors.password.message}
+                      </p>
+                    )}
                   </div>
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="remember"
-                        className="border-border"
-                        checked={rememberMe}
-                        onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                      />
+                      <Checkbox id="remember" className="border-border" />
                       <Label htmlFor="remember" className="text-sm text-muted-foreground">
                         Meni eslab qol
                       </Label>
@@ -172,11 +163,10 @@ export default function Page() {
                   <Button
                     type="submit"
                     className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                    disabled={isLoading}
+                    disabled={method.formState.isSubmitting}
                   >
-                    {isLoading ? "Kirish..." : "Kirish"}
+                    {method.formState.isSubmitting ? "Kirish..." : "Kirish"}
                   </Button>
-                  {errors.general && <p className="text-sm text-destructive text-center">{errors.general}</p>}
                 </CardContent>
                 <CardFooter className="justify-center">
                   <Link href="/register">

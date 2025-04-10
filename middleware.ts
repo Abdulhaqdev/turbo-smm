@@ -1,24 +1,44 @@
-import { NextResponse, NextRequest } from "next/server";
+  import { NextResponse, NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl; // So'rovning yo'lini olish
-  const accessToken = request.cookies.get("refresh_token")?.value; // Cookies dan accessToken ni olish
+  export function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl; // So'rovning yo'lini olish
+    const accessToken = request.cookies.get("refresh_token")?.value; // Cookies dan accessToken ni olish
 
-  // /dashboard yo'lini tekshirish
-  if (pathname.startsWith("/dashboard")) {
-    if (!accessToken) {
-      return NextResponse.redirect(new URL("/login", request.url));
+    console.log(accessToken)
+
+    // /dashboard yo'lini tekshirish
+    if (pathname.startsWith("/dashboard")) {
+      if (!accessToken) {
+        return NextResponse.redirect(new URL("/login", request.url));
+      }
     }
+
+    // /login yo'lini tekshirish
+    if (pathname === "/login" && accessToken) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
+    return NextResponse.next(); // So'rovni davom ettirish
   }
 
-  // /login yo'lini tekshirish
-  if (pathname === "/login" && accessToken) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+  export const config = {
+    matcher: ["/dashboard/:path*", "/login"], // Middleware qo'llaniladigan yo'llar
+  };
 
-  return NextResponse.next(); // So'rovni davom ettirish
-}
+//   import { NextRequest, NextResponse } from "next/server";
 
-export const config = {
-  matcher: ["/dashboard/:path*", "/login"], // Middleware qo'llaniladigan yo'llar
-};
+// export function middleware(request: NextRequest) {
+//   const token = request.cookies.get("access_token")?.value;  
+
+//   if (request.nextUrl.pathname.startsWith("/dashboard")) {
+//     if (!token) {
+//       return NextResponse.redirect(new URL("/", request.url));
+//     }
+//   }
+
+//   return NextResponse.next();
+// }
+
+// export const config = {
+//   matcher: ["/dashboard/:path*"],
+// };

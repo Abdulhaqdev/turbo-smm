@@ -10,9 +10,10 @@ import { Label } from "@/components/ui/label";
 import { ChevronLeft, ChevronRight, Filter, Search, X } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { Header } from "../_components/header";
-import { apiService } from "@/lib/apiservise";
-import { useToast } from '@/hooks/use-toast';
-import SocialIcon from '@/components/shared/SocialIcon'
+import { useToast } from "@/hooks/use-toast";
+import SocialIcon from "@/components/shared/SocialIcon";
+import { useSession } from "@/hooks/useSession";
+import axios from "@/lib/axios";
 
 interface Service {
   id: number;
@@ -34,7 +35,14 @@ interface Category {
   id: number;
   name: string;
   is_active?: boolean;
-  icon?: string; // Yangi xususiyat: ijtimoiy tarmoq ikonkasi
+  icon?: string;
+}
+
+interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
 }
 
 export default function ServicesPage() {
@@ -49,8 +57,8 @@ export default function ServicesPage() {
   const servicesPerPage = 10;
 
   const { toast } = useToast();
+  const { session } = useSession();
 
-  // Ijtimoiy tarmoqlar ro'yxati
   const socialPlatforms = [
     "Instagram",
     "Facebook",
@@ -63,58 +71,63 @@ export default function ServicesPage() {
     "Discord",
     "Snapchat",
     "Twitch",
-    "Youtube"
+    "Youtube",
   ];
 
-useEffect(() => {
-  const loadData = async () => {
-    setIsLoading(true);
-    setError(null);
+  useEffect(() => {
+    const loadData = async () => {
+      if (!session) {
+        setError("Tizimga kirish kerak!");
+        setIsLoading(false);
+        return;
+      }
 
-    try {
-      const categoriesResponse = await apiService.fetchCategories();
-      if (categoriesResponse.status === 200 && categoriesResponse.data?.results) {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const categoriesResponse = await axios.get<PaginatedResponse<Category>>("/api/categories/", {
+          headers: { Authorization: `Bearer ${session.token}` },
+        });
         const activeCategories = categoriesResponse.data.results
           .filter((cat) => cat.is_active !== false)
           .map((cat) => {
             const normalizedCategoryName = cat.name.toLowerCase();
-            // Ijtimoiy tarmoqlar ro'yxatidan moslikni qidiramiz
             const matchingPlatform = socialPlatforms.find((platform) =>
               normalizedCategoryName.includes(platform.toLowerCase())
             );
             return {
               ...cat,
-              icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined, // Agar moslik bo‘lsa ikonka qo‘shiladi
+              icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined,
             };
           });
         setCategories(activeCategories);
-      } else {
-        throw new Error("Failed to load categories");
-      }
 
-      const servicesResponse = await apiService.fetchServices(currentPage);
-      if (servicesResponse.status === 200 && servicesResponse.data?.results) {
+        // Xizmatlarni yuklash
+        const servicesResponse = await axios.get<PaginatedResponse<Service>>(
+          `/api/services/?page=${currentPage}`,
+          {
+            headers: { Authorization: `Bearer ${session.token}` },
+          }
+        );
         const activeServices = servicesResponse.data.results.filter((service) => service.is_active);
         setServices(activeServices);
         setTotalPages(Math.ceil(servicesResponse.data.count / servicesPerPage));
-      } else {
-        throw new Error("Failed to load services");
+      } catch (err) {
+        console.error(err);
+        setError("Ma'lumotlarni yuklashda xatolik yuz berdi.");
+        toast({
+          title: "Xatolik",
+          description: "Serverdan ma'lumotlarni yuklab bo‘lmadi.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error(err);
-      setError("An unexpected error occurred while fetching data.");
-      toast({
-        title: "Error",
-        description: "Failed to load data from the server.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
 
-  loadData();
-}, [currentPage, toast]);
+    loadData();
+  }, [currentPage, session ]);
 
   const filteredServices = services.filter((service) => {
     const category = categories.find((cat) => cat.id === service.category);
@@ -224,7 +237,7 @@ useEffect(() => {
             <div className="grid gap-4">
               <div>
                 <Label htmlFor="category-filter" className="mb-2 block">
-                Kategoriyalar
+                  Kategoriyalar
                 </Label>
                 <Select
                   value={categoryFilter}
@@ -239,12 +252,12 @@ useEffect(() => {
                   <SelectContent>
                     <SelectItem value="all">Barcha kategoriyalar</SelectItem>
                     {categories.map((category) => (
-                     <SelectItem key={category.id} value={category.id.toString()}>
-                     <div className="flex items-center gap-2">
-                       {category.icon && <SocialIcon iconName={category.icon} className="h-5 w-5" />}
-                       <span>{category.name}</span>
-                     </div>
-                   </SelectItem>
+                      <SelectItem key={category.id} value={category.id.toString()}>
+                        <div className="flex items-center gap-2">
+                          {category.icon && <SocialIcon iconName={category.icon} className="h-5 w-5" />}
+                          <span>{category.name}</span>
+                        </div>
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

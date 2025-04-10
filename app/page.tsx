@@ -8,10 +8,14 @@ import HeroAboutus from './_components/heroes/hero'
 import PaymentMethods from './_components/paymentsmethod'
 import Feature from './_components/features/feature'
 import Navbar from './_components/headers/navbar'
+// import { Toaster } from 'react-hot-toast'
 
 function page() {
 	return (
 		<div>
+        {/* <Toaster position='top-center' reverseOrder={false}> */}
+
+
 			<Navbar/>
 			<HeroAboutus />
 			<Feature />
@@ -19,6 +23,7 @@ function page() {
 			<HowItWorks />
 			<Testimonials />
 			<FAQSection />
+				{/* </Toaster> */}
 		</div>
 	)
 }

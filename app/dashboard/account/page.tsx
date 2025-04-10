@@ -9,33 +9,34 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { apiService } from "@/lib/apiservise";
+// import { apiService } from "@/lib/apiservise";
 import { ROUTES } from "@/lib/constants";
-import Cookies from "js-cookie";
 import { Edit, LogOut, Mail, Phone, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Header } from "../_components/header";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "@/hooks/useSession";
+import logout from "@/app/actions/logout";
+import axios from 'axios'
 
-interface UserProfile {
-  first_name: string;
-  last_name: string;
-  balance: string;
-  username: string;
-  email: string;
-  id: number;
-  phone_number: string;
-  api_key: string;
-  created_at: string;
-}
+// interface UserProfile {
+//   first_name: string;
+//   last_name: string;
+//   balance: string;
+//   username: string;
+//   email: string;
+//   id: number;
+//   phone_number: string;
+//   api_key: string;
+//   created_at: string;
+// }
 
 export default function AccountPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { session, } = useSession();
-  const [userProfile, setUserProfile] = useState<UserProfile | undefined | null>(null);
+  const { session, setSession } = useSession();
+  // const [, setUserProfile] = useState<UserProfile | undefined | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState({
     first_name: "",
@@ -46,28 +47,25 @@ export default function AccountPage() {
   });
 
 
-  // useEffect(() => {
-  //   if (!session) {
-  //     router.push("/");
-  //   } else {
-  //     setUserProfile(session.user);
-  //     setEditedUser({
-  //       first_name: session.user?.first_name || "",
-  //       last_name: session.user?.last_name || "",
-  //       username: session.user?.username || "",
-  //       email: session.user?.email || "",
-  //       phone_number: session.user?.phone_number || "",
-  //     });
-  //   }
-  // }, [session]);
+  useEffect(() => {
+    if (!session) {
+      router.push("/");
+    } else {
+      // setUserProfile(session.user);
+      setEditedUser({
+        first_name: session.user?.first_name || "",
+        last_name: session.user?.last_name || "",
+        username: session.user?.username || "",
+        email: session.user?.email || "",
+        phone_number: session.user?.phone_number || "",
+      });
+    }
+  }, [session]);
+// console.log(session?.token)
 
-  console.log(session)
-
-  const handleLogout = () => {
-    Cookies.remove("accessToken");
-    Cookies.remove("refreshToken");
-    Cookies.remove("userId");
-    // clearSession();
+  const handleLogout = async () => {
+    await logout()
+    setSession(null)
     router.push("/");
   };
 
@@ -83,24 +81,36 @@ export default function AccountPage() {
       phone_number: editedUser.phone_number,
     };
 
-    const updateResponse = await apiService.put<UserProfile, typeof updatedProfile>(
-      `/api/users/${userId}/`,
-      updatedProfile
-    );
+    try {
+      const response = await axios.patch(
+        `/api/users/${userId}/`, 
+        updatedProfile,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.token}`, // Replace with your token key
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    if (updateResponse.status === 200 && updateResponse.data) {
-      setUserProfile(updateResponse.data);
-      setIsEditing(false);
-      toast({
-        title: "Profil yangilandi",
-        description: "Profil ma'lumotlaringiz muvaffaqiyatli yangilandi.",
-        variant: "success",
-      });
-    } else {
+      if (response.status === 200) {
+        // Update session with new user data
+        setSession({
+          ...session,
+          user: response.data,
+        });
+        setIsEditing(false);
+        toast({
+          title: "Profil yangilandi",
+          description: "Profil ma'lumotlaringiz muvaffaqiyatli yangilandi.",
+          variant: "success",
+        });
+      }
+    } catch (error: any) {
       toast({
         title: "Yangilash muvaffaqiyatsiz",
         description:
-          updateResponse.error?.general?.[0] ||
+          error.response?.data?.general?.[0] ||
           "Profilni yangilashda xatolik yuz berdi. Iltimos, qaytadan urinib ko‘ring.",
         variant: "destructive",
       });

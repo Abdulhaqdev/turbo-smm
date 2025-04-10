@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import login from "../actions/login";
@@ -25,16 +25,15 @@ export default function LoginPage() {
   const method = useForm<LoginFormData>({ resolver: zodResolver(schema) });
   const [showPassword, setShowPassword] = useState(false);
   const { replace } = useRouter()
-
   const onSubmit = async (data: LoginFormData) => {
-    toast.promise(login(data), {
+    
+    await toast.promise(login(data), {
       loading: "Aniqlanmoqda...",
       success: (res) => res.message,
       error: (error) => error.message,
     });
-    replace("/")
+    replace("dashboard")
   };
-
 
 
   return (

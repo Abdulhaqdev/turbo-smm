@@ -9,10 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { formatCurrency } from "@/lib/utils";
 import { FormError } from "../_components/common/FormError";
 import { Header } from "../_components/header";
-import { apiService } from "@/lib/apiservise";
-import { useToast } from '@/hooks/use-toast';
-import SocialIcon from '@/components/shared/SocialIcon';
-import { useSession } from '@/hooks/useSession';
+import { useToast } from "@/hooks/use-toast";
+import SocialIcon from "@/components/shared/SocialIcon";
+import { useSession } from "@/hooks/useSession";
+import axios from "@/lib/axios";
 
 // Interfeyslar
 interface Category {
@@ -76,66 +76,71 @@ export default function NewOrderPage() {
   const [error, setError] = useState<string | null>(null);
 
   const socialPlatforms = [
-    "Instagram", "Facebook", "Twitter", "Spotify", "TikTok", "LinkedIn",
-    "Google", "Telegram", "Discord", "Snapchat", "Twitch", "Youtube"
+    "Instagram",
+    "Facebook",
+    "Twitter",
+    "Spotify",
+    "TikTok",
+    "LinkedIn",
+    "Google",
+    "Telegram",
+    "Discord",
+    "Snapchat",
+    "Twitch",
+    "Youtube",
   ];
 
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      setError(null);
+    if (session) {
+      const loadData = async () => {
+        setIsLoading(true);
+        setError(null);
 
-      if (!session) {
-        router.push('/') 
-      }
-
-      try {
-        // if (!session?.user) {
-        //   throw new Error("Foydalanuvchi ma'lumotlari mavjud emas");
-        // }
-
-        const categoriesResponse = await apiService.fetchCategories();
-        if (categoriesResponse.status === 200 && categoriesResponse.data?.results) {
-          const activeCategories = categoriesResponse.data.results
-            .filter((cat) => cat.is_active !== false)
-            .map((cat) => {
-              const normalizedCategoryName = cat.name.toLowerCase();
+        try {
+          // Kategoriyalarni yuklash
+          const categoryRes = await axios.get("/api/categories/", {
+            headers: { Authorization: `Bearer ${session.token}` },
+          });
+          const categories = categoryRes.data.results as Category[];
+          const activeCategories = categories
+            .filter((category) => category.is_active !== false)
+            .map((category) => {
+              const normalizedCategoryName = category.name.toLowerCase();
               const matchingPlatform = socialPlatforms.find((platform) =>
                 normalizedCategoryName.includes(platform.toLowerCase())
               );
               return {
-                ...cat,
+                ...category,
                 icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined,
               };
             });
           setCategories(activeCategories);
-        } else {
-          throw new Error(categoriesResponse.error?.general?.[0] || "Kategoriyalarni yuklab bo‘lmadi");
-        }
 
-        const servicesResponse = await apiService.fetchServices();
-        if (servicesResponse.status === 200 && servicesResponse.data?.results) {
-          const activeServices = servicesResponse.data.results.filter((srv) => srv.is_active);
+          // Xizmatlarni yuklash
+          const serviceRes = await axios.get("/api/services/", {
+            headers: { Authorization: `Bearer ${session.token}` },
+          });
+          const services = serviceRes.data.results as Service[];
+          const activeServices = services.filter((service) => service.is_active);
           setServices(activeServices);
-        } else {
-          throw new Error(servicesResponse.error?.general?.[0] || "Xizmatlarni yuklab bo‘lmadi");
+        } catch (err) {
+          console.error(err);
+          setError("Ma'lumotlarni yuklashda xatolik yuz berdi.");
+          toast({
+            title: "Xatolik",
+            description: "Kategoriyalar yoki xizmatlarni yuklashda xatolik.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsLoading(false);
         }
-      } catch (err) {
-        console.error("Ma'lumotlarni yuklash xatosi:", err);
-        setError("Ma'lumotlarni yuklashda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko‘ring.");
-        toast({
-          title: "Xatolik",
-          description: "Kategoriyalar yoki xizmatlarni yuklab bo‘lmadi.",
-          variant: "destructive",
-        });
-        router.push("/login");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-  }, [toast, router, session, ]);
+      };
+      loadData();
+    } else {
+      setError("Tizimga kirish kerak!");
+      setIsLoading(false);
+    }
+  }, [ ]);
 
   useEffect(() => {
     const serviceIdFromUrl = searchParams.get("serviceId");
@@ -271,7 +276,6 @@ export default function NewOrderPage() {
         description: "Foydalanuvchi ma'lumotlari mavjud emas. Buyurtma berish uchun tizimga kiring.",
         variant: "destructive",
       });
-      router.push("/login");
       return;
     }
 
@@ -288,7 +292,7 @@ export default function NewOrderPage() {
 
       toast({
         title: "Mablag‘ yetarli emas",
-        description: `Sizning balansingiz ${(session.user.balance)}, lekin bu buyurtma ${(totalPrice)} turadi. Davom etish uchun pul qo‘shing.`,
+        description: `Sizning balansingiz ${session.user.balance}, lekin bu buyurtma ${totalPrice} turadi. Davom etish uchun pul qo‘shing.`,
         variant: "destructive",
       });
 
@@ -297,15 +301,21 @@ export default function NewOrderPage() {
     }
 
     const newOrder: Order = {
-      service_id: Number(serviceId), // Tanlangan xizmat ID si
+      service_id: Number(serviceId),
       url: link,
-      status: "padding", // Backendda status "pending" deb qayta nomlanishi mumkin
+      status: "pending", // "padding" o‘rniga "pending" ishlatildi
       quantity: quantityNum,
     };
 
     try {
-      const response = await apiService.createOrder(newOrder);
-      if (response.status === 201 && response.data) {
+      const response = await axios.post("/api/orders/", newOrder, {
+        headers: {
+          Authorization: `Bearer ${session.token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 201) {
         toast({
           title: "Buyurtma muvaffaqiyatli joylashtirildi!",
           description: `${quantityNum} dona uchun buyurtmangiz joylashtirildi.`,
@@ -318,10 +328,10 @@ export default function NewOrderPage() {
         setQuantity("");
         setFormSubmitted(false);
       } else {
-        throw new Error(response.error?.general?.[0] || "Buyurtma yaratishda xatolik yuz berdi");
+        throw new Error("Buyurtma yaratishda xatolik yuz berdi");
       }
     } catch (err) {
-      console.log(err);
+      console.error("Buyurtma yuborishda xatolik:", err);
       toast({
         title: "Xatolik",
         description: "Buyurtmani yuborishda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko‘ring.",
@@ -481,6 +491,7 @@ export default function NewOrderPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <span className="text-muted-foreground">Narx:</span>
+
                     <span>{formatCurrency(selectedService.price)} har 1000 ga</span>
                   </div>
                   <div className="border-t pt-4 flex items-center justify-between">

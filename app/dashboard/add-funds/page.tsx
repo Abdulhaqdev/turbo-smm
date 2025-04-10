@@ -32,15 +32,15 @@ export default function AddFundsPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [userProfile, setUserProfile] = useState<IUser | null>();
 
-    const { session } = useSession();  
-    useEffect(() => {
-      setUserProfile(session?.user);
-      if (!session) {
-        router.push("/login");
-      }
-    }, [session]);
-  
-  
+  const { session } = useSession();
+  useEffect(() => {
+    setUserProfile(session?.user);
+    if (!session) {
+      router.push("/login");
+    }
+  }, [session, router]);
+
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -211,9 +211,8 @@ export default function AddFundsPage() {
                         <Button
                           key={method.id}
                           variant="outline"
-                          className={`flex flex-col h-auto py-4 ${
-                            selectedPaymentMethod === method.id ? "border-primary" : ""
-                          }`}
+                          className={`flex flex-col h-auto py-4 ${selectedPaymentMethod === method.id ? "border-primary" : ""
+                            }`}
                           onClick={() => handlePaymentMethodSelect(method.id)}
                           disabled={method.id !== "click"} // Faqat Click faol
                         >

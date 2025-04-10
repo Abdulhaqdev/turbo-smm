@@ -2,7 +2,6 @@
 
 import ModeToggle from '@/components/shared/ModeToggle'
 import { NAV_LINKS } from '@/constants' // Ensure both imports are correct
-import { useSession } from '@/hooks/useSession'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, } from 'next/navigation' // Import usePathname

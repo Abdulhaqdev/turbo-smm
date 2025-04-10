@@ -1,12 +1,17 @@
 "use client";
+
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Header } from './_components/header'
+import { useEffect } from "react";
+import axios from "@/lib/axios"
+import { useSession } from "@/hooks/useSession";
 // import { useEffect } from "react";
 // import Cookies from "js-cookie";
 // import { useRouter } from 'next/navigation'
 
 export default function Home() {
+  const { session } = useSession()
   // const router = useRouter();
   // useEffect(() => {
   //   const accessToken = Cookies.get("accessToken");
@@ -14,7 +19,17 @@ export default function Home() {
   //     router.push("/login");
   //   }
   // }, [router]);
-  
+
+
+  useEffect(() => {
+    if (session) {
+      axios.get("/api/orders/",
+        { headers: { Authorization: `Bearer ${session?.token}` } }
+      )
+    }
+  }, [session])
+
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />

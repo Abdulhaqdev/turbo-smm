@@ -60,7 +60,7 @@ export default function AccountPage() {
         phone_number: session.user?.phone_number || "",
       });
     }
-  }, [session]);
+  }, [session, router]);
 // console.log(session?.token)
 
   const handleLogout = async () => {
@@ -106,12 +106,15 @@ export default function AccountPage() {
           variant: "success",
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage =
+        axios.isAxiosError(error) && error.response?.data?.general?.[0]
+          ? error.response.data.general[0]
+          : "Profilni yangilashda xatolik yuz berdi. Iltimos, qaytadan urinib ko‘ring.";
+
       toast({
         title: "Yangilash muvaffaqiyatsiz",
-        description:
-          error.response?.data?.general?.[0] ||
-          "Profilni yangilashda xatolik yuz berdi. Iltimos, qaytadan urinib ko‘ring.",
+        description: errorMessage,
         variant: "destructive",
       });
     }

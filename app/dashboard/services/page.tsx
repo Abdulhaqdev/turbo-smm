@@ -151,15 +151,17 @@ export default function ServicesPage() {
     return "text-yellow-500";
   };
 
-  const formatDuration = (duration: number) => {
-    if (duration < 60) return `${duration} minute${duration !== 1 ? "s" : ""}`;
-    if (duration < 1440) {
-      const hours = Math.floor(duration / 60);
-      return `${hours} hour${hours !== 1 ? "s" : ""}`;
-    }
-    const days = Math.floor(duration / 1440);
-    return `${days} day${days !== 1 ? "s" : ""}`;
+  const formatDuration = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+    const parts = [];
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    if (remainingSeconds > 0 || parts.length === 0) parts.push(`${remainingSeconds}s`);
+    return parts.join(" ");
   };
+
 
   const paginate = (pageNumber: number) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {

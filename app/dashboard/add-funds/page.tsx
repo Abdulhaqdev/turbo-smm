@@ -6,21 +6,36 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CreditCard, Wallet, Plus, Minus } from "lucide-react";
-import { formatCurrency } from "@/lib/utils"; // `convertToUZS` ni olib tashladim, chunki hozircha kerak emas
+import { formatCurrency } from "@/lib/utils";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { Header } from "../_components/header";
 import { useRouter } from "next/navigation";
-import { useSession } from '@/hooks/useSession'
-import { IUser } from '@/types/session'
+import { useSession } from "@/hooks/useSession";
+import axios from "@/lib/axios";
 
-// interface Transaction {
-//   id: number;
-//   amount: number;
-//   payment_method: string;
-//   created_at: string;
-//   status: string;
-// }
+interface Transaction {
+  id: number;
+  price: string;
+  payment_type: {
+    id: number;
+    name: string;
+    created_at: string;
+    updated_at: string;
+    is_active: boolean;
+  };
+  created_at: string;
+  updated_at: string;
+  is_active: boolean;
+   // IUser o‘rniga any, chunki session.user ishlatiladi
+}
+
+interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
 
 export default function AddFundsPage() {
   const router = useRouter();
@@ -30,31 +45,46 @@ export default function AddFundsPage() {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [userProfile, setUserProfile] = useState<IUser | null>();
+  const [payHistory, setPayHistory] = useState<Transaction[]>([]);
 
   const { session } = useSession();
+
   useEffect(() => {
-    setUserProfile(session?.user);
     if (!session) {
       router.push("/login");
+      return;
     }
-  }, [session, router]);
 
+    const loadData = async () => {
+      try {
+        const res = await axios.get<PaginatedResponse<Transaction>>(
+          "api/payments/?type=user",
+          { headers: { Authorization: `Bearer ${session.token}` } }
+        );
+        setPayHistory(res.data.results || []);
+      } catch (error) {
+        console.error("Payment history yuklashda xato:", error);
+        toast({
+          title: "Xatolik",
+          description: "Tranzaksiyalar tarixini yuklab bo‘lmadi.",
+          variant: "destructive",
+        });
+      }
+    };
 
-  useEffect(() => {
+    loadData();
     setIsMounted(true);
-  }, []);
+  }, [session, router, toast]);
 
   const predefinedAmounts = [10000, 50000, 100000];
   const paymentMethods = [
     { id: "click", name: "Click", icon: "/click.png" },
-    // Boshqa to'lov usullari hozircha faolsiz
     { id: "payme", name: "Payme", icon: "/payme.jpg" },
     { id: "octobank", name: "Octobank", icon: "/octobank.jpeg" },
   ];
 
   const handleAmountChange = (value: string) => {
-    const regex = /^[0-9]*$/; // Faqat butun sonlar uchun
+    const regex = /^[0-9]*$/;
     if (value === "" || regex.test(value)) {
       setAmount(value);
     }
@@ -112,20 +142,20 @@ export default function AddFundsPage() {
     setIsProcessing(true);
 
     try {
-      const userId = userProfile?.id
+      const userId = session?.user?.id;
       if (!userId) {
         throw new Error("Foydalanuvchi ID topilmadi");
       }
 
-      // Click to'lov sahifasiga yo'naltirish
       const paymentUrl = `https://my.click.uz/services/pay?service_id=70317&merchant_id=37916&amount=${amountNum}&transaction_param=${userId}&return_url=https://turbosmm.uz/success`;
-      window.open(paymentUrl, '_blank');
+      window.open(paymentUrl, "_blank");
     } catch (error) {
       toast({
         title: "Xatolik yuz berdi",
         description: error instanceof Error ? error.message : "Noma'lum xato",
         variant: "destructive",
       });
+    } finally {
       setIsProcessing(false);
     }
   };
@@ -151,7 +181,7 @@ export default function AddFundsPage() {
               </CardHeader>
               <CardContent className="flex flex-col items-center justify-center py-6">
                 <div className="text-3xl font-bold text-primary">
-                  {userProfile?.balance ? `${formatCurrency(Number(userProfile.balance))} UZS` : "0 UZS"}
+                  {session?.user?.balance ? `${formatCurrency(Number(session.user.balance))} UZS` : "0 UZS"}
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">Sizning joriy hisobingiz</p>
               </CardContent>
@@ -211,10 +241,9 @@ export default function AddFundsPage() {
                         <Button
                           key={method.id}
                           variant="outline"
-                          className={`flex flex-col h-auto py-4 ${selectedPaymentMethod === method.id ? "border-primary" : ""
-                            }`}
+                          className={`flex flex-col h-auto py-4 ${selectedPaymentMethod === method.id ? "border-primary" : ""}`}
                           onClick={() => handlePaymentMethodSelect(method.id)}
-                          disabled={method.id !== "click"} // Faqat Click faol
+                          disabled={method.id !== "click"}
                         >
                           <div className="mb-2 h-10 w-10 relative">
                             <Image src={method.icon} alt={method.name} fill className="object-contain" />
@@ -249,8 +278,37 @@ export default function AddFundsPage() {
                 <CardDescription>{`Sizning so'nggi moliyaviy operatsiyalaringiz`}</CardDescription>
               </CardHeader>
               <CardContent>
-                {/* Hozircha statik ma'lumotlar */}
-                <div className="text-center py-6 text-muted-foreground">{`Hali tranzaksiyalar yo'q`}</div>
+                {payHistory.length > 0 ? (
+                  <div className="space-y-4">
+                    {payHistory.map((transaction) => (
+                      <div
+                        key={transaction.id}
+                        className="flex justify-between items-center border-b py-2"
+                      >
+                        <div>
+                          <p className="text-sm font-medium">
+                            {transaction.payment_type.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {(transaction.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium">
+                            {formatCurrency(Number(transaction.price))} UZS
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {transaction.is_active ? "Muvaffaqiyatli" : "Kutilmoqda"}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-muted-foreground">
+                    {`Hali tranzaksiyalar yo'q`}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

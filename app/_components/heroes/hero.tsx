@@ -44,7 +44,7 @@ export default function Page() {
       success: (res) => res.message,
       error: (error) => error.message,
     });
-    replace("dashboard")
+    replace("dashboard/new-order")
   };
   useEffect(()=>setIsMounted(true),[])
   

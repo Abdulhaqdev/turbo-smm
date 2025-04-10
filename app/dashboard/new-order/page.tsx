@@ -140,7 +140,7 @@ export default function NewOrderPage() {
       setError("Tizimga kirish kerak!");
       setIsLoading(false);
     }
-  }, [ ]);
+  }, [router, session, toast]);
 
   useEffect(() => {
     const serviceIdFromUrl = searchParams.get("serviceId");
@@ -377,8 +377,9 @@ export default function NewOrderPage() {
             <div>
               <h2 className="mb-2 text-lg font-medium">Kategoriyalar</h2>
               <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Kategoriyani tanlang" />
+                <SelectTrigger className="text-start">
+                        <SelectValue placeholder={ categories[0].name}  />
+                        {/* {categories[0].icon && <SocialIcon iconName={categories[0].icon} className=" h-5 w-5" />} */}
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
@@ -415,7 +416,7 @@ export default function NewOrderPage() {
                   {filteredServices.map((service) => (
                     <SelectItem key={service.id} value={String(service.id)}>
                       <div className="flex flex-col">
-                        <span>{service.name}</span>
+                        <span className='text-start'>{service.name}</span>
                         <span className="text-xs text-muted-foreground">
                           {formatCurrency(service.price)} har 1000 ga • Min: {service.min} • Max: {service.max}
                         </span>
@@ -447,8 +448,9 @@ export default function NewOrderPage() {
               <h2 className="mb-2 text-lg font-medium">Miqdor</h2>
               <Input
                 type="number"
+                
                 placeholder="Miqdorni kiriting"
-                value={quantity}
+                // value={quantity}
                 onChange={(e) => handleQuantityChange(e.target.value)}
                 disabled={!serviceId}
                 className={quantityError ? "border-destructive" : ""}

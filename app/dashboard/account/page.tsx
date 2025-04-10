@@ -165,7 +165,7 @@ export default function AccountPage() {
                       <p className="text-sm text-muted-foreground">
                         {`A'zo bo‘lgan sanasi`}: {session?.user?.created_at}
                       </p>
-                      <div className="mt-2 flex items-center gap-2">
+                      <div className="mt-2 mb-4 flex items-center gap-2">
                         <span className="text-sm font-medium">Balans:</span>
                         <span className="font-semibold text-primary">
                           {session?.user?.balance || "0"} UZS
@@ -178,7 +178,16 @@ export default function AccountPage() {
                           Pul qo‘shish
                         </Button>
                       </div>
+                      <Button
+                          variant="destructive"
+                          className="w-full"
+                          onClick={handleLogout}
+                        >
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Chiqish
+                        </Button>
                     </div>
+                    
                   </div>
 
                   <div className="flex-1 space-y-4">
@@ -273,43 +282,57 @@ export default function AccountPage() {
                     ) : (
                       <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">Ism</p>
+                          <p className="text-sm text-muted-foreground">Ism:</p>
                           <p className="font-medium">
                             {session?.user?.first_name || "Kiritilmagan"}
                           </p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">Familiya</p>
+                          <p className="text-sm text-muted-foreground">Familiya:</p>
                           <p className="font-medium">
                             {session?.user?.last_name || "Kiritilmagan"}
                           </p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">Foydalanuvchi nomi</p>
+                          <p className="text-sm text-muted-foreground">Foydalanuvchi nomi: </p>
                           <p className="font-medium">
                             {session?.user?.username || "Kiritilmagan"}
                           </p>
+                          
                         </div>
                         <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">Elektron pochta</p>
+                          <p className="text-sm text-muted-foreground">Elektron pochta:</p>
                           <p className="font-medium">
                             {session?.user?.email || "Kiritilmagan"}
                           </p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-sm text-muted-foreground">Telefon raqami</p>
+                          <p className="text-sm text-muted-foreground">Telefon raqami:</p>
                           <p className="font-medium">
                             {session?.user?.phone_number || "Kiritilmagan"}
                           </p>
                         </div>
-                        <Button
-                          variant="destructive"
-                          className="w-full"
-                          onClick={handleLogout}
-                        >
-                          <LogOut className="mr-2 h-4 w-4" />
-                          Chiqish
-                        </Button>
+                         <div className="space-y-1">
+                          <p className="text-sm text-muted-foreground">Telefon raqami:</p>
+                          <p className="font-medium">
+                            {session?.user?.phone_number || "Kiritilmagan"}
+                          </p>
+                        </div>
+
+                         <div className="space-y-1">
+                          <p className="text-sm text-muted-foreground">Foydalanuvchi ID:</p>
+                          <p className="font-medium">
+                            {session?.user?.id || "Kiritilmagan"}
+                          </p>
+                        </div>
+                         <div className="space-y-1">
+                          <p className="text-sm text-muted-foreground">Foydalanuvchi api key:</p>
+                          <p className="font-medium">
+                            {session?.user?.api_key || "Kiritilmagan"}
+                          </p>
+                        </div>
+                       
+
                       </div>
                     )}
                   </div>

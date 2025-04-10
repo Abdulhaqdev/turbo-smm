@@ -32,9 +32,8 @@ export default function LoginPage() {
       success: (res) => res.message,
       error: (error) => error.message,
     });
-    replace("dashboard")
+    replace("dashboard/new-order")
   };
-
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">

@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMobile } from "@/hooks/useMobile";
-import { ApiResponse, apiService } from "@/lib/apiservise";
-import { FormData, FormErrors, RegisterResponse } from "@/types/register";
+// import { ApiResponse, apiService } from "@/lib/apiservise";
+import { FormData, FormErrors } from "@/types/register";
 import { Eye, EyeOff, Mail, Phone, User } from "lucide-react";
 import Link from "next/link";
+import axios from "@/lib/axios";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -52,7 +53,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     let valid = true;
     const newErrors: FormErrors = {
       firstName: "",
@@ -63,7 +64,7 @@ export default function RegisterPage() {
       password: "",
       general: "",
     };
-
+  
     if (!formData.firstName.trim()) {
       newErrors.firstName = "Ism majburiy maydon";
       valid = false;
@@ -73,8 +74,7 @@ export default function RegisterPage() {
       valid = false;
     }
     if (!validateUsername(formData.username)) {
-      newErrors.username =
-        "Foydalanuvchi nomi kamida 3 ta belgi bo'lishi va faqat harf, raqam yoki pastki chiziqdan iborat bo'lishi kerak";
+      newErrors.username = "Foydalanuvchi nomi kamida 3 ta belgi bo'lishi kerak";
       valid = false;
     }
     if (!validateEmail(formData.email)) {
@@ -82,60 +82,65 @@ export default function RegisterPage() {
       valid = false;
     }
     if (!validatePhone(formData.phone)) {
-      newErrors.phone = "Telefon raqami 7 dan 15 tagacha belgi bo'lishi kerak";
+      newErrors.phone = "Telefon raqami 7 dan 15 tagacha bo'lishi kerak";
       valid = false;
     }
     if (!validatePassword(formData.password)) {
-      newErrors.password =
-        "Parol kamida 8 ta belgi, 1 ta katta harf, 1 ta kichik harf va 1 ta raqamdan iborat bo'lishi kerak";
+      newErrors.password = "Parol kuchli emas";
       valid = false;
     }
-
+  
     setErrors(newErrors);
-
-    if (valid) {
-      setIsLoading(true);
-
-      const registrationData = {
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        username: formData.username,
-        email: formData.email,
-        phone_number: formData.phone,
-        password: formData.password,
-      };
-
-      try {
-        const response: ApiResponse<RegisterResponse> = await apiService.post(
-          "/api/users/",
-          registrationData
-        );
-
-        if (response.status === 201 && response.data) {
-          setIsLoading(false);  
-          router.push("/login");
-        } else if (response.error) {
-          const apiErrors: FormErrors = {};
-          if (response.error.username) apiErrors.username = response.error.username[0];
-          if (response.error.email) apiErrors.email = response.error.email[0];
-          if (response.error.phone_number) apiErrors.phone = response.error.phone_number[0];
-          if (response.error.password) apiErrors.password = response.error.password[0];
-          if (response.error.non_field_errors) apiErrors.general = response.error.non_field_errors[0];
-          if (response.error.detail) apiErrors.general = response.error.detail;
-
-          setErrors((prev) => ({ ...prev, ...apiErrors }));
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.log(error);
-        setErrors((prev) => ({
-          ...prev,
-          general: "Server bilan bog'lanishda xatolik yuz berdi!",
-        }));
-        setIsLoading(false);
+  
+    if (!valid) return;
+  
+    setIsLoading(true);
+  
+    const registrationData = {
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      username: formData.username,
+      email: formData.email,
+      phone_number: formData.phone,
+      password: formData.password,
+    };
+  
+    try {
+      const response = await axios.post('/api/users/', registrationData);
+  
+      if (response.status === 201) {
+        router.push("/login");
       }
+    } catch (error: unknown) {
+      const apiErrors: FormErrors = {
+        firstName: "",
+        lastName: "",
+        username: "",
+        email: "",
+        phone: "",
+        password: "",
+        general: "",
+      };
+  
+      const data = axios.isAxiosError(error) ? error.response?.data : null;
+  
+      if (data) {
+        if (data.username) apiErrors.username = data.username[0];
+        if (data.email) apiErrors.email = data.email[0];
+        if (data.phone_number) apiErrors.phone = data.phone_number[0];
+        if (data.password) apiErrors.password = data.password[0];
+        if (data.non_field_errors) apiErrors.general = data.non_field_errors[0];
+        if (data.detail) apiErrors.general = data.detail;
+      } else {
+        apiErrors.general = "Server bilan bog'lanishda xatolik yuz berdi!";
+      }
+  
+      setErrors(apiErrors);
+    } finally {
+      setIsLoading(false);
     }
   };
+  
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">

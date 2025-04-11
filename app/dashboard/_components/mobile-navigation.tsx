@@ -5,7 +5,7 @@ import type React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { ShoppingCart, LayoutGrid, Wallet, User } from "lucide-react"
+import { ShoppingCart, LayoutGrid, Wallet,  Receipt } from "lucide-react"
 
 
 export function MobileNavigation( ) {
@@ -31,15 +31,11 @@ export function MobileNavigation( ) {
       active: pathname === "/add-funds",
     },
     {
-      label: "Hisob",
-      icon: User,
-      href: "/dashboard/account",
+      label: "Buyurtmalar",
+      icon: Receipt,
+      href: "/dashboard/orders",
       active:
-        pathname === "/dashboard/account" ||
-        pathname.startsWith("/dashboard/account/") ||
-        pathname === "/dashboard/orders" ||
-        pathname === "/dashboard/support",
-    },
+        pathname === "/dashboard/orders"  },
   ]
 
   return (

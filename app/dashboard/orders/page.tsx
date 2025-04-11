@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Header } from "../_components/header";
-import { Sidebar } from "../_components/sidebar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useSession } from "@/hooks/useSession";
 import { Order } from "@/lib/types";
@@ -46,7 +45,6 @@ export default function OrdersPage() {
     return (
       <div className="flex min-h-screen flex-col">
         <Header />
-        <Sidebar />
         <main className="flex-1 p-4 md:p-6">
           <div className="mx-auto max-w-7xl flex items-center justify-center min-h-[50vh]">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -60,7 +58,6 @@ export default function OrdersPage() {
     return (
       <div className="flex min-h-screen flex-col">
         <Header />
-        <Sidebar />
         <main className="flex-1 p-4 md:p-6">
           <div className="mx-auto max-w-7xl flex items-center justify-center min-h-[50vh]">
             <p className="text-destructive">{error}</p>
@@ -73,7 +70,6 @@ export default function OrdersPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <Sidebar />
       <main className="flex-1 p-4 md:p-6">
         <div className="mx-auto max-w-7xl">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

@@ -8,7 +8,7 @@ export default async function login(data: LoginFormData) {
 	try {
 		const cookiStore = await cookies()
 		const loginRes = axios.post("/api/token/", data)
-		 cookiStore.set("refresh_token", (await loginRes).data.refresh, { httpOnly: true, secure: true, sameSite: "strict" })
+		cookiStore.set("refresh_token", (await loginRes).data.refresh, { httpOnly: true, secure: true, sameSite: "strict" })
 		return { message: "Login successful" };
 	} catch (error) {
 		if (axios.isAxiosError(error)) { throw new Error(error.response?.data.detail) }

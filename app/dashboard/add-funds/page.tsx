@@ -147,7 +147,7 @@ export default function AddFundsPage() {
         throw new Error("Foydalanuvchi ID topilmadi");
       }
 
-      const paymentUrl = `https://my.click.uz/services/pay?service_id=70317&merchant_id=37916&amount=${amountNum}&transaction_param=${userId}&return_url=https://turbosmm.uz/success`;
+      const paymentUrl = `https://my.click.uz/services/pay?service_id=70317&merchant_id=37916&amount=${amountNum}&transaction_param=${userId}&return_url=https://turbosmm.uz/dashboard/add-funds`
       window.open(paymentUrl, "_blank");
     } catch (error) {
       toast({

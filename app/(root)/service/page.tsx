@@ -49,11 +49,12 @@ console.log(services)
     const fetchServices = async () => {
       setIsLoading(true);
       setError(null);
-
+    
       try {
         const response = await axios.get<PaginatedResponse>(
           `https://api.turbosmm.uz/api/all-services/?page=${currentPage}&limit=${servicesPerPage}`
         );
+        console.log(`Sahifa ${currentPage} uchun services`, response.data.results);
         const activeServices = response.data.results.filter((service) => service.is_active);
         setServices(activeServices);
         setTotalPages(Math.ceil(response.data.count / servicesPerPage));
@@ -64,6 +65,7 @@ console.log(services)
         setIsLoading(false);
       }
     };
+    
 
     fetchServices();
   }, [currentPage]);

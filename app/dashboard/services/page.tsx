@@ -81,15 +81,17 @@ export default function ServicesPage() {
         setIsLoading(false);
         return;
       }
-
+  
       setIsLoading(true);
       setError(null);
-
+  
       try {
-        const categoriesResponse = await axios.get<PaginatedResponse<Category>>("/api/categories/", {
+        // Kategoriyalar
+        const categoriesResponse = await axios.get<Category[]>("/api/categories/", {
           headers: { Authorization: `Bearer ${session.token}` },
         });
-        const activeCategories = categoriesResponse.data.results
+  
+        const activeCategories = categoriesResponse.data
           .filter((cat) => cat.is_active !== false)
           .map((cat) => {
             const normalizedCategoryName = cat.name.toLowerCase();
@@ -101,15 +103,21 @@ export default function ServicesPage() {
               icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined,
             };
           });
+  
         setCategories(activeCategories);
-
-        // Xizmatlarni yuklash
+  
+        // ✅ Xizmatlar (pagination to‘g‘ridan-to‘g‘ri ishlaydi)
         const servicesResponse = await axios.get<PaginatedResponse<Service>>(
-          `/api/services/?page=${currentPage}`,
+          `/api/services/`,
           {
+            params: {
+              offset: (currentPage - 1) * servicesPerPage,
+              limit: servicesPerPage,
+            },
             headers: { Authorization: `Bearer ${session.token}` },
           }
         );
+  
         const activeServices = servicesResponse.data.results.filter((service) => service.is_active);
         setServices(activeServices);
         setTotalPages(Math.ceil(servicesResponse.data.count / servicesPerPage));
@@ -125,9 +133,10 @@ export default function ServicesPage() {
         setIsLoading(false);
       }
     };
-
+  
     loadData();
-  }, [currentPage, session ]);
+  }, [currentPage, session]);
+  
 
   const filteredServices = services.filter((service) => {
     const category = categories.find((cat) => cat.id === service.category);
@@ -143,8 +152,7 @@ export default function ServicesPage() {
 
   const indexOfLastService = currentPage * servicesPerPage;
   const indexOfFirstService = indexOfLastService - servicesPerPage;
-  const currentServices = filteredServices.slice(indexOfFirstService, indexOfLastService);
-
+  const currentServices = services;
   const getTimeColor = (duration: number) => {
     if (duration <= 60) return "text-blue-500";
     if (duration <= 1440) return "text-green-500";

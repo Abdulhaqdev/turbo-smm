@@ -27,7 +27,7 @@ export default function OrdersPage() {
           { headers: { Authorization: `Bearer ${session?.token}` } }
         );
         
-        setOrders(res.data.results);
+        setOrders(res.data);
         setIsLoading(false);
       }
       loadData();

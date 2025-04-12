@@ -1,49 +1,14 @@
-"use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "../_components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../_components/ui/select";
-import { Label } from "@/components/ui/label";
+
 import { MessageSquare, HelpCircle, FileQuestion } from "lucide-react";
 import { Header } from "../_components/header";
-import { useToast } from "@/hooks/use-toast";
 
 export default function SupportPage() {
-  const { toast } = useToast();
 
-  const [subject, setSubject] = useState<string>("");
-  const [orderId, setOrderId] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const handleSubmit = () => {
-    if (!subject || !message) {
-      toast({
-        title: "Forma to‘liq emas",
-        description: "Iltimos, mavzuni tanlang va xabar yozing.",
-        variant: "destructive",
-      });
-      return;
-    }
 
-    setIsSubmitting(true);
-
-    setTimeout(() => {
-      toast({
-        title: "Qo‘llab-quvvatlash so‘rovi yuborildi",
-        description: "Xabaringizni qabul qildik va tez orada javob beramiz.",
-        variant: "success",
-      });
-
-      setSubject("");
-      setOrderId("");
-      setMessage("");
-      setIsSubmitting(false);
-    }, 1500);
-  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -61,49 +26,12 @@ export default function SupportPage() {
                 </CardTitle>
                 <CardDescription>Buyurtmalar yoki hisobingiz bo‘yicha yordam oling</CardDescription>
               </CardHeader>
-              <CardContent>
-                <form className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="subject">Mavzu</Label>
-                    <Select value={subject} onValueChange={setSubject}>
-                      <SelectTrigger id="subject">
-                        <SelectValue placeholder="Mavzuni tanlang" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="order">Buyurtma muammosi</SelectItem>
-                        <SelectItem value="payment">To‘lov muammosi</SelectItem>
-                        <SelectItem value="account">Hisob savoli</SelectItem>
-                        <SelectItem value="other">Boshqa</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="order-id">Buyurtma ID (Ixtiyoriy)</Label>
-                    <Input
-                      id="order-id"
-                      placeholder="Agar mavjud bo‘lsa, buyurtma ID sini kiriting"
-                      value={orderId}
-                      onChange={(e) => setOrderId(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="message">Xabar</Label>
-                    <Textarea
-                      id="message"
-                      placeholder="Muammoingizni batafsil tasvirlab bering"
-                      rows={5}
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                    />
-                  </div>
-                </form>
-              </CardContent>
+             
               <CardFooter>
-                <Button className="w-full" onClick={handleSubmit} disabled={isSubmitting}>
-                  {isSubmitting ? "Yuborilmoqda..." : "So‘rov yuborish"}
-                </Button>
+                <Button className="w-full">
+                <a href="https://t.me/turbosmm_admin" target="_blank" rel="noopener noreferrer">
+    Qo‘llab-quvvatlash bilan bog‘lanish
+  </a>                </Button>
               </CardFooter>
             </Card>
 

@@ -101,7 +101,6 @@ export default function NewOrderPage() {
           const categoryRes = await axios.get("/api/categories/", {
             headers: { Authorization: `Bearer ${session.token}` },
           });
-          console.log(categoryRes.data)
           const categories = categoryRes.data as Category[];
           console.log(categories)
           const activeCategories = categories
@@ -116,7 +115,6 @@ export default function NewOrderPage() {
                 icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined,
               };
             });
-            console.log(activeCategories)
           setCategories(activeCategories);
 
           // Xizmatlarni yuklash
@@ -125,7 +123,6 @@ export default function NewOrderPage() {
           });
           const services = serviceRes.data as Service[];
           const activeServices = services.filter((service) => service.is_active);
-          console.log("services", activeServices)
           setServices(activeServices);
         } catch (err) {
           console.error(err);

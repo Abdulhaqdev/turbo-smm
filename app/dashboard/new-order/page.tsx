@@ -401,7 +401,7 @@ export default function NewOrderPage() {
                 onValueChange={setServiceId}
                 disabled={!categoryId || filteredServices.length === 0}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full text-wrap">
                   <SelectValue
                     placeholder={
                       !categoryId

@@ -81,16 +81,16 @@ export default function ServicesPage() {
         setIsLoading(false);
         return;
       }
-  
+
       setIsLoading(true);
       setError(null);
-  
+
       try {
-        // Kategoriyalar
+        // Categories
         const categoriesResponse = await axios.get<Category[]>("/api/categories/", {
           headers: { Authorization: `Bearer ${session.token}` },
         });
-  
+
         const activeCategories = categoriesResponse.data
           .filter((cat) => cat.is_active !== false)
           .map((cat) => {
@@ -103,21 +103,21 @@ export default function ServicesPage() {
               icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined,
             };
           });
-  
+
         setCategories(activeCategories);
-  
-        // ✅ Xizmatlar (pagination to‘g‘ridan-to‘g‘ri ishlaydi)
+
+        // Services with pagination
         const servicesResponse = await axios.get<PaginatedResponse<Service>>(
-          `/api/services/`,
+          "https://api.turbosmm.uz/api/services/",
           {
             params: {
-              offset: (currentPage - 1) * servicesPerPage,
               limit: servicesPerPage,
+              offset: (currentPage - 1) * servicesPerPage,
             },
             headers: { Authorization: `Bearer ${session.token}` },
           }
         );
-  
+
         const activeServices = servicesResponse.data.results.filter((service) => service.is_active);
         setServices(activeServices);
         setTotalPages(Math.ceil(servicesResponse.data.count / servicesPerPage));
@@ -133,10 +133,9 @@ export default function ServicesPage() {
         setIsLoading(false);
       }
     };
-  
+
     loadData();
   }, [currentPage, session]);
-  
 
   const filteredServices = services.filter((service) => {
     const category = categories.find((cat) => cat.id === service.category);
@@ -152,7 +151,8 @@ export default function ServicesPage() {
 
   const indexOfLastService = currentPage * servicesPerPage;
   const indexOfFirstService = indexOfLastService - servicesPerPage;
-  const currentServices = services;
+  const currentServices = filteredServices.slice(indexOfFirstService, indexOfLastService);
+
   const getTimeColor = (duration: number) => {
     if (duration <= 60) return "text-blue-500";
     if (duration <= 1440) return "text-green-500";
@@ -169,7 +169,6 @@ export default function ServicesPage() {
     if (remainingSeconds > 0 || parts.length === 0) parts.push(`${remainingSeconds}s`);
     return parts.join(" ");
   };
-
 
   const paginate = (pageNumber: number) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -362,7 +361,9 @@ export default function ServicesPage() {
               return (
                 <Card key={service.id} className="bg-card">
                   <CardContent className="pt-6">
-                    <div className="mb-2 text-sm text-muted-foreground">#{indexOfFirstService + index + 1}</div>
+                    <div className="mb-2 text-sm text-muted-foreground">
+                      #{indexOfFirstService + index + 1}
+                    </div>
                     <div className="mb-4">
                       <div className="mb-2 font-medium">{service.name}</div>
                       <div className="text-sm text-muted-foreground">{category?.name || "N/A"}</div>
@@ -399,7 +400,12 @@ export default function ServicesPage() {
           {totalPages > 1 && (
             <div className="mt-6 flex justify-center">
               <div className="flex items-center space-x-1">
-                <Button variant="outline" size="sm" onClick={() => paginate(1)} disabled={currentPage === 1}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => paginate(1)}
+                  disabled={currentPage === 1}
+                >
                   First
                 </Button>
                 <Button

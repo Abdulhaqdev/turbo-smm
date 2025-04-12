@@ -52,7 +52,8 @@ console.log(services)
     
       try {
         const response = await axios.get<PaginatedResponse>(
-          `https://api.turbosmm.uz/api/all-services/?page=${currentPage}&limit=${servicesPerPage}`
+          `https://api.turbosmm.uz/api/all-services/?offset=${currentPage}&limit=${servicesPerPage}`
+       
         );
         console.log(`Sahifa ${currentPage} uchun services`, response.data.results);
         const activeServices = response.data.results.filter((service) => service.is_active);

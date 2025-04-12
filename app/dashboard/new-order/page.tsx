@@ -101,7 +101,9 @@ export default function NewOrderPage() {
           const categoryRes = await axios.get("/api/categories/", {
             headers: { Authorization: `Bearer ${session.token}` },
           });
-          const categories = categoryRes.data.results as Category[];
+          console.log(categoryRes.data)
+          const categories = categoryRes.data as Category[];
+          console.log(categories)
           const activeCategories = categories
             .filter((category) => category.is_active !== false)
             .map((category) => {
@@ -114,14 +116,16 @@ export default function NewOrderPage() {
                 icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined,
               };
             });
+            console.log(activeCategories)
           setCategories(activeCategories);
 
           // Xizmatlarni yuklash
           const serviceRes = await axios.get("/api/services/", {
             headers: { Authorization: `Bearer ${session.token}` },
           });
-          const services = serviceRes.data.results as Service[];
+          const services = serviceRes.data as Service[];
           const activeServices = services.filter((service) => service.is_active);
+          console.log("services", activeServices)
           setServices(activeServices);
         } catch (err) {
           console.error(err);
@@ -377,16 +381,15 @@ export default function NewOrderPage() {
             <div>
               <h2 className="mb-2 text-lg font-medium">Kategoriyalar</h2>
               <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger className="text-start">
+                <SelectTrigger className=" ">
                         <SelectValue placeholder={ categories[0].name}  />
-                        {/* {categories[0].icon && <SocialIcon iconName={categories[0].icon} className=" h-5 w-5" />} */}
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
-                    <SelectItem key={category.id} value={String(category.id)}>
-                      <div className="flex items-center gap-2">
+                    <SelectItem  key={category.id} value={String(category.id)}>
+                      <div className="flex items-center gap-2 ">
                         {category.icon && <SocialIcon iconName={category.icon} className="h-5 w-5" />}
-                        <span>{category.name}</span>
+                        <span className='text-wrap'>{category.name}</span>
                       </div>
                     </SelectItem>
                   ))}

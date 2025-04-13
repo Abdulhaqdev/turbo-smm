@@ -62,6 +62,7 @@ export default function AddFundsPage() {
           { headers: { Authorization: `Bearer ${session.token}` } }
         );
         setPayHistory(res.data.results || []);
+        
       } catch (error) {
         console.error("Payment history yuklashda xato:", error);
         toast({

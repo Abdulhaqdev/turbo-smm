@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../_components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ChevronLeft, ChevronRight, Filter, Search, X } from "lucide-react";
+import {  Filter, Search, X } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { Header } from "../_components/header";
 import { useToast } from "@/hooks/use-toast";
@@ -38,23 +38,20 @@ interface Category {
   icon?: string;
 }
 
-interface PaginatedResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
-}
+// interface PaginatedResponse<T> {
+//   count: number;
+//   next: string | null;
+//   previous: string | null;
+//   results: T[];
+// }
 
 export default function ServicesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [services, setServices] = useState<Service[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const servicesPerPage = 10;
 
   const { toast } = useToast();
   const { session } = useSession();
@@ -81,16 +78,16 @@ export default function ServicesPage() {
         setIsLoading(false);
         return;
       }
-
+  
       setIsLoading(true);
       setError(null);
-
+  
       try {
-        // Categories
+        // Kategoriyalar
         const categoriesResponse = await axios.get<Category[]>("/api/categories/", {
           headers: { Authorization: `Bearer ${session.token}` },
         });
-
+  
         const activeCategories = categoriesResponse.data
           .filter((cat) => cat.is_active !== false)
           .map((cat) => {
@@ -103,24 +100,19 @@ export default function ServicesPage() {
               icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined,
             };
           });
-
+  
         setCategories(activeCategories);
-
-        // Services with pagination
-        const servicesResponse = await axios.get<PaginatedResponse<Service>>(
-          "https://api.turbosmm.uz/api/services/",
+  
+        //  Xizmatlar (pagination to‘g‘ridan-to‘g‘ri ishlaydi)
+        const servicesResponse = await axios.get<Service[]>(
+          `/api/services/`,
           {
-            params: {
-              limit: servicesPerPage,
-              offset: (currentPage - 1) * servicesPerPage,
-            },
             headers: { Authorization: `Bearer ${session.token}` },
           }
         );
-
-        const activeServices = servicesResponse.data.results.filter((service) => service.is_active);
+  
+        const activeServices = servicesResponse.data.filter((service) => service.is_active);
         setServices(activeServices);
-        setTotalPages(Math.ceil(servicesResponse.data.count / servicesPerPage));
       } catch (err) {
         console.error(err);
         setError("Ma'lumotlarni yuklashda xatolik yuz berdi.");
@@ -133,9 +125,10 @@ export default function ServicesPage() {
         setIsLoading(false);
       }
     };
-
+  
     loadData();
-  }, [currentPage, session]);
+  }, [ session]);
+  
 
   const filteredServices = services.filter((service) => {
     const category = categories.find((cat) => cat.id === service.category);
@@ -149,10 +142,8 @@ export default function ServicesPage() {
     return matchesSearch && matchesCategory;
   });
 
-  const indexOfLastService = currentPage * servicesPerPage;
-  const indexOfFirstService = indexOfLastService - servicesPerPage;
-  const currentServices = filteredServices.slice(indexOfFirstService, indexOfLastService);
-
+  const currentServices = filteredServices
+ 
   const getTimeColor = (duration: number) => {
     if (duration <= 60) return "text-blue-500";
     if (duration <= 1440) return "text-green-500";
@@ -170,17 +161,12 @@ export default function ServicesPage() {
     return parts.join(" ");
   };
 
-  const paginate = (pageNumber: number) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
+
+
 
   const clearFilters = () => {
     setCategoryFilter("");
     setSearchTerm("");
-    setCurrentPage(1);
   };
 
   if (isLoading) {
@@ -224,7 +210,6 @@ export default function ServicesPage() {
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
-                  setCurrentPage(1);
                 }}
               />
             </div>
@@ -252,7 +237,6 @@ export default function ServicesPage() {
                   value={categoryFilter}
                   onValueChange={(value) => {
                     setCategoryFilter(value === "all" ? "" : value);
-                    setCurrentPage(1);
                   }}
                 >
                   <SelectTrigger id="category-filter">
@@ -274,33 +258,6 @@ export default function ServicesPage() {
             </div>
           </div>
 
-          <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted-foreground mb-2 sm:mb-0">
-              Showing {filteredServices.length > 0 ? indexOfFirstService + 1 : 0} to{" "}
-              {Math.min(indexOfLastService, filteredServices.length)} of {filteredServices.length} services
-            </p>
-            {totalPages > 1 && (
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => paginate(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <span className="text-sm">Page {currentPage} of {totalPages}</span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => paginate(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-          </div>
 
           <div className="hidden md:block">
             <div className="rounded-lg border bg-card">
@@ -321,7 +278,7 @@ export default function ServicesPage() {
                     const category = categories.find((cat) => cat.id === service.category);
                     return (
                       <tr key={service.id} className={index % 2 === 0 ? "" : "bg-muted/30"}>
-                        <td className="px-4 py-4 text-left">{indexOfFirstService + index + 1}</td>
+                        <td className="px-4 py-4 text-left">{ + index + 1}</td>
                         <td className="px-4 py-4 text-left">
                           <div className="font-medium">{service.name}</div>
                         </td>
@@ -356,14 +313,12 @@ export default function ServicesPage() {
           </div>
 
           <div className="grid gap-4 md:hidden">
-            {currentServices.map((service, index) => {
+            {currentServices.map((service, ) => {
               const category = categories.find((cat) => cat.id === service.category);
               return (
                 <Card key={service.id} className="bg-card">
                   <CardContent className="pt-6">
-                    <div className="mb-2 text-sm text-muted-foreground">
-                      #{indexOfFirstService + index + 1}
-                    </div>
+                    <div className="mb-2 text-sm text-muted-foreground">#{ 1}</div>
                     <div className="mb-4">
                       <div className="mb-2 font-medium">{service.name}</div>
                       <div className="text-sm text-muted-foreground">{category?.name || "N/A"}</div>
@@ -397,69 +352,7 @@ export default function ServicesPage() {
             )}
           </div>
 
-          {totalPages > 1 && (
-            <div className="mt-6 flex justify-center">
-              <div className="flex items-center space-x-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => paginate(1)}
-                  disabled={currentPage === 1}
-                >
-                  First
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => paginate(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <div className="flex items-center">
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (currentPage <= 3) {
-                      pageNum = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = currentPage - 2 + i;
-                    }
-                    return (
-                      <Button
-                        key={pageNum}
-                        variant={currentPage === pageNum ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => paginate(pageNum)}
-                        className="mx-0.5 w-8"
-                      >
-                        {pageNum}
-                      </Button>
-                    );
-                  })}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => paginate(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => paginate(totalPages)}
-                  disabled={currentPage === totalPages}
-                >
-                  Last
-                </Button>
-              </div>
-            </div>
-          )}
+          
         </div>
       </main>
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import z from "zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +12,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import login from "../actions/login";
 import { useRouter } from "next/navigation";
+import axios from 'axios'
+import { Service } from '@/lib/types'
 
 const schema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters long"),
@@ -25,6 +27,28 @@ export default function LoginPage() {
   const method = useForm<LoginFormData>({ resolver: zodResolver(schema) });
   const [showPassword, setShowPassword] = useState(false);
   const { replace } = useRouter()
+   const [services, setServices] = useState<number>(1);
+   
+    useEffect(() => {
+      const fetchServices = async () => {
+      
+        try {
+          const response = await axios.get<Service[]>(
+            `https://api.turbosmm.uz/api/all-services`
+         
+          );
+          console.log(`S uchun services`, response.data);
+          const activeServices = response.data.filter((service) => service.is_active);
+          setServices(activeServices[0].id);
+        } catch (err) {
+          console.error(err);
+        } finally {
+        }
+      };
+      
+  
+      fetchServices();
+    }, []);
   const onSubmit = async (data: LoginFormData) => {
     
     await toast.promise(login(data), {
@@ -32,7 +56,7 @@ export default function LoginPage() {
       success: (res) => res.message,
       error: (error) => error.message,
     });
-    replace("dashboard/new-order")
+    replace(`dashboard/new-order?serviceId=${services}`)
   };
 
   return (

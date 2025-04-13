@@ -21,6 +21,8 @@ import {  useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import login from "@/app/actions/login";
 import { toast } from 'react-hot-toast'
+import { Service } from '@/lib/types'
+import axios from 'axios'
 
 const schema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters long"),
@@ -35,16 +37,37 @@ export default function Page() {
   const { resolvedTheme } = useTheme();
   const method = useForm<LoginFormData>({ resolver: zodResolver(schema) });
   const { replace } = useRouter()
+ const [services, setServices] = useState<number>(1);
+ 
+  useEffect(() => {
+    const fetchServices = async () => {
+    
+      try {
+        const response = await axios.get<Service[]>(
+          `https://api.turbosmm.uz/api/all-services`
+       
+        );
+        console.log(`S uchun services`, response.data);
+        const activeServices = response.data.filter((service) => service.is_active);
+        setServices(activeServices[0].id);
+      } catch (err) {
+        console.error(err);
+      } finally {
+      }
+    };
+    
 
-
+    fetchServices();
+  }, []);
 
   const onSubmit = async (data: LoginFormData) => {
+    
     await toast.promise(login(data), {
       loading: "Aniqlanmoqda...",
       success: (res) => res.message,
       error: (error) => error.message,
     });
-    replace("dashboard/new-order")
+    replace(`dashboard/new-order?serviceId=${services}`)
   };
   useEffect(()=>setIsMounted(true),[])
   

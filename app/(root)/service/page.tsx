@@ -13,6 +13,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import axios from "axios";
+import { Metadata } from 'next'
 
 interface Service {
   id: number;
@@ -36,6 +37,61 @@ interface PaginatedResponse {
   previous: string | null;
   results: Service[];
 }
+export const metadata: Metadata = {
+  title: "Xizmatlar - Turbo SMM",
+  description:
+    "Turbo SMM xizmatlari: Instagram, YouTube, TikTok va Telegram uchun obunachilar, layklar va boshqa SMM xizmatlar. Tez va ishonchli o'sish!",
+  keywords: [
+    "SMM xizmatlari",
+    "ijtimoiy tarmoqlar",
+    "obunachilar",
+    "layklar",
+    "Instagram xizmatlari",
+    "YouTube xizmatlari",
+    "TikTok xizmatlari",
+    "Telegram xizmatlari",
+    "Turbo SMM",
+  ],
+  alternates: {
+    canonical: "https://turbosmm.uz/services",
+  },
+  openGraph: {
+    title: "Xizmatlar - Turbo SMM",
+    description:
+      "Turbo SMM bilan ijtimoiy tarmoqlarda tez o'sing! Obunachilar, layklar va boshqa xizmatlarni hozir sinab ko'ring.",
+    url: "https://turbosmm.uz/services",
+    siteName: "Turbo SMM",
+    images: [
+      {
+        url: "https://turbosmm.uz/services-og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Turbo SMM Xizmatlari",
+      },
+    ],
+    locale: "uz_UZ",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Xizmatlar - Turbo SMM",
+    description:
+      "Instagram, YouTube, TikTok va Telegram uchun SMM xizmatlar. Tez va ishonchli o'sish uchun Turbo SMM!",
+    images: ["https://turbosmm.uz/services-twitter-image.jpg"],
+    creator: "@TurboSMM",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+};
 
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
@@ -44,7 +100,6 @@ export default function ServicesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const servicesPerPage = 10;
-console.log(services)
   useEffect(() => {
     const fetchServices = async () => {
       setIsLoading(true);

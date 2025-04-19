@@ -304,7 +304,7 @@ export default function NewOrderPage() {
     const newOrder: Order = {
       service_id: Number(serviceId),
       url: link,
-      status: "pending", // "padding" o‘rniga "pending" ishlatildi
+      status: "pending",
       quantity: quantityNum,
     };
 

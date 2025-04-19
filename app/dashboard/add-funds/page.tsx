@@ -36,6 +36,12 @@ interface PaginatedResponse<T> {
   previous: string | null;
   results: T[];
 }
+const toBase64 = (str: string) => {
+  if (typeof window !== "undefined") {
+    return window.btoa(str);
+  }
+  return Buffer.from(str).toString("base64");
+};
 
 export default function AddFundsPage() {
   const router = useRouter();
@@ -131,15 +137,6 @@ export default function AddFundsPage() {
       return;
     }
 
-    if (selectedPaymentMethod !== "click") {
-      toast({
-        title: "Hozircha faqat Click qo'llab-quvvatlanadi",
-        description: "Iltimos, Click to'lov usulini tanlang.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsProcessing(true);
 
     try {
@@ -148,8 +145,29 @@ export default function AddFundsPage() {
         throw new Error("Foydalanuvchi ID topilmadi");
       }
 
-      const paymentUrl = `https://my.click.uz/services/pay?service_id=70317&merchant_id=37916&amount=${amountNum}&transaction_param=${userId}&return_url=https://turbosmm.uz/dashboard/add-funds`
-      window.open(paymentUrl, "_blank");
+      if (selectedPaymentMethod === "click") {
+        const paymentUrl = `https://my.click.uz/services/pay?service_id=70317&merchant_id=37916&amount=${amountNum}&transaction_param=${userId}&return_url=https://turbosmm.uz/dashboard/add-funds`;
+        window.open(paymentUrl, "_blank");
+      } else if (selectedPaymentMethod === "payme") {
+        // Payme uchun parametrlar
+        const merchantId = "67f7bf348d2fe4b0d3c09961";
+        const formattedAmount = amountNum * 100; 
+        const returnUrl = "https://turbosmm.uz/dashboard/add-funds";
+        const lang = "uz";
+
+        const queryString = `m=${merchantId};ac.order_id=${userId};a=${formattedAmount};l=${lang};c=${returnUrl}`;
+
+        const encodedString = toBase64(queryString);
+
+        const paymentUrl = `https://checkout.paycom.uz/${encodedString}`;
+        window.open(paymentUrl, "_blank");
+      } else {
+        toast({
+          title: "Noma'lum to'lov usuli",
+          description: "Iltimos, Click yoki Payme tanlang.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       toast({
         title: "Xatolik yuz berdi",
@@ -160,6 +178,7 @@ export default function AddFundsPage() {
       setIsProcessing(false);
     }
   };
+  
 
   if (!isMounted) {
     return null;
@@ -244,7 +263,7 @@ export default function AddFundsPage() {
                           variant="outline"
                           className={`flex flex-col h-auto py-4 ${selectedPaymentMethod === method.id ? "border-primary" : ""}`}
                           onClick={() => handlePaymentMethodSelect(method.id)}
-                          disabled={method.id !== "click"}
+                          disabled={method.id !== "click" && method.id !== "payme"}
                         >
                           <div className="mb-2 h-10 w-10 relative">
                             <Image src={method.icon} alt={method.name} fill className="object-contain" />

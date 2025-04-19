@@ -30,12 +30,7 @@ interface Transaction {
    // IUser o‘rniga any, chunki session.user ishlatiladi
 }
 
-interface PaginatedResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
-}
+
 const toBase64 = (str: string) => {
   if (typeof window !== "undefined") {
     return window.btoa(str);
@@ -63,11 +58,12 @@ export default function AddFundsPage() {
 
     const loadData = async () => {
       try {
-        const res = await axios.get<PaginatedResponse<Transaction>>(
+        const res = await axios.get<Transaction[]>(
           "api/payments/?type=user",
           { headers: { Authorization: `Bearer ${session.token}` } }
         );
-        setPayHistory(res.data.results || []);
+        console.log("Tranzaksiyalar tarixi:", res.data);
+        setPayHistory(res.data);
         
       } catch (error) {
         console.error("Payment history yuklashda xato:", error);
@@ -298,7 +294,7 @@ export default function AddFundsPage() {
                 <CardDescription>{`Sizning so'nggi moliyaviy operatsiyalaringiz`}</CardDescription>
               </CardHeader>
               <CardContent>
-                {payHistory.length > 0 ? (
+                {payHistory && payHistory.length > 0 ? (
                   <div className="space-y-4">
                     {payHistory.map((transaction) => (
                       <div

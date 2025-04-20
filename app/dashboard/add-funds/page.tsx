@@ -294,7 +294,7 @@ export default function AddFundsPage() {
                 <CardDescription>{`Sizning so'nggi moliyaviy operatsiyalaringiz`}</CardDescription>
               </CardHeader>
               <CardContent>
-                {payHistory && payHistory.length > 0 ? (
+                {payHistory && Array.isArray(payHistory) && payHistory.length > 0 ? (
                   <div className="space-y-4">
                     {payHistory.map((transaction) => (
                       <div

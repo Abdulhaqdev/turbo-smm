@@ -102,7 +102,6 @@ export default function NewOrderPage() {
             headers: { Authorization: `Bearer ${session.token}` },
           });
           const categories = categoryRes.data as Category[];
-          console.log(categories)
           const activeCategories = categories
             .filter((category) => category.is_active !== false)
             .map((category) => {

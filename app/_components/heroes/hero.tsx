@@ -47,7 +47,6 @@ export default function Page() {
           `https://api.turbosmm.uz/api/all-services`
        
         );
-        console.log(`S uchun services`, response.data);
         const activeServices = response.data.filter((service) => service.is_active);
         setServices(activeServices[0].id);
       } catch (err) {

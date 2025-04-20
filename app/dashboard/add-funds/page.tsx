@@ -62,7 +62,7 @@ export default function AddFundsPage() {
           "api/payments/?type=user",
           { headers: { Authorization: `Bearer ${session.token}` } }
         );
-        console.log("Tranzaksiyalar tarixi:", res.data);
+        // console.log("Tranzaksiyalar tarixi:", res.data);
         setPayHistory(res.data);
         
       } catch (error) {
@@ -197,7 +197,7 @@ export default function AddFundsPage() {
               </CardHeader>
               <CardContent className="flex flex-col items-center justify-center py-6">
                 <div className="text-3xl font-bold text-primary">
-                  {session?.user?.balance ? `${formatCurrency(Number(session.user.balance))} UZS` : "0 UZS"}
+                  {session?.user?.balance ? `${formatCurrency(Number(session.user.balance))} ` : "0 UZS"}
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">Sizning joriy hisobingiz</p>
               </CardContent>

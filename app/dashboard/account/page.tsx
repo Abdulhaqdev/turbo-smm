@@ -49,7 +49,7 @@ export default function AccountPage() {
 
   useEffect(() => {
     if (!session) {
-      router.push("/");
+      // router.push("/");
     } else {
       // setUserProfile(session.user);
       setEditedUser({

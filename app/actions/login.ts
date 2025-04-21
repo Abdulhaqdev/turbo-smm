@@ -11,8 +11,9 @@ export default async function login(data: LoginFormData) {
 		cookiStore.set("refresh_token", (await loginRes).data.refresh, { httpOnly: true, secure: true, sameSite: "strict" })
 		return { message: "Login successful" };
 	} catch (error) {
+		// console.log(first)
 		if (axios.isAxiosError(error)) { throw new Error(error.response?.data.detail) }
-		throw new Error("Something went wrong");
+		throw new Error("Something went wrong ss");
 	}
 
 }

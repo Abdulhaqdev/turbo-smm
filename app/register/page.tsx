@@ -42,7 +42,7 @@ export default function RegisterPage() {
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePhone = (phone: string) => phone.length >= 7 && phone.length <= 15;
   const validatePassword = (password: string) =>
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password);
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/.test(password);
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -282,10 +282,10 @@ export default function RegisterPage() {
                 />
                 <span
                   className={
-                    formData.password.length >= 8 ? "text-green-500" : "text-muted-foreground"
+                    formData.password.length >= 6 ? "text-green-500" : "text-muted-foreground"
                   }
                 >
-                  Kamida 8 ta belgi
+                  Kamida 6 ta belgi
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm">

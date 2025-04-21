@@ -28,12 +28,15 @@ export const metadata: Metadata = {
     'TikTok',
     'Telegram',
   ],
- 
+  icons: {
+		icon: '/favicon.png',
+	},
   verification: {
     google: 'your-google-site-verification-code', // Google Search Console kodi
     yandex: '3790a3d52bf1ac5e', // Yandex Webmaster kodi
   },
 };
+
 
 export default function RootLayout({
   children,

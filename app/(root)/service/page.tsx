@@ -194,7 +194,7 @@ export default function ServicesPage() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <div className="text-zinc-400">1000 ta uchun narx</div>
-                  <div className="text-zinc-100">${Number(service.price / 1000).toFixed(4)}</div>
+                  <div className="text-zinc-100">{service.price}</div>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <div className="text-zinc-400">O‘rtacha vaqt</div>

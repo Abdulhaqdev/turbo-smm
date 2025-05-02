@@ -13,7 +13,7 @@ export default async function login(data: LoginFormData) {
 	} catch (error) {
 		// console.log(first)
 		if (axios.isAxiosError(error)) { throw new Error(error.response?.data.detail) }
-		throw new Error("Something went wrong ss");
+		throw new Error("Something went wrong ");
 	}
 
 }

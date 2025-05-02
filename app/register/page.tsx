@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMobile } from "@/hooks/useMobile";
-// import { ApiResponse, apiService } from "@/lib/apiservise";
 import { FormData, FormErrors } from "@/types/register";
 import { Eye, EyeOff, Mail, Phone, User } from "lucide-react";
 import Link from "next/link";
@@ -41,8 +40,7 @@ export default function RegisterPage() {
   const validateUsername = (username: string) => /^[a-zA-Z0-9_]{3,}$/.test(username);
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePhone = (phone: string) => phone.length >= 7 && phone.length <= 15;
-  const validatePassword = (password: string) =>
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/.test(password);
+  const validatePassword = (password: string) => /.{6,}/.test(password);
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -86,7 +84,7 @@ export default function RegisterPage() {
       valid = false;
     }
     if (!validatePassword(formData.password)) {
-      newErrors.password = "Parol kuchli emas";
+      newErrors.password = "Parol kamida 6 ta belgi bo'lishi kerak";
       valid = false;
     }
   
@@ -277,7 +275,7 @@ export default function RegisterPage() {
               <div className="flex items-center gap-2 text-sm">
                 <div
                   className={`h-1.5 w-1.5 rounded-full ${
-                    formData.password.length >= 8 ? "bg-green-500" : "bg-gray-300"
+                    formData.password.length >= 6 ? "bg-green-500" : "bg-gray-300"
                   }`}
                 />
                 <span
@@ -286,48 +284,6 @@ export default function RegisterPage() {
                   }
                 >
                   Kamida 6 ta belgi
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <div
-                  className={`h-1.5 w-1.5 rounded-full ${
-                    /[A-Z]/.test(formData.password) ? "bg-green-500" : "bg-gray-300"
-                  }`}
-                />
-                <span
-                  className={
-                    /[A-Z]/.test(formData.password) ? "text-green-500" : "text-muted-foreground"
-                  }
-                >
-                  Kamida 1 ta katta harf
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <div
-                  className={`h-1.5 w-1.5 rounded-full ${
-                    /[a-z]/.test(formData.password) ? "bg-green-500" : "bg-gray-300"
-                  }`}
-                />
-                <span
-                  className={
-                    /[a-z]/.test(formData.password) ? "text-green-500" : "text-muted-foreground"
-                  }
-                >
-                  Kamida 1 ta kichik harf
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <div
-                  className={`h-1.5 w-1.5 rounded-full ${
-                    /\d/.test(formData.password) ? "bg-green-500" : "bg-gray-300"
-                  }`}
-                />
-                <span
-                  className={
-                    /\d/.test(formData.password) ? "text-green-500" : "text-muted-foreground"
-                  }
-                >
-                  Kamida 1 ta raqam
                 </span>
               </div>
             </div>

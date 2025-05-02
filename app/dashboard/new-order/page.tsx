@@ -9,10 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { formatCurrency } from "@/lib/utils";
 import { FormError } from "../_components/common/FormError";
 import { Header } from "../_components/header";
-import { useToast } from "@/hooks/use-toast";
 import SocialIcon from "@/components/shared/SocialIcon";
 import { useSession } from "@/hooks/useSession";
 import axios from "@/lib/axios";
+import toast from "react-hot-toast";
 
 // Interfeyslar
 interface Category {
@@ -55,7 +55,6 @@ interface SavedOrder {
 export default function NewOrderPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useToast();
   const { session } = useSession();
 
   const [categoryId, setCategoryId] = useState<string>("");
@@ -89,6 +88,30 @@ export default function NewOrderPage() {
     "Twitch",
     "Youtube",
   ];
+
+  // Load form data from localStorage on mount
+  useEffect(() => {
+    const savedFormData = localStorage.getItem("newOrderFormData");
+    if (savedFormData) {
+      const parsedData: SavedOrder = JSON.parse(savedFormData);
+      setCategoryId(parsedData.categoryId);
+      setServiceId(parsedData.serviceId);
+      setLink(parsedData.link);
+      setQuantity(String(parsedData.quantity));
+   
+    }
+  }, []);
+
+  // Save form data to localStorage whenever it changes
+  useEffect(() => {
+    const formData: SavedOrder = {
+      categoryId,
+      serviceId,
+      link,
+      quantity: Number(quantity) || 0,
+    };
+    localStorage.setItem("newOrderFormData", JSON.stringify(formData));
+  }, [categoryId, serviceId, link, quantity]);
 
   useEffect(() => {
     if (session) {
@@ -126,11 +149,8 @@ export default function NewOrderPage() {
         } catch (err) {
           console.error(err);
           setError("Ma'lumotlarni yuklashda xatolik yuz berdi.");
-          toast({
-            title: "Xatolik",
-            description: "Kategoriyalar yoki xizmatlarni yuklashda xatolik.",
-            variant: "destructive",
-          });
+          toast.error("Xatolik Kategoriyalar yoki xizmatlarni yuklashda xatolik.",
+          );
         } finally {
           setIsLoading(false);
         }
@@ -140,25 +160,11 @@ export default function NewOrderPage() {
       setError("Tizimga kirish kerak!");
       setIsLoading(false);
     }
-  }, [router, session, toast]);
+  }, [router, session]);
 
   useEffect(() => {
     const serviceIdFromUrl = searchParams.get("serviceId");
-    const savedOrder = localStorage.getItem("savedOrder");
-    if (savedOrder) {
-      const parsedOrder: SavedOrder = JSON.parse(savedOrder);
-      setCategoryId(parsedOrder.categoryId);
-      setServiceId(parsedOrder.serviceId);
-      setLink(parsedOrder.link);
-      setQuantity(String(parsedOrder.quantity));
-      localStorage.removeItem("savedOrder");
-
-      toast({
-        title: "Buyurtma formasi tiklandi",
-        description: "Oldingi buyurtma ma'lumotlaringiz tiklandi.",
-        variant: "default",
-      });
-    } else if (serviceIdFromUrl && services.length > 0) {
+    if (serviceIdFromUrl && services.length > 0) {
       const service = services.find((srv) => srv.id === Number(serviceIdFromUrl)) || null;
       if (service) {
         setCategoryId(String(service.category));
@@ -166,7 +172,7 @@ export default function NewOrderPage() {
         setQuantity(String(service.min));
       }
     }
-  }, [searchParams, services, toast]);
+  }, [searchParams, services]);
 
   useEffect(() => {
     if (categoryId) {
@@ -254,14 +260,7 @@ export default function NewOrderPage() {
   const handleSubmit = async () => {
     setFormSubmitted(true);
 
-    if (!categoryId || !serviceId) {
-      toast({
-        title: "Forma to‘liq emas",
-        description: "Buyurtma berish uchun kategoriya va xizmatni tanlang.",
-        variant: "destructive",
-      });
-      return;
-    }
+   
 
     const isLinkValid = validateLink();
     const isQuantityValid = validateQuantity();
@@ -271,11 +270,8 @@ export default function NewOrderPage() {
     }
 
     if (!session?.user) {
-      toast({
-        title: "Xatolik",
-        description: "Foydalanuvchi ma'lumotlari mavjud emas. Buyurtma berish uchun tizimga kiring.",
-        variant: "destructive",
-      });
+      toast.error("Xatolik Foydalanuvchi ma'lumotlari mavjud emas. Buyurtma berish uchun tizimga kiring.",
+      );
       return;
     }
 
@@ -288,13 +284,9 @@ export default function NewOrderPage() {
         link,
         quantity: quantityNum,
       };
-      localStorage.setItem("savedOrder", JSON.stringify(savedOrder));
+      localStorage.setItem("newOrderFormData", JSON.stringify(savedOrder));
 
-      toast({
-        title: "Mablag‘ yetarli emas",
-        description: `Sizning balansingiz ${session.user.balance}, lekin bu buyurtma ${totalPrice} turadi. Davom etish uchun pul qo‘shing.`,
-        variant: "destructive",
-      });
+      toast.error(`Sizning balansingiz ${session.user.balance} lekin bu buyurtma ${totalPrice} turadi. Davom etish uchun pul qo‘shing.`);
 
       router.push("/dashboard/add-funds");
       return;
@@ -316,27 +308,22 @@ export default function NewOrderPage() {
       });
 
       if (response.status === 201) {
-        toast({
-          title: "Buyurtma muvaffaqiyatli joylashtirildi!",
-          description: `${quantityNum} dona uchun buyurtmangiz joylashtirildi.`,
-          variant: "success",
-        });
+        toast.success(`Buyurtma muvaffaqiyatli joylashtirildi! ${quantityNum} dona uchun buyurtmangiz joylashtirildi.`,
+        );
 
+        // Clear form and localStorage on successful submission
         setCategoryId("");
         setServiceId("");
         setLink("");
         setQuantity("");
         setFormSubmitted(false);
+        localStorage.removeItem("newOrderFormData");
       } else {
         throw new Error("Buyurtma yaratishda xatolik yuz berdi");
       }
     } catch (err) {
       console.error("Buyurtma yuborishda xatolik:", err);
-      toast({
-        title: "Xatolik",
-        description: "Buyurtmani yuborishda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko‘ring.",
-        variant: "destructive",
-      });
+      toast.error("Xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko‘ring.");
     }
   };
 
@@ -368,6 +355,7 @@ export default function NewOrderPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      {/* <Toaster position="top-right" toastOptions={{ duration: 3000 }} /> */}
       <Header />
       <main className="flex-1 p-4 md:p-6">
         <div className="mx-auto max-w-3xl">
@@ -377,15 +365,15 @@ export default function NewOrderPage() {
             <div>
               <h2 className="mb-2 text-lg font-medium">Kategoriyalar</h2>
               <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger className=" ">
-                        <SelectValue placeholder={ categories[0].name}  />
+                <SelectTrigger className="">
+                  <SelectValue placeholder={categories[0]?.name || "Kategoriyani tanlang"} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
-                    <SelectItem  key={category.id} value={String(category.id)}>
-                      <div className="flex items-center gap-2 ">
+                    <SelectItem key={category.id} value={String(category.id)}>
+                      <div className="flex items-center gap-2">
                         {category.icon && <SocialIcon iconName={category.icon} className="h-5 w-5" />}
-                        <span className='text-wrap'>{category.name}</span>
+                        <span className="text-wrap">{category.name}</span>
                       </div>
                     </SelectItem>
                   ))}
@@ -415,7 +403,7 @@ export default function NewOrderPage() {
                   {filteredServices.map((service) => (
                     <SelectItem key={service.id} value={String(service.id)}>
                       <div className="flex flex-col">
-                        <span className='text-start'>{service.name}</span>
+                        <span className="text-start">{service.name}</span>
                         <span className="text-xs text-muted-foreground">
                           {formatCurrency(service.price)} har 1000 ga • Min: {service.min} • Max: {service.max}
                         </span>
@@ -447,9 +435,8 @@ export default function NewOrderPage() {
               <h2 className="mb-2 text-lg font-medium">Miqdor</h2>
               <Input
                 type="number"
-                
                 placeholder="Miqdorni kiriting"
-                // value={quantity}
+                value={quantity}
                 onChange={(e) => handleQuantityChange(e.target.value)}
                 disabled={!serviceId}
                 className={quantityError ? "border-destructive" : ""}
@@ -492,7 +479,6 @@ export default function NewOrderPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <span className="text-muted-foreground">Narx:</span>
-
                     <span>{formatCurrency(selectedService.price)} har 1000 ga</span>
                   </div>
                   <div className="border-t pt-4 flex items-center justify-between">

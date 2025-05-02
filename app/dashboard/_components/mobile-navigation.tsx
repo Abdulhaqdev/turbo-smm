@@ -41,10 +41,10 @@ export function MobileNavigation( ) {
   return (
     <>
       {/* Spacer div to prevent content from being hidden behind mobile navigation */}
-      <div className="h-16 md:hidden" aria-hidden="true" />
+      <div className="h-16 lg:hidden" aria-hidden="true" />
 
       {/* Mobile navigation */}
-      <div className={cn("fixed bottom-0 left-0 right-0 z-50 border-t bg-black md:hidden ", )}>
+      <div className={cn("fixed bottom-0 left-0 right-0 z-50 border-t bg-black lg:hidden ", )}>
         <nav className="flex h-16 items-center justify-around">
           {routes.map((route) => (
             <Link

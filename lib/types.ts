@@ -6,42 +6,6 @@ export type SocialMediaCategory = {
   placeholder: string
 }
 
-// export type ServiceType = {
-//   id: string
-//   name: string
-//   categoryId: string
-// }
-
-// types/service.ts
-export interface Service {
-  id: number;
-  name: string;
-  description: string;
-  duration: number;
-  min: number;
-  max: number;
-  price: number;
-  site_id: number;
-  service_type: number;
-  api: number;
-  created_at: string;
-  updated_at: string;
-  is_active: boolean;
-}
-
-// export type Order = {
-//   id: string
-//   categoryId: string
-//   serviceTypeId: string
-//   serviceId: string
-//   link: string
-//   quantity: number
-//   totalPrice: number
-//   status: "pending" | "processing" | "completed" | "canceled"
-//   createdAt: string
-//   estimatedCompletion: string
-// }
-
 export type User = {
   id: string
   name: string
@@ -85,102 +49,6 @@ export type SupportTicket = {
 }
 
 
-// types/api.ts
-// export interface Category {
-//   id: number;
-//   name: string;
-//   created_at: string;
-//   updated_at: string;
-//   is_active: boolean;
-// }
-
-// export interface ServiceType {
-//   id: number;
-//   name: string;
-//   category: Category;
-//   created_at: string;
-//   updated_at: string;
-//   is_active: boolean;
-// }
-
-// export interface Service {
-//   id: number;
-//   name: string;
-//   description: string;
-//   duration: number;
-//   min: number;
-//   max: number;
-//   price: number;
-//   site_id: number;
-//   service_type: number;
-//   api: number;
-//   created_at: string;
-//   updated_at: string;
-//   is_active: boolean;
-// }
-
-// export interface Order {
-//   id: string;
-//   categoryId: string;
-//   serviceTypeId: string;
-//   serviceId: string;
-//   link: string;
-//   quantity: number;
-//   totalPrice: number;
-//   status: "pending" | "processing" | "completed" | "cancelled";
-//   createdAt: string;
-//   estimatedCompletion: string;
-// }
-
-// types/api.ts
-export interface Category {
-  id: number;
-  name: string;
-  created_at: string;
-  updated_at: string;
-  is_active: boolean;
-}
-
-export interface ServiceType {
-  id: number;
-  name: string;
-  category: Category;
-  created_at: string;
-  updated_at: string;
-  is_active: boolean;
-}
-
-// export interface Service {
-//   id: number;
-//   name: string;
-//   description: string;
-//   duration: number;
-//   min: number;
-//   max: number;
-//   price: number;
-//   site_id: number;
-//   service_type: number;
-//   api: number;
-//   created_at: string;
-//   updated_at: string;
-//   is_active: boolean;
-// }
-
-export interface Service {
-  id: number;
-  name: string;
-  description: string;
-  duration: number;
-  min: number;
-  max: number;
-  price: number;
-  site_id: number;
-  category: number;
-  api: number;
-  created_at: string;
-  updated_at: string;
-  is_active: boolean;
-}
 
 export interface Order {
   id: number;
@@ -195,6 +63,15 @@ export interface Order {
   external_order_id: string;
 }
 
+
+
+export interface Category {
+  id: number;
+  name: string;
+  is_active?: boolean;
+  icon?: string;
+}
+
 export interface Service {
   id: number;
   name: string;
@@ -211,19 +88,19 @@ export interface Service {
   is_active: boolean;
 }
 
-export interface Orders {
-  id: number;
-  service: Service;
-  price: string;
+export interface newOrder {
+  service_id: number;
   url: string;
   status: string;
   quantity: number;
-  created_at: string;
-  updated_at: string;
-  user: number;
-  external_order_id: string;
 }
 
+export interface SavedOrder {
+  categoryId: string;
+  serviceId: string;
+  link: string;
+  quantity: number;
+}
 export interface ApiResponse<T> {
   data?: T;
   error?: unknown; // ApiErrorResponse ni o‘rniga any ishlatamiz yoki kerakli turi aniqlanadi

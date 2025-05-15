@@ -1,44 +1,49 @@
-  import { NextResponse, NextRequest } from "next/server";
+import { NextRequest } from 'next/server';
+import createIntlMiddleware from 'next-intl/middleware';
+import { routing } from './app/i18n/routing'
+// import { routing } from './i18n/routing';
 
-  export function middleware(request: NextRequest) {
-    const { pathname } = request.nextUrl; // So'rovning yo'lini olish
-    const accessToken = request.cookies.get("refresh_token")?.value; // Cookies dan accessToken ni olish
+const intlMiddleware = createIntlMiddleware({
+  ...routing,
+  localePrefix: 'always',
+});
 
-    console.log(accessToken)
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const accessToken = request.cookies.get('refresh_token')?.value;
 
-    // /dashboard yo'lini tekshirish
-    if (pathname.startsWith("/dashboard")) {
-      if (!accessToken) {
-        return NextResponse.redirect(new URL("/login", request.url));
-      }
-    }
-
-    // /login yo'lini tekshirish
-    if (pathname === "/login" && accessToken) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-
-    return NextResponse.next(); // So'rovni davom ettirish
+  // Statik fayllar va API yo'llarini o'tkazib yuboramiz
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname.includes('.')
+  ) {
+    return intlMiddleware(request);
   }
 
-  export const config = {
-    matcher: ["/dashboard/:path*", "/login"], // Middleware qo'llaniladigan yo'llar
-  };
+  // Joriy til prefiksini aniqlaymiz
+  const localePrefix = routing.locales.some((locale) => pathname.startsWith(`/${locale}`))
+    ? pathname.split('/')[1]
+    : routing.defaultLocale;
+  const pathWithoutLocale = pathname.replace(`/${localePrefix}`, '') || '/';
 
-//   import { NextRequest, NextResponse } from "next/server";
+  // /dashboard yo'lini himoya qilamiz
+  if (pathWithoutLocale.startsWith('/dashboard')) {
+    if (!accessToken) {
+      return Response.redirect(new URL(`/${localePrefix}/login`, request.url));
+    }
+  }
 
-// export function middleware(request: NextRequest) {
-//   const token = request.cookies.get("access_token")?.value;  
+  // /login da autentifikatsiya qilingan foydalanuvchilarni /dashboard ga yo'naltiramiz
+  if (pathWithoutLocale === '/login' && accessToken) {
+    return Response.redirect(new URL(`/${localePrefix}/dashboard`, request.url));
+  }
 
-//   if (request.nextUrl.pathname.startsWith("/dashboard")) {
-//     if (!token) {
-//       return NextResponse.redirect(new URL("/", request.url));
-//     }
-//   }
+  return intlMiddleware(request); 
+}
 
-//   return NextResponse.next();
-// }
-
-// export const config = {
-//   matcher: ["/dashboard/:path*"],
-// };
+export const config = {
+  matcher: [
+    '/((?!_next|api|.*\\.(?:svg|png|jpg|jpeg|webp|gif|ico|css|js|map)).*)',
+  ],
+};

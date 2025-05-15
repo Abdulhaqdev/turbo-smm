@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { CountUpAnimationProps } from '@/types'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 
 const socialPlatforms = [
 	{ name: 'Twitter', icon: <Twitter className='mr-2 h-5 w-5' /> },
@@ -58,6 +59,8 @@ function CountUpAnimation({
 }
 
 export default function Feature() {
+	const t = useTranslations('feature'); // Feature matnlarini yuklash
+
 	return (
 		<main className='my-10 max-w-screen-xl mx-auto'>
 			<div className='mx-auto  max-w-3xl text-center'>
@@ -74,23 +77,23 @@ export default function Feature() {
 					/>
 				</div>
 				<h1 className='mb-6 text-2xl font-bold leading-tight md:text-5xl bg-gradient-to-r from-[#60A5FA] to-[#9333EA] bg-clip-text text-transparent'>
-					{`O'zbekiston bo'ylab ijtimoiy tarmoqlarda o'sish uchun ishonchli xizmat.`}
-				</h1>
+				{t('title')}
+								</h1>
 				<p className='mb-12 px-6 text-sm md:text-lg text-slate-400'>
-					{`Qoniqarli mijozlar tarmog'iga qo'shiling. Bizning platformamiz har 100 soniyada bir buyurtmani yakunlaydi va raqobatbardosh xizmatlarimiz 1000 dona uchun 1000 so'mdan boshlanadi.`}
+				{t('description')}
 				</p>
 				<div className='mb-16 grid grid-cols-1 gap-1 mx-10 md:grid-cols-3'>
 					<div className='text-center text-[#161616] dark:text-white' >
 						<p className='text-xl font-bold '>
 							<CountUpAnimation end={100} duration={1500} suffix=' sec' />
 						</p>
-						<p className='text-sm text-gray-400'>Har bir buyurtma uchun</p>
+						<p className='text-sm text-gray-400'>{t('stat1')}</p>
 					</div>
 					<div className='text-center'>
 						<p className='text-xl font-bold text-[#161616] dark:text-white'>
 							<CountUpAnimation end={120167} duration={2000} />
 						</p>
-						<p className='text-sm text-gray-400'>Buyurtma yakunlandi</p>
+						<p className='text-sm text-gray-400'>{t('stat2')}</p>
 					</div>
 					<div className='text-center'>
 						<p className='text-xl font-bold text-[#161616] dark:text-white'>
@@ -100,7 +103,7 @@ export default function Feature() {
 								suffix=' UZS/1000'
 							/>
 						</p>
-						<p className='text-sm text-gray-400'>Narxlar boshlanadi</p>
+						<p className='text-sm text-gray-400'>{t('stat3')}</p>
 					</div>
 				</div>
 				{/* Marquee Container */}

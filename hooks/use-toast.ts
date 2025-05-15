@@ -1,6 +1,6 @@
 "use client";
 
-import { ToastActionElement, ToastProps } from '@/app/dashboard/_components/ui/toast'
+import { ToastActionElement, ToastProps } from '@/app/[locale]/dashboard/_components/ui/toast'
 // Inspired by react-hot-toast library
 import * as React from "react";
 // import type { ToastActionElement, ToastProps } from "../app/dashboard/_components/ui/toaster"; // Yo'l to'g'rilandi

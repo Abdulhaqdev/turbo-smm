@@ -1,0 +1,520 @@
+{
+  "navbar": {
+    "home": "Home",
+    "service": "Services",
+    "about": "About Us"
+  },
+  "homepage": {
+    "title": "Fast Growth on Social Media",
+    "description": "Use our high-quality services for fast and effective growth on social media. We provide quick and reliable increases in followers, likes, or views. Trust us with minimal impact, ensuring growth through a real audience! See how it works for all social platforms!",
+    "register": "Register Now",
+    "loginTitle": "Log in with your TURBO SMM account",
+    "loginSubtitle": "Please log in using your TURBOSMM account. Avoid using your social media accounts.",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "Username",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Password",
+    "rememberMe": "Remember Me",
+    "forgotPassword": "Forgot Password?",
+    "loginButton": "Login",
+    "loginLoading": "Logging in...",
+    "noAccount": "Don't have an account? Register"
+  },
+  "feature": {
+    "title": "A trusted service for social media growth across Uzbekistan.",
+    "description": "Join our network of satisfied clients. Our platform completes one order every 100 seconds, and our competitive services start at 1000 UZS for 1000 units.",
+    "stat1": "For each order",
+    "stat2": "Orders completed",
+    "stat3": "Prices start at",
+    "socialPlatforms": ["Twitter", "Instagram", "Twitch", "Youtube", "Facebook", "LinkedIn"]
+  },
+  "testimonials": {
+    "title": "Hear from Our Clients",
+    "description": "See what our clients have to say about our services. We take pride in delivering excellent results and high customer satisfaction.",
+    "items": [
+      {
+        "name": "Dildora Karimova",
+        "title": "Local Brand Agent",
+        "quote": "I needed an audience to grow my Instagram content. With TURBO SMM, real clients found us, and our sales increased too!"
+      },
+      {
+        "name": "Jamshed Rakmatullayev",
+        "title": "YouTube Channel Creator",
+        "quote": "I had just started my channel and didn’t know how to increase video views. With TURBO SMM, the number of organic subscribers grew significantly!"
+      },
+      {
+        "name": "Muhlisa Qodirova",
+        "title": "TikTok Blogger (food & lifestyle)",
+        "quote": "I wanted to boost my TikTok video views with TURBO SMM’s help. Now my videos are getting recommended!"
+      },
+      {
+        "name": "Sherzod Ismoilov",
+        "title": "Instagram Marketing Specialist",
+        "quote": "We needed a modern approach to organize and grow our client base. TURBO SMM was the best choice, with fast and effective results!"
+      },
+      {
+        "name": "Nosiba Orolava",
+        "title": "Beauty Salon Owner",
+        "quote": "I needed new ways to attract clients to my salon. With TURBO SMM, my Instagram followers and clients increased significantly!"
+      },
+      {
+        "name": "Bekzod Yoqubov",
+        "title": "Telegram Channel Creator",
+        "quote": "When I started my channel, no one was joining. With TURBO SMM, I quickly reached the desired number of subscribers, and now it’s growing organically—I’m very happy!"
+      },
+      {
+        "name": "Gulbahor Sobirova",
+        "title": "Fashion Blogger (Instagram)",
+        "quote": "I needed to increase my followers to collaborate with brands. With TURBO SMM, my audience grew significantly, and now brands want to work with me!"
+      },
+      {
+        "name": "Sanjar Abdudopirov",
+        "title": "Rags Studio Owner (TikTok & Instagram)",
+        "quote": "I turned to TURBO SMM to instantly boost my Rags. The number of followers on Instagram and TikTok increased significantly!"
+      },
+      {
+        "name": "Farangiz Shokirova",
+        "title": "Online Store Owner (Accessories)",
+        "quote": "I used TURBO SMM services to greatly boost my sales. Now my online store’s sales and order volume have increased significantly!"
+      }
+    ]
+  },
+  "paymentMethods": {
+    "title": "Safe and Flexible Payment Options",
+    "description": "We offer a variety of payment methods to ensure a secure and convenient transaction experience. Choose from credit and debit cards, banks, and other options. Your convenience and security are our top priorities."
+  },
+  "howItWorks": {
+    "title": "How Does Turbo SMM Panel Work?",
+    "description": "We provide services for Instagram, Facebook, Twitter, YouTube, and other social networks. Our platform is suitable for everyone, whether you're an influencer, a brand, or a small business.",
+    "features": [
+      {
+        "title": "Create an Account",
+        "description": "Sign up and access our platform easily through your account."
+      },
+      {
+        "title": "Choose a Service",
+        "description": "Select the ideal service that matches your needs from the available options."
+      },
+      {
+        "title": "Confirm and Submit",
+        "description": "Verify that all details are correct and place your order."
+      },
+      {
+        "title": "Track the Process",
+        "description": "Monitor the results as they start to show, and take control at any time while relaxing."
+      }
+    ]
+  },
+  "faqSection": {
+    "title": "Frequently Asked Questions",
+    "description": "Your feedback is important to us! Here are some comments from TURBO SMM clients. Individuals, small accounts, as well as businesses, organizations, and artists are all part of the unique TURBO SMM world!",
+    "faqs": [
+      {
+        "question": "What services does TURBO SMM offer?",
+        "answer": "TURBO SMM is a platform that provides services for fast and high-quality growth on social media. We offer services for subscribers, likes, views, and other activities on Instagram, TikTok, YouTube, Telegram, and other platforms."
+      },
+      {
+        "question": "Are your services safe?",
+        "answer": "Yes, our services are safe and do not harm users' accounts. We do not require personal information and provide only organic and bot-free services."
+      },
+      {
+        "question": "How long does it take to complete an ordered service?",
+        "answer": "The completion time depends on the type and quantity of the ordered service. Most orders start within 1-5 minutes and are completed within 1-20 minutes."
+      },
+      {
+        "question": "How much do your services cost?",
+        "answer": "Our service prices vary depending on the platforms and packages. To benefit from the lowest prices, register on the site and check the pricing section."
+      },
+      {
+        "question": "How are payments processed?",
+        "answer": "Payments are accepted via cards and electronic wallets. Our payment systems are fast and secure."
+      },
+      {
+        "question": "Does using SMM services violate social media rules?",
+        "answer": "No, our services are designed to look natural and do not harm social media algorithms. However, it is recommended that each user familiarize themselves with the platform rules before using the services."
+      },
+      {
+        "question": "What should I do if an order is not completed or an error occurs?",
+        "answer": "If an order is not completed or an issue arises, you can contact our customer support team. We will work to find a quick solution and either refund your money or deliver the service correctly."
+      },
+      {
+        "question": "Can I purchase services multiple times?",
+        "answer": "Yes, you can use various services multiple times and have the opportunity to quickly grow your account."
+      },
+      {
+        "question": "How does customer support work?",
+        "answer": "Customer support operates 24/7. If you need assistance, you can contact us via Telegram chat or email."
+      },
+      {
+        "question": "Can I grow my business using TURBO SMM services?",
+        "answer": "Absolutely! Our services are an excellent tool for increasing your brand's visibility and reaching more people with your products and services. Many business owners use our services to attract audiences through social media."
+      }
+    ]
+  },
+  "footer": {
+    "description": "Created by TURBO SMM, with a clean design and high-quality components and templates. An ideal choice for your SMM panel.",
+    "quickLinks": {
+      "title": "Quick Links",
+      "home": "Home",
+      "signUp": "Sign Up",
+      "services": "Services"
+    },
+    "company": {
+      "title": "Company",
+      "serviceTerms": "Service Terms",
+      "aboutUs": "About Us",
+      "support": "Support"
+    },
+    "developers": {
+      "title": "Developers",
+      "api": "API"
+    },
+    "pages": {
+      "title": "Pages",
+      "home": "Home",
+      "service": "Service",
+      "aboutUs": "About Us"
+    },
+    "copyright": "© 2024 TURBO SMM All rights reserved.",
+    "legal": {
+      "privacyPolicy": "Privacy Policy",
+      "updateList": "Update List"
+    }
+  },
+  "heroAboutus": {
+    "hero": {
+      "title": {
+        "part1": "Improve your",
+        "part2": "social media",
+        "part3": "profile today with us!"
+      },
+      "description": "Welcome to our website! We are here to help your business thrive in the digital world. Our site offers a wide range of services you can purchase at very affordable prices to grow on social media."
+    },
+    "marketing": {
+      "title": "Discover our amazing social media marketing services!",
+      "description": "Our social media marketing services are designed to boost your brand's online reputation. We focus on quality, speed, and security to ensure your campaigns succeed."
+    }
+  },
+  "heroSupport": {
+    "title": "Customer Support – Your Trusted Assistant!",
+    "description": "Our team is available 24/7 to answer any questions you may have. Need more information? Have a problem or question? We’re ready to help!",
+    "button": "Contact Us"
+  },
+  "heroTestimonials": {
+    "title": "Hear from Our Clients",
+    "description": "See what our clients have to say about our services. We take pride in delivering excellent results and high customer satisfaction.",
+    "testimonials": {
+      "0": {
+        "name": "Dildora Karimova",
+        "title": "Local Brand Agent",
+        "quote": "I needed an audience to grow my Instagram content. With TURBO SMM, real clients found us, and our sales increased too!"
+      },
+      "1": {
+        "name": "Jamshed Rakmatullayev",
+        "title": "YouTube Channel Creator",
+        "quote": "I had just started my channel and didn’t know how to increase video views. With TURBO SMM, the number of organic subscribers grew significantly!"
+      },
+      "2": {
+        "name": "Muhlisa Qodirova",
+        "title": "TikTok Blogger (food & lifestyle)",
+        "quote": "I wanted to boost my TikTok video views with TURBO SMM’s help. Now my videos are getting recommended!"
+      }
+    },
+    "cta": {
+      "title": "Let’s Improve Your Social Media Presence!",
+      "description": "Join us and enhance your social media presence – take the path to success!",
+      "button": "Get Started"
+    }
+  },
+  "login": {
+    "title": "Log In",
+    "description": "Enter your details to log in to your account.",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "rememberMe": "Remember Me",
+    "registerLink": "Register",
+    "errors": {
+      "username": "Username must be at least 3 characters long",
+      "password": "Password must be at least 6 characters long",
+      "noServices": "No active services found",
+      "serviceFetchFailed": "Failed to load services"
+    },
+    "submit": "Log In",
+    "loading": "Loading..."
+  },
+  "register": {
+    "title": "Create an Account",
+    "description": "Enter your details to create your account",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "username": "Username",
+    "email": "Email",
+    "emailPlaceholder": "name@example.com",
+    "phone": "Phone Number",
+    "phonePlaceholder": "901234567",
+    "password": "Password",
+    "submit": "Create Account",
+    "loading": "Creating...",
+    "loginLink": "Log In",
+    "errors": {
+      "firstName": "First name is required",
+      "lastName": "Last name is required",
+      "username": "Username must be at least 3 characters long",
+      "email": "Enter a valid email address",
+      "phone": "Phone number must be between 7 and 15 digits",
+      "password": "Password must be at least 6 characters long",
+      "general": "An error occurred while connecting to the server!"
+    },
+    "passwordHint": "At least 6 characters"
+  },
+    "newOrder": {
+      "title": "New Order",
+      "categories": "Categories",
+      "services": "Services",
+      "link": "Link",
+      "quantity": "Quantity",
+      "orderSummary": "Order Summary",
+      "category": "Category",
+      "service": "Service",
+      "description": "Description",
+      "time": "Time",
+      "price": "Price",
+      "totalPrice": "Total Price",
+      "submitOrder": "Submit Order",
+      "selectCategory": "Select a category",
+      "selectService": "Select a service",
+      "servicesLoading": "Services are loading...",
+      "selectCategoryFirst": "Select a category first",
+      "noServicesAvailable": "No services available",
+      "enterLink": "Enter the link (e.g., https://example.com)",
+      "enterQuantity": "Enter the quantity",
+      "quantityRequired": "Quantity is required",
+      "quantityInvalid": "Quantity must be a valid number",
+      "serviceNotSelected": "Service not selected, cannot validate quantity",
+      "quantityMin": "Quantity must be at least {min}",
+      "quantityMax": "Quantity must not exceed {max}",
+      "selectServiceFirst": "Select a service first",
+      "linkRequired": "Link is required",
+      "invalidLink": "Please enter a valid URL",
+      "noUserData": "Error: User data not available. Log in to place an order.",
+      "insufficientBalance": "Your balance is {balance}, but this order costs {totalPrice}. Add funds to proceed.",
+      "orderSuccess": "Order placed successfully! Your order for {quantity} units has been placed.",
+      "orderError": "An error occurred. Please try again later.",
+      "selectServiceForSummary": "Select a service to view the order summary",
+      "invalidService": "Invalid service selected.",
+      "dataFetchError": "Error fetching data."
+    },
+    "services": {
+      "title": "Services",
+      "searchPlaceholder": "Search services...",
+      "filters": "Filters",
+      "clearFilters": "Clear filters",
+      "categoryLabel": "Categories",
+      "allCategories": "All categories",
+      "noServicesFound": "No services found matching your search.",
+      "table": {
+        "number": "#",
+        "service": "Service",
+        "category": "Category",
+        "minMax": "Min-Max",
+        "ratePer1000": "Rate per 1000",
+        "averageTime": "Average time",
+        "action": "Action"
+      },
+      "card": {
+        "minOrder": "Min order",
+        "maxOrder": "Max order",
+        "ratePer1000": "Rate per 1000",
+        "averageTime": "Average time"
+      },
+      "buyNow": "Buy now",
+      "loadingError": "Error loading data.",
+      "authError": "Login required!",
+      "toast": {
+        "errorTitle": "Error",
+        "errorDescription": "Failed to load data from the server."
+      }
+    },
+    "addFunds": {
+    "title": "Add Funds",
+    "currentBalance": "Current Balance",
+    "currentBalanceDescription": "Your current account balance",
+    "addFundsTitle": "Add Funds",
+    "addFundsDescription": "Enter the amount and select a payment method",
+    "amountLabel": "Amount (UZS)",
+    "amountPlaceholder": "10000",
+    "amountEstimate": "Estimated: {amount} UZS",
+    "paymentMethodLabel": "Payment Method",
+    "maintenance": "Under Maintenance",
+    "submitButton": "Add Funds",
+    "submitProcessing": "Processing...",
+    "transactionHistory": "Transaction History",
+    "transactionHistoryDescription": "Your recent financial operations",
+    "noTransactions": "No transactions yet",
+    "transactionStatus": {
+      "active": "Successful",
+      "pending": "Pending"
+    },
+    "toast": {
+      "maintenanceErrorTitle": "Under Maintenance",
+      "maintenanceErrorDescription": "Payments via Octobank are currently unavailable. Please use another method.",
+      "formErrorTitle": "Incomplete Form",
+      "formErrorDescription": "Please enter an amount and select a payment method.",
+      "invalidAmountTitle": "Invalid Amount",
+      "invalidAmountDescription": "Please enter an amount greater than 0.",
+      "unknownMethodTitle": "Unknown Payment Method",
+      "unknownMethodDescription": "Please select Click or Payme.",
+      "errorTitle": "An Error Occurred",
+      "errorDescription": "Unknown error",
+      "paymentHistoryErrorTitle": "Error",
+      "paymentHistoryErrorDescription": "Failed to load transaction history."
+    }
+  },
+  "orders": {
+    "title": "Orders",
+    "searchPlaceholder": "Search orders",
+    "noOrdersTitle": "No orders yet",
+    "noOrdersDescription": "Place your first order to see it here!",
+    "createOrderButton": "Create Order",
+    "loadingError": "Error loading orders.",
+    "table": {
+      "id": "ID",
+      "service": "Service",
+      "link": "Link",
+      "quantity": "Quantity",
+      "price": "Price",
+      "status": "Status",
+      "createdAt": "Created At"
+    },
+    "mobile": {
+      "priceLabel": "Price",
+      "quantityLabel": "Quantity"
+    },
+    "tablet": {
+      "idLabel": "ID",
+      "serviceLabel": "Service",
+      "linkLabel": "Link",
+      "statusLabel": "Status",
+      "dateLabel": "Date"
+    }
+  },
+  "support": {
+    "title": "Support",
+    "contact": {
+      "title": "Contact Support",
+      "description": "Get help with your orders or account",
+      "button": "Contact Support"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "description": "Answers to common questions",
+      "questions": [
+        {
+          "title": "How long does it take to complete orders?",
+          "answer": "Order completion time varies by service. You can view the average time on the services page."
+        },
+        {
+          "title": "What payment methods do you accept?",
+          "answer": "We currently accept payments via credit and debit cards."
+        },
+        {
+          "title": "Is my order guaranteed?",
+          "answer": "Yes, all orders are guaranteed. If we cannot deliver, a full refund is provided."
+        }
+      ],
+      "button": "View All Questions"
+    },
+    "knowledgeBase": {
+      "title": "Knowledge Base",
+      "description": "Guides and tutorials",
+      "articles": [
+        {
+          "title": "How to place your first order",
+          "description": "A step-by-step guide to placing your first order on TurboSMM."
+        },
+        {
+          "title": "Understanding service metrics",
+          "description": "Learn what various metrics and terms in our services mean."
+        },
+        {
+          "title": "Tips for maximizing results",
+          "description": "Best practices for getting the most out of social media marketing."
+        }
+      ],
+      "button": "View Knowledge Base"
+    }
+  },
+  "account": {
+    "title": "My Account",
+    "profile": {
+      "title": "User Profile",
+      "joinedDate": "Joined Date",
+      "balanceLabel": "Balance",
+      "addFundsButton": "Add Funds",
+      "logoutButton": "Log Out",
+      "editButton": "Edit",
+      "saveButton": "Save",
+      "firstNameLabel": "First Name",
+      "lastNameLabel": "Last Name",
+      "usernameLabel": "Username",
+      "emailLabel": "Email",
+      "phoneLabel": "Phone Number",
+      "notProvided": "Not Provided",
+      "cancelButton": "Cancel",
+      "saveChangesButton": "Save Changes",
+      "userIdLabel": "User ID",
+      "apiKeyLabel": "User API Key"
+    },
+    "features": {
+      "title": "Account Features",
+      "support": {
+        "title": "Support",
+        "description": "Need help with your account or have questions about our services?",
+        "supportTeam": "Our support team is ready to assist you 24/7.",
+        "button": "Contact Support"
+      },
+      "addFunds": {
+        "title": "Add Funds",
+        "currentBalance": "Current Balance",
+        "description": "Add funds to your account to place orders",
+        "button": "Add Funds"
+      }
+    },
+    "toast": {
+      "updateSuccessTitle": "Profile Updated",
+      "updateSuccessDescription": "Your profile information has been successfully updated.",
+      "updateErrorTitle": "Update Failed",
+      "updateErrorDescription": "An error occurred while updating the profile. Please try again."
+    }
+  },
+  "sidebar": {
+    "newOrder": "New Order",
+    "services": "Services",
+    "addFunds": "Add Funds",
+    "orders": "Orders",
+    "support": "Support"
+  },
+  "servicesHome": {
+    "error": "An error occurred while loading data.",
+    "noServices": "No services found.",
+    "table": {
+      "number": "#",
+      "idService": "ID - Service",
+      "pricePer1k": "Price per 1k",
+      "averageTime": "Average Time",
+      "action": "Order",
+      "minOrder": "Minimum Order",
+      "maxOrder": "Maximum Order"
+    },
+    "mobile": {
+      "pricePer1k": "Price per 1000",
+      "averageTime": "Average Time",
+      "action": "Order",
+      "minOrder": "Minimum Order",
+      "maxOrder": "Maximum Order"
+    }
+  }
+  
+}

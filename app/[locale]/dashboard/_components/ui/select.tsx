@@ -75,7 +75,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-64 w-full overflow-hidden rounded-md border bg-[#101013] text-popover shadow-md",
+        "relative z-50 max-h-64 w-full overflow-hidden rounded-md border bg-white dark:bg-[#101013]  shadow-md",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "break-words whitespace-normal max-w-[90vw] md:w-full",
         className

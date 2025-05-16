@@ -516,6 +516,12 @@
       "minOrder": "Minimal buyurtma",
       "maxOrder": "Maksimal buyurtma"
     }
+  },
+  "MobileNavigation": {
+    "newOrder": "Yangi buyurtma",
+    "services": "Xizmatlar",
+    "addFunds": "Hisobni to'ldirish",
+    "orders": "Buyurtmalar"
   }
   
 

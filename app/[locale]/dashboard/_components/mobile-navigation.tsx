@@ -1,41 +1,46 @@
 "use client"
 
 import type React from "react"
-
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { ShoppingCart, LayoutGrid, Wallet,  Receipt } from "lucide-react"
+import { ShoppingCart, LayoutGrid, Wallet, Receipt } from "lucide-react"
+import { useTranslations } from "next-intl"
+import { useLocale } from "@/hooks/useLocale"
 
-
-export function MobileNavigation( ) {
+export function MobileNavigation() {
   const pathname = usePathname()
+  const t = useTranslations("MobileNavigation")
+  const { locale } = useLocale()
+
+  // Get locale prefix (e.g., 'uz', 'ru', 'en')
+  const localePrefix = locale.split("-")[0].toLowerCase()
 
   const routes = [
     {
-      label: "Yangi  buyurtma",
+      label: t("newOrder"),
       icon: ShoppingCart,
-      href: "/dashboard/new-order",
-      active: pathname === "/new-order",
+      href: `/${localePrefix}/dashboard/new-order`,
+      active: pathname === `/${localePrefix}/dashboard/new-order`,
     },
     {
-      label: "Xizmatlar",
+      label: t("services"),
       icon: LayoutGrid,
-      href: "/dashboard/services",
-      active: pathname === "/services",
+      href: `/${localePrefix}/dashboard/services`,
+      active: pathname === `/${localePrefix}/dashboard/services`,
     },
     {
-      label: "Hisobni to'ldirish",
+      label: t("addFunds"),
       icon: Wallet,
-      href: "/dashboard/add-funds",
-      active: pathname === "/add-funds",
+      href: `/${localePrefix}/dashboard/add-funds`,
+      active: pathname === `/${localePrefix}/dashboard/add-funds`,
     },
     {
-      label: "Buyurtmalar",
+      label: t("orders"),
       icon: Receipt,
-      href: "/dashboard/orders",
-      active:
-        pathname === "/dashboard/orders"  },
+      href: `/${localePrefix}/dashboard/orders`,
+      active: pathname === `/${localePrefix}/dashboard/orders`,
+    },
   ]
 
   return (
@@ -44,8 +49,8 @@ export function MobileNavigation( ) {
       <div className="h-16 lg:hidden" aria-hidden="true" />
 
       {/* Mobile navigation */}
-      <div className={cn("fixed bottom-0 left-0 right-0 z-50 border-t bg-black lg:hidden ", )}>
-        <nav className="flex h-16 items-center justify-around">
+      <div className={cn("fixed bottom-0 left-0 right-0 z-50 border-t bg-white dark:bg-[#101013] lg:hidden")}>
+        <nav className="flex h-16 items-center justify-around ">
           {routes.map((route) => (
             <Link
               key={route.href}
@@ -64,4 +69,3 @@ export function MobileNavigation( ) {
     </>
   )
 }
-

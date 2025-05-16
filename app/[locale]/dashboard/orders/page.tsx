@@ -118,7 +118,7 @@ export default function OrdersPage() {
           </div>
 
           {filteredOrders.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center border-gray-700 bg-[#101013]">
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center border-gray-700 dark:bg-[#101013]">
               <h2 className="mb-2 text-xl font-semibold">{t("noOrdersTitle")}</h2>
               <p className="mb-6 text-gray-400">{t("noOrdersDescription")}</p>
               <Button asChild className="bg-primary text-white hover:bg-primary/90">

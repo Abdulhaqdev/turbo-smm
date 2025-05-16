@@ -550,6 +550,12 @@
         "minOrder": "Минимальный заказ",
         "maxOrder": "Максимальный заказ"
       }
+    },
+    "MobileNavigation": {
+      "newOrder": "Новый заказ",
+      "services": "Услуги",
+      "addFunds": "Пополнить счет",
+      "orders": "Заказы"
     }
   }
   

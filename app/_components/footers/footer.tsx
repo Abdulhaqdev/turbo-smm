@@ -69,7 +69,7 @@ export default function Footer() {
             </h3>
             <ul className="space-y-4">
               <li>
-                <Link href="/api">
+                <Link href="https://api.turbosmm.uz/api/" target='_blank' >
                   {t('developers.api')}
                 </Link>
               </li>

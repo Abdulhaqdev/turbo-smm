@@ -515,6 +515,12 @@
       "minOrder": "Minimum Order",
       "maxOrder": "Maximum Order"
     }
+  },
+  "MobileNavigation": {
+    "newOrder": "New Order",
+    "services": "Services",
+    "addFunds": "Add Funds",
+    "orders": "Orders"
   }
   
 }

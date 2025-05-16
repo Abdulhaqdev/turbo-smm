@@ -5,9 +5,9 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/app/[locale]/dashboard/_components/ui/select"
 import { type Locale, routing, usePathname, useRouter } from "../../app/i18n/routing" // useRouter bu yerdan import qilinadi
+import { Globe } from 'lucide-react';
 
 type Props = {
   defaultValue: string
@@ -60,10 +60,12 @@ export default function LocaleSwitcherSelect({ defaultValue, label }: Props) {
   return (
     <Select defaultValue={defaultValue} onValueChange={onSelectChange}>
       <SelectTrigger
-        className="w-[70px] h-8 border-none bg-transparent focus:ring-0 focus:ring-offset-0"
+        className="w-[40px] h-8 border-none bg-transparent focus:ring-0 focus:ring-offset-0"
         aria-label={label}
       >
-        <SelectValue />
+      <Globe className='h-4 w-4 text-muted-foreground' />
+
+        {/* <SelectValue className='text-xs w-3' /> */}
       </SelectTrigger>
       <SelectContent>
         {routing.locales.map((locale) => (

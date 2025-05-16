@@ -10,17 +10,35 @@ import { ShoppingCart, LayoutGrid, Wallet, Receipt, LifeBuoy } from "lucide-reac
 import { Instagram, Send, Twitter, Youtube, Facebook } from "lucide-react";
 import TiktokIcon from "./icons/tiktok-icon";
 import Image from "next/image";
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import { Service } from '@/lib/types'
 
 export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   const pathname = usePathname();
+  const [services, setServices] = useState<number>(1);
   const t = useTranslations("sidebar");
   useLocaleFromUrl();
-
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await axios.get<Service[]>(
+          `https://api.turbosmm.uz/api/all-services`
+        );
+        const activeServices = response.data.filter((service) => service.is_active);
+        setServices(activeServices[0].id);
+      } catch (err) {
+        console.error(err);
+      } finally {
+      }
+    };
+    fetchServices();
+  }, []);
   const routes = [
     {
       label: t("newOrder"),
       icon: ShoppingCart,
-      href: "/dashboard/new-order",
+      href: `/dashboard/new-order?serviceId=${services}`,
       active: pathname.endsWith("/new-order"),
     },
     {

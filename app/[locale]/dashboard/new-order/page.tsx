@@ -11,12 +11,12 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useLocale } from '@/hooks/useLocale'
-import { useSession, useStore } from '@/hooks/useSession'
+import { useSession } from '@/hooks/useSession'
 import axios from '@/lib/axios'
-import { newOrder, SavedOrder, Service } from '@/lib/types'
+import { newOrder, SavedOrder, Service, Category } from '@/lib/types'
 import { formatCurrency } from '@/lib/utils'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslations } from 'use-intl'
 import { FormError } from '../_components/common/FormError'
@@ -34,10 +34,13 @@ export default function NewOrderPage() {
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
 	const { session } = useSession()
-	const { categories, services, isLoading, error, fetchData } = useStore()
 	const { locale } = useLocale()
 	const t = useTranslations('newOrder')
 
+	const [categories, setCategories] = useState<Category[]>([])
+	const [services, setServices] = useState<Service[]>([])
+	const [isLoading, setIsLoading] = useState(false)
+	const [error, setError] = useState<string | null>(null)
 	const [categoryId, setCategoryId] = useState<string>('')
 	const [serviceId, setServiceId] = useState<string>('')
 	const [link, setLink] = useState<string>('')
@@ -74,19 +77,44 @@ export default function NewOrderPage() {
 
 	// Monitor for locale changes
 	useEffect(() => {
-		const currentLocalePrefix = locale.split('-')[0] // 'uz', 'ru', or 'en'
-		
-		// If URL locale doesn't match current locale setting, we need to update
+		const currentLocalePrefix = locale.split('-')[0]
 		if (currentUrlLocale && currentUrlLocale !== currentLocalePrefix) {
-			console.log(`Locale changed from ${currentUrlLocale} to ${currentLocalePrefix}, updating URL`)
-			
-			// Preserve the current serviceId in the URL when changing locale
-			const serviceIdParam = serviceId ? `?serviceId=${serviceId}` : ''
-			
-			// Navigate to the same page but with the new locale
-			router.replace(`/${currentLocalePrefix}/dashboard/new-order${serviceIdParam}`)
+			router.push(`/${currentLocalePrefix}/dashboard/new-order`)
 		}
 	}, [locale, currentUrlLocale, router, serviceId])
+
+	// Fetch data directly from API
+	const fetchData = async (token: string) => {
+		setIsLoading(true)
+		setError(null)
+		try {
+			const [categoryRes, serviceRes] = await Promise.all([
+				axios.get('/api/categories/', {
+					headers: { Authorization: `Bearer ${token}` },
+				}),
+				axios.get('/api/services/', {
+					headers: { Authorization: `Bearer ${token}` },
+				}),
+			])
+			const fetchedCategories = categoryRes.data as Category[]
+			const fetchedServices = serviceRes.data as Service[]
+			setCategories(fetchedCategories.filter(cat => cat.is_active !== false))
+			setServices(fetchedServices.filter(srv => srv.is_active))
+		} catch (err) {
+			console.error('Failed to fetch data:', err)
+			setError(t('dataFetchError'))
+			toast.error(t('dataFetchError'))
+		} finally {
+			setIsLoading(false)
+		}
+	}
+
+	// Fetch data on mount if session exists
+	useEffect(() => {
+		if (session && session.token && categories.length === 0 && services.length === 0) {
+			fetchData(session.token)
+		}
+	}, [session, categories.length, services.length])
 
 	// Load form data from localStorage
 	useEffect(() => {
@@ -124,60 +152,41 @@ export default function NewOrderPage() {
 		}
 	}, [categoryId, serviceId, link, quantity])
 
-	// Fetch data on mount if session exists
-	useEffect(() => {
-		if (session && session.token && !categories.length && !services.length) {
-			console.log('Fetching data with token:', session.token)
-			fetchData(session.token).catch(err => {
-				console.error('Failed to fetch data:', err)
-				toast.error(t('dataFetchError'))
-			})
-		}
-	}, [session, fetchData, categories.length, services.length, t])
-
 	// Map social icons to categories
-	const enrichedCategories = useMemo(() => {
-		return categories.map(category => {
-			const normalizedCategoryName = category.name.toLowerCase()
-			const matchingPlatform = socialPlatforms.find(platform =>
-				normalizedCategoryName.includes(platform.toLowerCase())
-			)
-			return {
-				...category,
-				icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined,
-			}
-		})
-	}, [categories])
+	const enrichedCategories = categories.map(category => {
+		const normalizedCategoryName = category.name.toLowerCase()
+		const matchingPlatform = socialPlatforms.find(platform =>
+			normalizedCategoryName.includes(platform.toLowerCase())
+		)
+		return {
+			...category,
+			icon: matchingPlatform ? matchingPlatform.toLowerCase() : undefined,
+		}
+	})
 
 	// Handle initial category and service selection
 	useEffect(() => {
 		if (isLoading || !categories.length || !services.length) return
 
 		const serviceIdFromUrl = searchParams.get('serviceId')
-		const currentLocalePrefix = locale.split('-')[0] // 'uz', 'ru', or 'en'
+		const currentLocalePrefix = locale.split('-')[0]
 
 		if (serviceIdFromUrl) {
 			const service = services.find(srv => srv.id === Number(serviceIdFromUrl))
 			if (service) {
-				console.log('Selecting service from URL:', serviceIdFromUrl)
 				setCategoryId(String(service.category))
 				setServiceId(String(serviceIdFromUrl))
 				setQuantity('0')
-				// Ensure URL uses current locale
 				router.replace(
-					`/${currentLocalePrefix}/dashboard/new-order?serviceId=${serviceIdFromUrl}`,
-					{
-						scroll: false,
-					}
+					`/${currentLocalePrefix}/dashboard/new-order`,
+					{ scroll: false }
 				)
 				return
 			} else {
-				console.warn('Invalid service ID from URL:', serviceIdFromUrl)
 				toast.error(t('invalidService'))
 			}
 		}
 
-		// Select first category and service if no categoryId is set
 		if (!categoryId && categories.length > 0) {
 			const firstCategory = categories[0]
 			const firstCategoryId = String(firstCategory.id)
@@ -186,60 +195,32 @@ export default function NewOrderPage() {
 			)
 			if (firstCategoryServices.length > 0) {
 				const firstServiceId = String(firstCategoryServices[0].id)
-				console.log(
-					'Selecting first category and service:',
-					firstCategoryId,
-					firstServiceId
-				)
 				setCategoryId(firstCategoryId)
 				setServiceId(firstServiceId)
 				setQuantity('0')
 				router.replace(
-					`/${currentLocalePrefix}/dashboard/new-order?serviceId=${firstServiceId}`,
-					{
-						scroll: false,
-					}
+					`/${currentLocalePrefix}/dashboard/new-order`,
+					{ scroll: false }
 				)
 			}
 		}
-	}, [
-		isLoading,
-		categories,
-		services,
-		searchParams,
-		router,
-		categoryId,
-		locale,
-		t,
-	])
+	}, [isLoading, categories, services, searchParams, router, categoryId, locale, t])
 
 	// Filter services by category
-	const filteredServices = useMemo(
-		() => services.filter(srv => String(srv.category) === categoryId),
-		[services, categoryId]
-	)
+	const filteredServices = services.filter(srv => String(srv.category) === categoryId)
 
 	// Auto-select first service when category changes
 	useEffect(() => {
-		console.log('Auto-select service effect triggered:', {
-			categoryId,
-			filteredServicesLength: filteredServices.length,
-			serviceId,
-		})
 		const currentLocalePrefix = locale.split('-')[0]
 		if (categoryId && filteredServices.length > 0 && !serviceId) {
 			const firstServiceId = String(filteredServices[0].id)
-			console.log('Selecting first service:', firstServiceId)
 			setServiceId(firstServiceId)
 			setQuantity('0')
 			router.replace(
-				`/${currentLocalePrefix}/dashboard/new-order?serviceId=${firstServiceId}`,
-				{
-					scroll: false,
-				}
+				`/${currentLocalePrefix}/dashboard/new-order`,
+				{ scroll: false }
 			)
 		} else if (categoryId && filteredServices.length === 0) {
-			console.log('Clearing serviceId: No filtered services')
 			setServiceId('')
 			setQuantity('0')
 			router.replace(`/${currentLocalePrefix}/dashboard/new-order`, {
@@ -252,7 +233,6 @@ export default function NewOrderPage() {
 	useEffect(() => {
 		if (serviceId) {
 			const service = services.find(srv => String(srv.id) === serviceId)
-			console.log('Selected service:', service)
 			setSelectedService(service || null)
 			if (service && quantity) {
 				validateQuantity()
@@ -317,8 +297,8 @@ export default function NewOrderPage() {
 			new URL(link)
 			return true
 		} catch (e) {
-      console.log(e)
-			setLinkError(t('invalidLink'))
+
+			setLinkError(t(`invalidLink ${e} `))
 			return false
 		}
 	}
@@ -326,24 +306,21 @@ export default function NewOrderPage() {
 	const handleQuantityChange = (value: string) => {
 		setQuantity(value)
 		if (selectedService) {
-			validateQuantity()                                                                    
+			validateQuantity()
 		} else if (value) {
 			setQuantityError(t('selectServiceFirst'))
 		} else {
 			setQuantityError(null)
-		}                                             
+		}
 	}
 
 	const handleServiceChange = (value: string) => {
-		console.log('Service changed to:', value)
 		setServiceId(value)
 		setQuantity('0')
 		const currentLocalePrefix = locale.split('-')[0]
-		router.replace( 
-			`/${currentLocalePrefix}/dashboard/new-order?serviceId=${value}`,
-			{
-				scroll: false,
-			}
+		router.replace(
+			`/${currentLocalePrefix}/dashboard/new-order`,
+			{ scroll: false }
 		)
 	}
 
@@ -372,11 +349,9 @@ export default function NewOrderPage() {
 				quantity: quantityNum,
 			}
 			localStorage.setItem('newOrderFormData', JSON.stringify(savedOrder))
-
 			toast.error(
 				t('insufficientBalance', { balance: session.user.balance, totalPrice })
 			)
-
 			router.push(`/${locale.split('-')[0]}/dashboard/add-funds`)
 			return
 		}
@@ -433,18 +408,6 @@ export default function NewOrderPage() {
 		return parts.join(' ')
 	}
 
-	if (isLoading) {
-		return (
-			<div className='flex min-h-screen flex-col'>
-				<Header />
-				<main className='flex-1 p-4 md:p-6'>
-					<div className='mx-auto max-w-3xl flex items-center justify-center min-h-[50vh]'>
-						<div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary'></div>
-					</div>
-				</main>
-			</div>
-		)
-	}
 
 	if (error) {
 		return (
@@ -471,7 +434,6 @@ export default function NewOrderPage() {
 							<Select
 								value={categoryId}
 								onValueChange={value => {
-									console.log('Category changed to:', value)
 									setCategoryId(value)
 									setServiceId('')
 									setQuantity('0')

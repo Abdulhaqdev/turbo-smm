@@ -350,7 +350,9 @@ export default function AccountPage() {
                     className="w-full"
                     onClick={() => router.push(`/${pathname.split("/")[1] || "uz"}/dashboard/support`)}
                   >
+                   <a href="https://t.me/turbosmm_darslik" target="_blank" rel="noopener noreferrer">
                     {t("features.support.button")}
+                  </a>
                   </Button>
                 </CardFooter>
               </Card>

@@ -261,12 +261,12 @@ export default function AccountPage() {
                             {session?.user?.username || t("profile.notProvided")}
                           </p>
                         </div>
-                        <div className="space-y-1">
+                        {/* <div className="space-y-1">
                           <p className="text-sm text-muted-foreground">{t("profile.emailLabel")}:</p>
                           <p className="font-medium">
                             {session?.user?.email || t("profile.notProvided")}
                           </p>
-                        </div>
+                        </div> */}
                         <div className="space-y-1">
                           <p className="text-sm text-muted-foreground">{t("profile.phoneLabel")}:</p>
                           <p className="font-medium">

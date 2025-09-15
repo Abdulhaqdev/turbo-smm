@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMobile } from "@/hooks/useMobile";
 import { FormData, FormErrors } from "@/types/register";
-import { Eye, EyeOff, Mail, Phone, User } from "lucide-react";
+import { Eye, EyeOff,  Phone, User } from "lucide-react";
 import Link from "next/link";
 import axios from "@/lib/axios";
 import { useTranslations } from "next-intl";
@@ -48,7 +48,6 @@ export default function RegisterPage() {
     firstName: "",
     lastName: "",
     username: "",
-    email: "",
     phone: "",
     password: "",
   });
@@ -57,7 +56,6 @@ export default function RegisterPage() {
     firstName: "",
     lastName: "",
     username: "",
-    email: "",
     phone: "",
     password: "",
     general: "",
@@ -67,7 +65,6 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const validateUsername = (username: string) => /^[a-zA-Z0-9_]{3,}$/.test(username);
-  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePhone = (phone: string) => phone.length >= 7 && phone.length <= 15;
   const validatePassword = (password: string) => /.{6,}/.test(password);
 
@@ -86,7 +83,6 @@ export default function RegisterPage() {
       firstName: "",
       lastName: "",
       username: "",
-      email: "",
       phone: "",
       password: "",
       general: "",
@@ -102,10 +98,6 @@ export default function RegisterPage() {
     }
     if (!validateUsername(formData.username)) {
       newErrors.username = t("errors.username");
-      valid = false;
-    }
-    if (!validateEmail(formData.email)) {
-      newErrors.email = t("errors.email");
       valid = false;
     }
     if (!validatePhone(formData.phone)) {
@@ -127,7 +119,6 @@ export default function RegisterPage() {
       first_name: formData.firstName,
       last_name: formData.lastName,
       username: formData.username,
-      email: formData.email,
       phone_number: formData.phone,
       password: formData.password,
     };
@@ -231,25 +222,6 @@ export default function RegisterPage() {
             {errors.username && <p className="text-sm text-destructive">{errors.username}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">{t("email")}</Label>
-            <div className="relative">
-              <Input
-                id="email"
-                type="email"
-                placeholder={t("emailPlaceholder")}
-                value={formData.email}
-                onChange={(e) => updateFormData("email", e.target.value)}
-                required
-                className={`pl-10 ${errors.email ? "border-destructive" : ""} ${
-                  isMobile ? "h-12 text-base" : ""
-                }`}
-                disabled={isLoading}
-              />
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            </div>
-            {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-          </div>
 
           <div className="space-y-2">
             <Label htmlFor="phone">{t("phone")}</Label>

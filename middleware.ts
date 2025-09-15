@@ -6,6 +6,7 @@ import { routing } from './app/i18n/routing'
 const intlMiddleware = createIntlMiddleware({
   ...routing,
   localePrefix: 'always',
+    localeDetection: false, // Locale detection ni o'chiramiz
 });
 
 export async function middleware(request: NextRequest) {

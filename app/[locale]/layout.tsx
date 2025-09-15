@@ -3,9 +3,10 @@ import { Noto_Sans } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/provider/theme-provider';
 import { Toaster } from 'react-hot-toast';
-import {NextIntlClientProvider, hasLocale} from 'next-intl';
-import { notFound } from 'next/navigation'
-import { routing } from '../i18n/routing'
+import { NextIntlClientProvider, hasLocale } from 'next-intl';
+import { notFound } from 'next/navigation';
+import { routing } from '../i18n/routing';
+import TawkToScript from '@/components/Tawktochat'
 
 const noto_sans = Noto_Sans({
   variable: '--font-noto-sans',
@@ -32,47 +33,45 @@ export const metadata: Metadata = {
     'Telegram',
   ],
   icons: {
-		icon: '/favicon.png',
-	},
+    icon: '/favicon.png',
+  },
   verification: {
-    google: 'your-google-site-verification-code', // Google Search Console kodi
-    yandex: '3790a3d52bf1ac5e', // Yandex Webmaster kodi
+    google: 'your-google-site-verification-code',
+    yandex: '3790a3d52bf1ac5e',
   },
 };
 
-
 export default async function Layout({
   children,
-  params
+  params,
 }: {
   children: React.ReactNode;
-  params: Promise<{locale: string}>;
+  params: Promise<{ locale: string }>;
 }) {
-  // Ensure that the incoming `locale` is valid
-  
-  const {locale} = await params;
+  const { locale } = await params;
+
   if (!hasLocale(routing.locales, locale)) {
-    notFound ();
+    notFound();
   }
-  
+
   return (
     <html lang={locale} className="scroll-smooth dark" suppressHydrationWarning>
       <body
         className={`${noto_sans.variable} dark:bg-[#101013] overflow-x-hidden`}
         id="top"
       >
+        <TawkToScript />
         <NextIntlClientProvider>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Toaster position="top-center" reverseOrder={false} />
-          {children}
-        </ThemeProvider>
-        </NextIntlClientProvider> 
-
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Toaster position="top-center" reverseOrder={false} />
+            {children}
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

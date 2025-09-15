@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Edit, LogOut, Mail, Phone, User } from "lucide-react";
+import { Edit, LogOut, Phone, User } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Header } from "../_components/header";
@@ -32,7 +32,6 @@ export default function AccountPage() {
     first_name: "",
     last_name: "",
     username: "",
-    email: "",
     phone_number: "",
   });
 
@@ -44,7 +43,6 @@ export default function AccountPage() {
         first_name: session.user?.first_name || "",
         last_name: session.user?.last_name || "",
         username: session.user?.username || "",
-        email: session.user?.email || "",
         phone_number: session.user?.phone_number || "",
       });
     }
@@ -64,7 +62,6 @@ export default function AccountPage() {
       first_name: editedUser.first_name,
       last_name: editedUser.last_name,
       username: editedUser.username,
-      email: editedUser.email,
       phone_number: editedUser.phone_number,
     };
 
@@ -225,23 +222,7 @@ export default function AccountPage() {
                             />
                           </div>
                         </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">{t("profile.emailLabel")}</label>
-                          <div className="flex items-center rounded-md border px-3 py-2">
-                            <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
-                            <input
-                              type="email"
-                              className="flex-1 bg-transparent outline-none"
-                              value={editedUser.email}
-                              onChange={(e) =>
-                                setEditedUser({
-                                  ...editedUser,
-                                  email: e.target.value,
-                                })
-                              }
-                            />
-                          </div>
-                        </div>
+                     
                         <div className="space-y-2">
                           <label className="text-sm font-medium">{t("profile.phoneLabel")}</label>
                           <div className="flex items-center rounded-md border px-3 py-2">
@@ -319,7 +300,6 @@ export default function AccountPage() {
                         first_name: session?.user?.first_name || "",
                         last_name: session?.user?.last_name || "",
                         username: session?.user?.username || "",
-                        email: session?.user?.email || "",
                         phone_number: session?.user?.phone_number || "",
                       });
                     }}

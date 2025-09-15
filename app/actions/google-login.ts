@@ -36,7 +36,7 @@ export async function googleAuth(token: string) {
     // Set secure cookies
     (await
       // Set secure cookies
-      cookies()).set('access_token', data.access, {
+      cookies()).set('access', data.access, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

@@ -11,7 +11,7 @@ const intlMiddleware = createIntlMiddleware({
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const accessToken = request.cookies.get('refresh_token')?.value;
+  // const accessToken = request.cookies.get('refresh_token')?.value;
 
   // Statik fayllar va API yo'llarini o'tkazib yuboramiz
   if (
@@ -23,22 +23,22 @@ export async function middleware(request: NextRequest) {
   }
 
   // Joriy til prefiksini aniqlaymiz
-  const localePrefix = routing.locales.some((locale) => pathname.startsWith(`/${locale}`))
-    ? pathname.split('/')[1]
-    : routing.defaultLocale;
-  const pathWithoutLocale = pathname.replace(`/${localePrefix}`, '') || '/';
+  // const localePrefix = routing.locales.some((locale) => pathname.startsWith(`/${locale}`))
+  //   ? pathname.split('/')[1]
+  //   : routing.defaultLocale;
+  // const pathWithoutLocale = pathname.replace(`/${localePrefix}`, '') || '/';
 
   // /dashboard yo'lini himoya qilamiz
-  if (pathWithoutLocale.startsWith('/dashboard')) {
-    if (!accessToken) {
-      return Response.redirect(new URL(`/${localePrefix}/login`, request.url));
-    }
-  }
+  // if (pathWithoutLocale.startsWith('/dashboard')) {
+  //   if (!accessToken) {
+  //     return Response.redirect(new URL(`/${localePrefix}/login`, request.url));
+  //   }
+  // }
 
   // /login da autentifikatsiya qilingan foydalanuvchilarni /dashboard ga yo'naltiramiz
-  if (pathWithoutLocale === '/login' && accessToken) {
-    return Response.redirect(new URL(`/${localePrefix}/dashboard`, request.url));
-  }
+  // if (pathWithoutLocale === '/login' && accessToken) {
+  //   return Response.redirect(new URL(`/${localePrefix}/dashboard`, request.url));
+  // }
 
   return intlMiddleware(request); 
 }

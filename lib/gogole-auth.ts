@@ -39,6 +39,7 @@ export const loadGoogleScript = (): Promise<void> => {
 };
 
 export const initializeGoogleSignIn = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   callback: (response: any) => void,
   buttonElementId: string = 'google-signin-button'
 ) => {

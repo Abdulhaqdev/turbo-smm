@@ -52,8 +52,8 @@ declare global {
     google?: {
       accounts: {
         id: {
-          initialize: (config: any) => void;
-          renderButton: (parent: HTMLElement, options: any) => void;
+          initialize: (config: Record<string, unknown>) => void;
+          renderButton: (parent: HTMLElement, options: Record<string, unknown>) => void;
           prompt: () => void;
           disableAutoSelect: () => void;
         };
@@ -152,10 +152,12 @@ export default function LoginPage() {
     };
 
     loadGoogleScript();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [GOOGLE_CLIENT_ID]);
 
   // Handle Google credential response
-  const handleGoogleCredentialResponse = async (response: any) => {
+  type GoogleCredentialResponse = { credential?: string };
+  const handleGoogleCredentialResponse = async (response: GoogleCredentialResponse) => {
     if (!response?.credential) {
       toast.error("Google authentication failed");
       return;
@@ -186,9 +188,20 @@ export default function LoginPage() {
           replace("/dashboard");
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Google login failed:", error);
-      toast.error(error.response?.data?.error || "Google sign-in failed");
+      type AxiosErrorResponse = {
+        response?: {
+          data?: {
+            error?: string;
+          };
+        };
+      };
+      if (typeof error === "object" && error !== null && "response" in error && typeof (error as AxiosErrorResponse).response === "object") {
+        toast.error((error as AxiosErrorResponse).response?.data?.error || "Google sign-in failed");
+      } else {
+        toast.error("Google sign-in failed");
+      }
     } finally {
       setIsGoogleLoading(false);
     }

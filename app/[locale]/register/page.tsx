@@ -45,16 +45,12 @@ export default function RegisterPage() {
   const { isMobile } = useMobile();
 
   const [formData, setFormData] = useState<FormData>({
-    firstName: "",
-    lastName: "",
     username: "",
     phone: "",
     password: "",
   });
 
   const [errors, setErrors] = useState<FormErrors>({
-    firstName: "",
-    lastName: "",
     username: "",
     phone: "",
     password: "",
@@ -63,9 +59,7 @@ export default function RegisterPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  const validateUsername = (username: string) => /^[a-zA-Z0-9_]{3,}$/.test(username);
-  const validatePhone = (phone: string) => phone.length >= 7 && phone.length <= 15;
+ const validatePhone = (phone: string) => phone.length >= 7 && phone.length <= 15;
   const validatePassword = (password: string) => /.{6,}/.test(password);
 
   const updateFormData = (field: keyof FormData, value: string) => {
@@ -80,26 +74,12 @@ export default function RegisterPage() {
 
     let valid = true;
     const newErrors: FormErrors = {
-      firstName: "",
-      lastName: "",
       username: "",
       phone: "",
       password: "",
       general: "",
     };
 
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = t("errors.firstName");
-      valid = false;
-    }
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = t("errors.lastName");
-      valid = false;
-    }
-    if (!validateUsername(formData.username)) {
-      newErrors.username = t("errors.username");
-      valid = false;
-    }
     if (!validatePhone(formData.phone)) {
       newErrors.phone = t("errors.phone");
       valid = false;
@@ -116,8 +96,7 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     const registrationData = {
-      first_name: formData.firstName,
-      last_name: formData.lastName,
+
       username: formData.username,
       phone_number: formData.phone,
       password: formData.password,
@@ -143,8 +122,6 @@ export default function RegisterPage() {
       const data = axios.isAxiosError(error) ? error.response?.data : null;
 
       if (data) {
-        if (data.username) apiErrors.username = data.username[0];
-        if (data.email) apiErrors.email = data.email[0];
         if (data.phone_number) apiErrors.phone = data.phone_number[0];
         if (data.password) apiErrors.password = data.password[0];
         if (data.non_field_errors) apiErrors.general = data.non_field_errors[0];
@@ -168,41 +145,6 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="firstName">{t("firstName")}</Label>
-            <div className="relative">
-              <Input
-                id="firstName"
-                value={formData.firstName}
-                onChange={(e) => updateFormData("firstName", e.target.value)}
-                required
-                className={`pl-10 ${errors.firstName ? "border-destructive" : ""} ${
-                  isMobile ? "h-12 text-base" : ""
-                }`}
-                disabled={isLoading}
-              />
-              <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            </div>
-            {errors.firstName && <p className="text-sm text-destructive">{errors.firstName}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="lastName">{t("lastName")}</Label>
-            <div className="relative">
-              <Input
-                id="lastName"
-                value={formData.lastName}
-                onChange={(e) => updateFormData("lastName", e.target.value)}
-                required
-                className={`pl-10 ${errors.lastName ? "border-destructive" : ""} ${
-                  isMobile ? "h-12 text-base" : ""
-                }`}
-                disabled={isLoading}
-              />
-              <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            </div>
-            {errors.lastName && <p className="text-sm text-destructive">{errors.lastName}</p>}
-          </div>
 
           <div className="space-y-2">
             <Label htmlFor="username">{t("username")}</Label>

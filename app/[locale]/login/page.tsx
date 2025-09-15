@@ -38,20 +38,29 @@ interface LoginTranslations {
   googleLoading: string;
 }
 
-// Google OAuth configuration
-const GOOGLE_CLIENT_ID = "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";
+// To'g'ri Google Client ID (HTML faylingizdagi kabi)
+const GOOGLE_CLIENT_ID = "577050887686-5g252b918ojrmsfgcl3kaucl5r4ek2o8.apps.googleusercontent.com"
 
-declare global {
-  interface Window {
-    google: {
-      accounts: {
-        id: {
-          initialize: (options: object) => void;
-          prompt: () => void;
-        };
-      };
-    };
-  }
+
+// declare global {
+//   interface Window {
+//     google: {
+//       accounts: {
+//         id: {
+//           initialize: (options: object) => void;
+//           prompt: () => void;
+//           renderButton: (element: HTMLElement, options: object) => void;
+//         };
+//       };
+//     };
+//   }
+// }
+
+// Google credential response interface
+interface GoogleCredentialResponse {
+  credential: string;
+  select_by?: string;
+  clientId?: string;
 }
 
 // Create schema dynamically with translated error messages
@@ -77,6 +86,7 @@ export default function LoginPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isGoogleInitialized, setIsGoogleInitialized] = useState(false);
   const { replace } = useRouter();
   const [services, setServices] = useState<number | null>(null);
 
@@ -91,61 +101,59 @@ export default function LoginPage() {
           setServices(activeServices[0].id);
         } else {
           console.warn("No active services found");
-          toast.error(t("errors.noServices"));
+          toast.error("No active services found");
         }
       } catch (err) {
         console.error("Failed to fetch services:", err);
-        toast.error(t("errors.serviceFetchFailed"));
+        toast.error("Failed to fetch services");
       }
     };
 
     fetchServices();
-  }, [t]);
-
-  // Load Google OAuth script
-  useEffect(() => {
-    const loadGoogleScript = () => {
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.onload = initializeGoogleSignIn;
-      document.head.appendChild(script);
-    };
-
-    const initializeGoogleSignIn = () => {
-      if (window.google) {
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleGoogleResponse,
-          auto_select: false,
-          cancel_on_tap_outside: true,
-        });
-      }
-    };
-
-    if (!window.google) {
-      loadGoogleScript();
-    } else {
-      initializeGoogleSignIn();
-    }
   }, []);
 
-  interface GoogleCredentialResponse {
-    credential: string;
-    select_by?: string;
-    clientId?: string;
+  // Helper: JWT payload decode (HTML faylingizdagi kabi)
+  function parseJwt(token: string) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          })
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      console.log(e)
+      return null;
+    }
   }
 
-  const handleGoogleResponse = async (response: GoogleCredentialResponse) => {
+  // Google credential callback (HTML faylingizdagi implementatsiya asosida)
+  const handleCredentialResponse = async (response: GoogleCredentialResponse) => {
+    if (!response || !response.credential) {
+      toast.error('Google credential olinmadi');
+      return;
+    }
+
     setIsGoogleLoading(true);
+    
     try {
+      // Optionally decode locally to show user info
+      const payload = parseJwt(response.credential);
+      console.log('Google token payload:', payload);
+
+      // Send token to backend using your googleLogin action
       await toast.promise(googleLogin(response.credential), {
-        loading: t("googleLoading") || "Signing in with Google...",
+        loading: t("googleLoading") || "Google bilan kirilmoqda...",
         success: (res) => res.message,
         error: (error) => error.message,
       });
 
+      // Redirect after successful login
       if (services) {
         replace(`dashboard/new-order?serviceId=${services}`);
       } else {
@@ -158,11 +166,77 @@ export default function LoginPage() {
     }
   };
 
+  // Load Google OAuth script and initialize
+  useEffect(() => {
+    const loadGoogleScript = () => {
+      // Agar Google script allaqachon yuklangan bo'lsa
+      if (window.google) {
+        initializeGoogleSignIn();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = initializeGoogleSignIn;
+      script.onerror = () => {
+        console.error('Google Script yuklashda xatolik');
+        toast.error('Google Sign-In script yuklashda xatolik');
+      };
+      document.head.appendChild(script);
+    };
+
+    const initializeGoogleSignIn = () => {
+      // HTML faylingizdagi kabi, Google library tayyor bo'lishini kutamiz
+      const waitForGoogle = setInterval(() => {
+        if (window.google && window.google.accounts && window.google.accounts.id) {
+          clearInterval(waitForGoogle);
+
+          try {
+            window.google.accounts.id.initialize({
+              client_id: GOOGLE_CLIENT_ID,
+              callback: handleCredentialResponse,
+              auto_select: false,
+              cancel_on_tap_outside: true,
+            });
+
+            setIsGoogleInitialized(true);
+            console.log('Google Sign-In initialized successfully');
+          } catch (error) {
+            console.error('Google Sign-In initialization error:', error);
+            toast.error('Google Sign-In initialization failed');
+          }
+        }
+      }, 100);
+
+      // 10 soniyadan keyin timeout
+      setTimeout(() => {
+        clearInterval(waitForGoogle);
+        if (!isGoogleInitialized) {
+          console.error('Google Sign-In initialization timeout');
+        }
+      }, 10000);
+    };
+
+    loadGoogleScript();
+  }, [isGoogleInitialized]);
+
   const handleGoogleLogin = () => {
-    if (window.google) {
-      window.google.accounts.id.prompt();
+    if (!isGoogleInitialized) {
+      toast.error('Google Sign-In hali yuklanmadi. Iltimos kuting...');
+      return;
+    }
+
+    if (window.google && window.google.accounts && window.google.accounts.id) {
+      try {
+        window.google.accounts.id.prompt();
+      } catch (error) {
+        console.error('Google prompt error:', error);
+        toast.error('Google Sign-In xatolik');
+      }
     } else {
-      toast.error('Google Sign-In not loaded');
+      toast.error('Google Sign-In mavjud emas');
     }
   };
 
@@ -198,7 +272,7 @@ export default function LoginPage() {
             variant="outline"
             className="w-full"
             onClick={handleGoogleLogin}
-            disabled={isGoogleLoading}
+            disabled={isGoogleLoading || !isGoogleInitialized}
           >
             {isGoogleLoading ? (
               <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-primary mr-2"></div>
@@ -222,7 +296,10 @@ export default function LoginPage() {
                 />
               </svg>
             )}
-            {isGoogleLoading ? ( "Continue with Google"): ("Google Login")}
+            {isGoogleLoading ? 
+              ("Google bilan kirilmoqda...") : 
+              ( "Google bilan kirish")
+            }
           </Button>
 
           <div className="relative">
@@ -231,7 +308,7 @@ export default function LoginPage() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
+                Yoki davom eting
               </span>
             </div>
           </div>
@@ -291,7 +368,7 @@ export default function LoginPage() {
           <Link href="/register" className="text-primary hover:underline">
             {t("registerLink")}
           </Link>
-        </div>
+        </div>       
       </div>
     </div>
   );

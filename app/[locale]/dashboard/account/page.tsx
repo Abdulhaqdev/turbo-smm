@@ -137,10 +137,10 @@ export default function AccountPage() {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <h3 className="text-lg font-medium">
+                      {/* <h3 className="text-lg font-medium">
                         {session?.user?.first_name || t("profile.notProvided")}{" "}
                         {session?.user?.last_name || ""}
-                      </h3>
+                      </h3> */}
                       <p className="text-sm text-muted-foreground">
                         {t("profile.joinedDate")}: {session?.user?.created_at}
                       </p>
@@ -171,7 +171,7 @@ export default function AccountPage() {
                   <div className="flex-1 space-y-4">
                     {isEditing ? (
                       <div className="grid gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
+                        {/* <div className="space-y-2">
                           <label className="text-sm font-medium">{t("profile.firstNameLabel")}</label>
                           <div className="flex items-center rounded-md border px-3 py-2">
                             <User className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -204,7 +204,7 @@ export default function AccountPage() {
                               }
                             />
                           </div>
-                        </div>
+                        </div> */}
                         <div className="space-y-2">
                           <label className="text-sm font-medium">{t("profile.usernameLabel")}</label>
                           <div className="flex items-center rounded-md border px-3 py-2">
@@ -243,7 +243,7 @@ export default function AccountPage() {
                       </div>
                     ) : (
                       <div className="grid gap-4 md:grid-cols-2">
-                        <div className="space-y-1">
+                        {/* <div className="space-y-1">
                           <p className="text-sm text-muted-foreground">{t("profile.firstNameLabel")}:</p>
                           <p className="font-medium">
                             {session?.user?.first_name || t("profile.notProvided")}
@@ -254,7 +254,7 @@ export default function AccountPage() {
                           <p className="font-medium">
                             {session?.user?.last_name || t("profile.notProvided")}
                           </p>
-                        </div>
+                        </div> */}
                         <div className="space-y-1">
                           <p className="text-sm text-muted-foreground">{t("profile.usernameLabel")}:</p>
                           <p className="font-medium">

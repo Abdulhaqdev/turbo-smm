@@ -15,7 +15,9 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
-import login from '@/app/actions/login'
+import login from '@/app/actions/login';
+import { useGoogleSignIn } from '@/lib/gogole-auth'
+import { googleAuth } from '@/app/actions/google-login'
 
 // Define TypeScript interface for translations
 interface LoginTranslations {
@@ -46,24 +48,11 @@ const createSchema = (t: (key: string) => string) =>
 
 type LoginFormData = z.infer<ReturnType<typeof createSchema>>;
 
-// Google Sign-In types
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize: (config: Record<string, unknown>) => void;
-          renderButton: (parent: HTMLElement, options: Record<string, unknown>) => void;
-          prompt: () => void;
-          disableAutoSelect: () => void;
-        };
-      };
-    };
-  }
-}
+type GoogleCredentialResponse = { credential?: string };
 
 export default function LoginPage() {
   const t = useTranslations("login") as (key: keyof LoginTranslations | string) => string;
+  const { initializeGoogle } = useGoogleSignIn();
 
   // Initialize react-hook-form with zod resolver
   const {
@@ -79,10 +68,9 @@ export default function LoginPage() {
   const { replace } = useRouter();
   const [services, setServices] = useState<number | null>(null);
 
-  // Google Client ID from environment
-  const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "577050887686-5g252b918ojrmsfgcl3kaucl5r4ek2o8.apps.googleusercontent.com";
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.turbosmm.uz";
 
+  // Fetch services
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -105,58 +93,7 @@ export default function LoginPage() {
     fetchServices();
   }, [t, API_URL]);
 
-  // Load Google Sign-In script
-  useEffect(() => {
-    const loadGoogleScript = () => {
-      if (window.google) {
-        initializeGoogleSignIn();
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.onload = initializeGoogleSignIn;
-      document.head.appendChild(script);
-    };
-
-    const initializeGoogleSignIn = () => {
-      const waitForGoogle = setInterval(() => {
-        if (window.google?.accounts?.id) {
-          clearInterval(waitForGoogle);
-          
-          window.google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCredentialResponse,
-            ux_mode: 'popup'
-          });
-
-          const googleButtonElement = document.getElementById('google-signin-button');
-          if (googleButtonElement) {
-            window.google.accounts.id.renderButton(
-              googleButtonElement,
-              {
-                theme: 'outline',
-                size: 'large',
-                text: 'signin_with',
-                width: '100%'
-              }
-            );
-          }
-        }
-      }, 100);
-
-      // Clear interval after 10 seconds if Google doesn't load
-      setTimeout(() => clearInterval(waitForGoogle), 10000);
-    };
-
-    loadGoogleScript();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [GOOGLE_CLIENT_ID]);
-
-  // Handle Google credential response
-  type GoogleCredentialResponse = { credential?: string };
+  // Handle Google credential response using server action
   const handleGoogleCredentialResponse = async (response: GoogleCredentialResponse) => {
     if (!response?.credential) {
       toast.error("Google authentication failed");
@@ -166,20 +103,11 @@ export default function LoginPage() {
     setIsGoogleLoading(true);
     
     try {
-      // Send Google token to your backend
-      const backendResponse = await axios.post(`${API_URL}/api/auth/google/`, {
-        token: response.credential
-      });
-
-      const { access, refresh, user } = backendResponse.data;
-
-      if (access) {
-        // Store tokens (you might want to use a more secure method)
-        localStorage.setItem('access_token', access);
-        localStorage.setItem('refresh_token', refresh);
-        localStorage.setItem('user_data', JSON.stringify(user));
-
-        toast.success("Successfully signed in with Google!");
+      // Use server action instead of direct API call
+      const result = await googleAuth(response.credential);
+      
+      if (result.success) {
+        toast.success(result.message);
         
         // Redirect to dashboard
         if (services) {
@@ -187,25 +115,29 @@ export default function LoginPage() {
         } else {
           replace("/dashboard");
         }
+      } else {
+        toast.error(result.message);
       }
     } catch (error: unknown) {
       console.error("Google login failed:", error);
-      type AxiosErrorResponse = {
-        response?: {
-          data?: {
-            error?: string;
-          };
-        };
-      };
-      if (typeof error === "object" && error !== null && "response" in error && typeof (error as AxiosErrorResponse).response === "object") {
-        toast.error((error as AxiosErrorResponse).response?.data?.error || "Google sign-in failed");
-      } else {
-        toast.error("Google sign-in failed");
-      }
+      toast.error("Google sign-in failed");
     } finally {
       setIsGoogleLoading(false);
     }
   };
+
+  // Initialize Google Sign-In
+  useEffect(() => {
+    const setupGoogleSignIn = async () => {
+      try {
+        await initializeGoogle(handleGoogleCredentialResponse);
+      } catch (error) {
+        console.error('Failed to initialize Google Sign-In:', error);
+      }
+    };
+
+    setupGoogleSignIn();
+  }, [initializeGoogle]);
 
   const onSubmit = async (data: LoginFormData) => {
     try {
@@ -254,7 +186,7 @@ export default function LoginPage() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-card px-2 text-muted-foreground">
-                { "Or continue with"}
+                {"Or continue with"}
               </span>
             </div>
           </div>

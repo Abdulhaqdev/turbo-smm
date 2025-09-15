@@ -1,7 +1,7 @@
-// app/actions/googleAuth.ts
 'use server'
 
 import { cookies } from 'next/headers';
+import axios from '@/lib/axios';
 
 interface GoogleAuthResponse {
   access: string;
@@ -15,40 +15,27 @@ interface GoogleAuthResponse {
 }
 
 export async function googleAuth(token: string) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.turbosmm.uz';
-  
   try {
-    const response = await fetch(`${API_URL}/api/auth/google/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token }),
-    });
+    const cookieStore = await cookies();
+    
+    // Call the API to authenticate with Google token
+    const response = await axios.post('/api/auth/google/', { token });
+    const data: GoogleAuthResponse = response.data;
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Google authentication failed');
-    }
-
-    const data: GoogleAuthResponse = await response.json();
-
-    // Set secure cookies
-    (await
-      // Set secure cookies
-      cookies()).set('access', data.access, {
+    // Set secure httpOnly cookies (same pattern as login action)
+    cookieStore.set('refresh_token', data.refresh, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24, // 1 day
+      sameSite: 'strict',
     });
 
-    (await cookies()).set('refresh_token', data.refresh, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
+    // Optional: You can also store access token if needed
+    // cookieStore.set('access_token', data.access, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: 'strict',
+    //   maxAge: 60 * 60 * 24, // 1 day
+    // });
 
     return {
       success: true,
@@ -57,9 +44,11 @@ export async function googleAuth(token: string) {
     };
   } catch (error) {
     console.error('Google auth error:', error);
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : 'Authentication failed',
-    };
+    
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.error || error.response?.data?.detail || 'Google authentication failed');
+    }
+    
+    throw new Error('Something went wrong with Google authentication');
   }
 }

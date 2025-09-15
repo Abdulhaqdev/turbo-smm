@@ -16,7 +16,6 @@ import { toast } from "react-hot-toast";
 import { useTranslations } from "next-intl";
 import { z } from "zod";
 import login from '@/app/actions/login'
-import { googleLogin } from '@/app/actions/google-login'
 
 // Define TypeScript interface for translations
 interface LoginTranslations {
@@ -34,33 +33,8 @@ interface LoginTranslations {
   };
   submit: string;
   loading: string;
-  googleLogin: string;
-  googleLoading: string;
-}
-
-// To'g'ri Google Client ID (HTML faylingizdagi kabi)
-const GOOGLE_CLIENT_ID = "577050887686-5g252b918ojrmsfgcl3kaucl5r4ek2o8.apps.googleusercontent.com"
-
-
-// declare global {
-//   interface Window {
-//     google: {
-//       accounts: {
-//         id: {
-//           initialize: (options: object) => void;
-//           prompt: () => void;
-//           renderButton: (element: HTMLElement, options: object) => void;
-//         };
-//       };
-//     };
-//   }
-// }
-
-// Google credential response interface
-interface GoogleCredentialResponse {
-  credential: string;
-  select_by?: string;
-  clientId?: string;
+  googleSignIn: string;
+  orContinueWith: string;
 }
 
 // Create schema dynamically with translated error messages
@@ -71,6 +45,22 @@ const createSchema = (t: (key: string) => string) =>
   });
 
 type LoginFormData = z.infer<ReturnType<typeof createSchema>>;
+
+// Google Sign-In types
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: any) => void;
+          renderButton: (parent: HTMLElement, options: any) => void;
+          prompt: () => void;
+          disableAutoSelect: () => void;
+        };
+      };
+    };
+  }
+}
 
 export default function LoginPage() {
   const t = useTranslations("login") as (key: keyof LoginTranslations | string) => string;
@@ -86,90 +76,38 @@ export default function LoginPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isGoogleInitialized, setIsGoogleInitialized] = useState(false);
   const { replace } = useRouter();
   const [services, setServices] = useState<number | null>(null);
+
+  // Google Client ID from environment
+  const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "577050887686-5g252b918ojrmsfgcl3kaucl5r4ek2o8.apps.googleusercontent.com";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.turbosmm.uz";
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
         const response = await axios.get<Service[]>(
-          `https://api.turbosmm.uz/api/all-services`
+          `${API_URL}/api/all-services`
         );
         const activeServices = response.data.filter((service) => service.is_active);
         if (activeServices.length > 0) {
           setServices(activeServices[0].id);
         } else {
           console.warn("No active services found");
-          toast.error("No active services found");
+          toast.error(t("errors.noServices"));
         }
       } catch (err) {
         console.error("Failed to fetch services:", err);
-        toast.error("Failed to fetch services");
+        toast.error(t("errors.serviceFetchFailed"));
       }
     };
 
     fetchServices();
-  }, []);
+  }, [t, API_URL]);
 
-  // Helper: JWT payload decode (HTML faylingizdagi kabi)
-  function parseJwt(token: string) {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-          })
-          .join('')
-      );
-      return JSON.parse(jsonPayload);
-    } catch (e) {
-      console.log(e)
-      return null;
-    }
-  }
-
-  // Google credential callback (HTML faylingizdagi implementatsiya asosida)
-  const handleCredentialResponse = async (response: GoogleCredentialResponse) => {
-    if (!response || !response.credential) {
-      toast.error('Google credential olinmadi');
-      return;
-    }
-
-    setIsGoogleLoading(true);
-    
-    try {
-      // Optionally decode locally to show user info
-      const payload = parseJwt(response.credential);
-      console.log('Google token payload:', payload);
-
-      // Send token to backend using your googleLogin action
-      await toast.promise(googleLogin(response.credential), {
-        loading: t("googleLoading") || "Google bilan kirilmoqda...",
-        success: (res) => res.message,
-        error: (error) => error.message,
-      });
-
-      // Redirect after successful login
-      if (services) {
-        replace(`dashboard/new-order?serviceId=${services}`);
-      } else {
-        replace("/dashboard");
-      }
-    } catch (error) {
-      console.error('Google login error:', error);
-    } finally {
-      setIsGoogleLoading(false);
-    }
-  };
-
-  // Load Google OAuth script and initialize
+  // Load Google Sign-In script
   useEffect(() => {
     const loadGoogleScript = () => {
-      // Agar Google script allaqachon yuklangan bo'lsa
       if (window.google) {
         initializeGoogleSignIn();
         return;
@@ -180,63 +118,79 @@ export default function LoginPage() {
       script.async = true;
       script.defer = true;
       script.onload = initializeGoogleSignIn;
-      script.onerror = () => {
-        console.error('Google Script yuklashda xatolik');
-        toast.error('Google Sign-In script yuklashda xatolik');
-      };
       document.head.appendChild(script);
     };
 
     const initializeGoogleSignIn = () => {
-      // HTML faylingizdagi kabi, Google library tayyor bo'lishini kutamiz
       const waitForGoogle = setInterval(() => {
-        if (window.google && window.google.accounts && window.google.accounts.id) {
+        if (window.google?.accounts?.id) {
           clearInterval(waitForGoogle);
+          
+          window.google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+            ux_mode: 'popup'
+          });
 
-          try {
-            window.google.accounts.id.initialize({
-              client_id: GOOGLE_CLIENT_ID,
-              callback: handleCredentialResponse,
-              auto_select: false,
-              cancel_on_tap_outside: true,
-            });
-
-            setIsGoogleInitialized(true);
-            console.log('Google Sign-In initialized successfully');
-          } catch (error) {
-            console.error('Google Sign-In initialization error:', error);
-            toast.error('Google Sign-In initialization failed');
+          const googleButtonElement = document.getElementById('google-signin-button');
+          if (googleButtonElement) {
+            window.google.accounts.id.renderButton(
+              googleButtonElement,
+              {
+                theme: 'outline',
+                size: 'large',
+                text: 'signin_with',
+                width: '100%'
+              }
+            );
           }
         }
       }, 100);
 
-      // 10 soniyadan keyin timeout
-      setTimeout(() => {
-        clearInterval(waitForGoogle);
-        if (!isGoogleInitialized) {
-          console.error('Google Sign-In initialization timeout');
-        }
-      }, 10000);
+      // Clear interval after 10 seconds if Google doesn't load
+      setTimeout(() => clearInterval(waitForGoogle), 10000);
     };
 
     loadGoogleScript();
-  }, [isGoogleInitialized]);
+  }, [GOOGLE_CLIENT_ID]);
 
-  const handleGoogleLogin = () => {
-    if (!isGoogleInitialized) {
-      toast.error('Google Sign-In hali yuklanmadi. Iltimos kuting...');
+  // Handle Google credential response
+  const handleGoogleCredentialResponse = async (response: any) => {
+    if (!response?.credential) {
+      toast.error("Google authentication failed");
       return;
     }
 
-    if (window.google && window.google.accounts && window.google.accounts.id) {
-      try {
-        window.google.accounts.id.prompt();
-      } catch (error) {
-        console.error('Google prompt error:', error);
-        toast.error('Google Sign-In xatolik');
+    setIsGoogleLoading(true);
+    
+    try {
+      // Send Google token to your backend
+      const backendResponse = await axios.post(`${API_URL}/api/auth/google/`, {
+        token: response.credential
+      });
+
+      const { access, refresh, user } = backendResponse.data;
+
+      if (access) {
+        // Store tokens (you might want to use a more secure method)
+        localStorage.setItem('access_token', access);
+        localStorage.setItem('refresh_token', refresh);
+        localStorage.setItem('user_data', JSON.stringify(user));
+
+        toast.success("Successfully signed in with Google!");
+        
+        // Redirect to dashboard
+        if (services) {
+          replace(`dashboard/new-order?serviceId=${services}`);
+        } else {
+          replace("/dashboard");
+        }
       }
-    } else {
-      toast.error('Google Sign-In mavjud emas');
+    } catch (error: any) {
+      console.error("Google login failed:", error);
+      toast.error(error.response?.data?.error || "Google sign-in failed");
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -265,55 +219,35 @@ export default function LoginPage() {
           <p className="mt-2 text-muted-foreground">{t("description")}</p>
         </div>
 
+        {/* Google Sign-In Button */}
         <div className="space-y-4">
-          {/* Google Sign-In Button */}
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={handleGoogleLogin}
-            disabled={isGoogleLoading || !isGoogleInitialized}
+          <div 
+            id="google-signin-button"
+            className="w-full flex justify-center"
+            style={{ minHeight: '44px' }}
           >
-            {isGoogleLoading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-primary mr-2"></div>
-            ) : (
-              <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
-                <path
-                  fill="currentColor"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                />
-              </svg>
-            )}
-            {isGoogleLoading ? 
-              ("Google bilan kirilmoqda...") : 
-              ( "Google bilan kirish")
-            }
-          </Button>
+            {/* Google button will be rendered here */}
+          </div>
+          
+          {isGoogleLoading && (
+            <div className="text-center text-sm text-muted-foreground">
+              Signing in with Google...
+            </div>
+          )}
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Yoki davom eting
+              <span className="bg-card px-2 text-muted-foreground">
+                {t("orContinueWith") || "Or continue with"}
               </span>
             </div>
           </div>
         </div>
 
+        {/* Regular Login Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="username">{t("username")}</Label>
@@ -368,7 +302,7 @@ export default function LoginPage() {
           <Link href="/register" className="text-primary hover:underline">
             {t("registerLink")}
           </Link>
-        </div>       
+        </div>
       </div>
     </div>
   );

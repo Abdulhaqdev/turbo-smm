@@ -24,6 +24,8 @@ import { toast } from 'react-hot-toast';
 import { Service } from '@/lib/types';
 import axios from 'axios';
 import { useTranslations } from 'next-intl';
+import { useGoogleSignIn } from '@/lib/gogole-auth';
+import { googleAuth } from '@/app/actions/google-login';
 
 const schema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters long"),
@@ -32,14 +34,18 @@ const schema = z.object({
 
 export type LoginFormData = z.infer<typeof schema>;
 
+type GoogleCredentialResponse = { credential?: string };
+
 export default function Page() {
   const [isMounted, setIsMounted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { resolvedTheme } = useTheme();
   const method = useForm<LoginFormData>({ resolver: zodResolver(schema) });
   const { replace } = useRouter();
   const [services, setServices] = useState<number>(1);
-  const t = useTranslations('homepage'); // Matnlarni homepage bo'limidan yuklash
+  const t = useTranslations('homepage');
+  const { initializeGoogle } = useGoogleSignIn();
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -51,11 +57,54 @@ export default function Page() {
         setServices(activeServices[0].id);
       } catch (err) {
         console.error(err);
-      } finally {
       }
     };
     fetchServices();
   }, []);
+
+  // Handle Google credential response using server action
+  const handleGoogleCredentialResponse = async (response: GoogleCredentialResponse) => {
+    if (!response?.credential) {
+      toast.error("Google authentication failed");
+      return;
+    }
+
+    setIsGoogleLoading(true);
+    
+    try {
+      // Use server action instead of direct API call
+      const result = await googleAuth(response.credential);
+      
+      if (result.success) {
+        toast.success(result.message);
+        
+        // Redirect to dashboard
+        replace(`dashboard/new-order?serviceId=${services}`);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error: unknown) {
+      console.error("Google login failed:", error);
+      toast.error("Google sign-in failed");
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
+  // Initialize Google Sign-In
+  useEffect(() => {
+    if (isMounted) {
+      const setupGoogleSignIn = async () => {
+        try {
+          await initializeGoogle(handleGoogleCredentialResponse);
+        } catch (error) {
+          console.error('Failed to initialize Google Sign-In:', error);
+        }
+      };
+
+      setupGoogleSignIn();
+    }
+  }, [initializeGoogle, isMounted]);
 
   const onSubmit = async (data: LoginFormData) => {
     await toast.promise(login(data), {
@@ -116,8 +165,38 @@ export default function Page() {
                   {t('loginSubtitle')}
                 </p>
               </CardHeader>
-              <form onSubmit={method.handleSubmit(onSubmit)}>
-                <CardContent className="space-y-4">
+
+              <CardContent className="space-y-4">
+                {/* Google Sign-In Button */}
+                <div className="space-y-4">
+                  <div 
+                    id="google-signin-button"
+                    className="w-full flex justify-center"
+                    style={{ minHeight: '44px' }}
+                  >
+                    {/* Google button will be rendered here */}
+                  </div>
+                  
+                  {isGoogleLoading && (
+                    <div className="text-center text-sm text-muted-foreground">
+                      Signing in with Google...
+                    </div>
+                  )}
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-border" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        Or continue with
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Regular Login Form */}
+                <form onSubmit={method.handleSubmit(onSubmit)} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="username" className="text-foreground">
                       {t('usernameLabel')}
@@ -184,15 +263,16 @@ export default function Page() {
                   >
                     {method.formState.isSubmitting ? t('loginLoading') : t('loginButton')}
                   </Button>
-                </CardContent>
-                <CardFooter className="justify-center">
-                  <Link href="/register">
-                    <Button variant="link" className="text-primary">
-                      {t('noAccount')}
-                    </Button>
-                  </Link>
-                </CardFooter>
-              </form>
+                </form>
+              </CardContent>
+
+              <CardFooter className="justify-center">
+                <Link href="/register">
+                  <Button variant="link" className="text-primary">
+                    {t('noAccount')}
+                  </Button>
+                </Link>
+              </CardFooter>
             </Card>
           </div>
         </div>

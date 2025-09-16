@@ -26,8 +26,8 @@ export default function LiveChatScript() {
   useEffect(() => {
     // LiveChat konfiguratsiyasi
     window.__lc = window.__lc || {};
-    window.__lc.license = 19303269;
-    window.__lc.integration_name = "manual_channels";
+    window.__lc.license = 19303771;
+    window.__lc.integration_name = "manual_onboarding";
     window.__lc.product_name = "livechat";
 
     // LiveChat API yaratish

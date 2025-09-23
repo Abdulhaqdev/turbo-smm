@@ -80,8 +80,8 @@ export default function AddFundsPage() {
 
   const predefinedAmounts = [10000, 50000, 100000];
   const paymentMethods = [
-    { id: "click", name: "Click", icon: "/click.png",isUnderMaintenance: true },
-    { id: "payme", name: "Payme", icon: "/payme.jpg",isUnderMaintenance: true },
+    { id: "click", name: "Click", icon: "/click.png" },
+    { id: "payme", name: "Payme", icon: "/payme.jpg" },
     { id: "octobank", name: "Octobank", icon: "/octobank.jpeg", isUnderMaintenance: true },
   ];
 

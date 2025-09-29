@@ -1,87 +1,49 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect } from "react";
+import Image from "next/image";
 
-declare global {
-  interface Window {
-    __lc?: {
-      license?: number;
-      integration_name?: string;
-      product_name?: string;
-      asyncInit?: boolean;
-    };
-    LiveChatWidget?: {
-      on: (event: string, callback: () => void) => void;
-      once: (event: string, callback: () => void) => void;
-      off: (event: string, callback: () => void) => void;
-      get: (property: string) => any;
-      call: (method: string, ...args: any[]) => void;
-      init: () => void;
-      [key: string]: unknown;
-    };
-  }
-}
+export default function TelegramChatButton() {
 
-export default function LiveChatScript() {
   useEffect(() => {
-    // LiveChat konfiguratsiyasi
-    window.__lc = window.__lc || {};
-    window.__lc.license = 19303771;
-    window.__lc.integration_name = "manual_onboarding";
-    window.__lc.product_name = "livechat";
-
-    // LiveChat API yaratish
-    function createLiveChatAPI() {
-      const api: any = {
-        _q: [],
-        _h: null,
-        _v: "2.0",
-        on: function(...args: any[]) { return i(["on", args]) },
-        once: function(...args: any[]) { return i(["once", args]) },
-        off: function(...args: any[]) { return i(["off", args]) },
-        get: function(...args: any[]) {
-          if (!api._h) throw new Error("[LiveChatWidget] You can't use getters before load.");
-          return i(["get", args]);
-        },
-        call: function(...args: any[]) { return i(["call", args]) },
-        init: function() {
-          const script = document.createElement("script");
-          script.async = true;
-          script.type = "text/javascript";
-          script.src = "https://cdn.livechatinc.com/tracking.js";
-          document.head.appendChild(script);
-        }
-      };
-
-      function i(args: any[]) {
-        return api._h ? api._h.apply(null, args) : api._q.push(args);
-      }
-
-      return api;
+    // Ensure the Telegram button is styled and visible
+    const telegramButton = document.querySelector(".telegram-chat-button");
+    if (telegramButton) {
+      telegramButton.setAttribute("style", "position: fixed; bottom: 80px; right: 20px; z-index: 1000;");
     }
 
-    // LiveChatWidget yaratish
-    if (!window.__lc.asyncInit) {
-      const liveChatAPI = createLiveChatAPI();
-      window.LiveChatWidget = window.LiveChatWidget || liveChatAPI;
-      liveChatAPI.init();
-    }
-
-    // Cleanup function
+    // Cleanup function to remove any added styles
     return () => {
-      // LiveChat scriptini olib tashlash
-      const existingScript = document.querySelector('script[src="https://cdn.livechatinc.com/tracking.js"]');
-      if (existingScript) {
-        existingScript.remove();
-      }
-      
-      // LiveChat widget ni yashirish
-      const liveChatFrame = document.querySelector('#livechat-compact-container');
-      if (liveChatFrame) {
-        liveChatFrame.remove();
+      const telegramButton = document.querySelector(".telegram-chat-button");
+      if (telegramButton) {
+        telegramButton.removeAttribute("style");
       }
     };
   }, []);
 
-  return null; // UI ko'rinmaydi
+  return (
+    <a
+      href={`https://t.me/turbosmm_uz`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="telegram-chat-button"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "60px",
+        height: "60px",
+        backgroundColor: "#0088cc",
+        borderRadius: "50%",
+        boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+        transition: "background-color 0.3s",
+      }}
+    >
+      <Image
+        src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"
+        alt="Telegram Chat"
+        width={60}
+        height={60}
+      />
+    </a>
+  );
 }
